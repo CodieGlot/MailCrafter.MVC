@@ -1,0 +1,30 @@
+Infrastructure Overview
+
+-- Application Layer (UI, API)
+
+The front-facing layer that handles user interactions and API endpoints.
+Built with .NET, it serves as the gateway for client requests and communicates with the Core layer for business logic.
+Sends tasks to a RabbitMQ queue for asynchronous processing.
+
+-- Core Layer (Domain, Services, Repositories)
+
+The central logic layer shared between the Application layer and Worker nodes.
+Contains domain models, business services, and repositories to manage data operations.
+Ensures a consistent and reusable logic foundation for the entire system.
+
+-- Worker Nodes
+
+Background processing units powered by .NET background tasks.
+Consume tasks from the RabbitMQ queue and handle them efficiently.
+Managed by Kubernetes for auto-scaling based on workload demands.
+
+-- Storage
+
+Accessible by both the Application layer and Worker nodes for storing and retrieving data.
+Ensures seamless data access and consistency across the system.
+
+Use cases:
+When a user triggers an email campaign through the MailCrafter UI, the Application layer (API) validates the request and sends the task, including email details and recipient information, to a RabbitMQ queue. 
+Worker nodes, managed by Kubernetes for auto-scaling, consume the tasks from the queue. 
+Each worker processes the task by retrieving templates, personalizing content using the Core layer, and sending the emails via the integrated email accounts. 
+Both the Application and Worker nodes access the storage layer for retrieving or updating data as needed.
