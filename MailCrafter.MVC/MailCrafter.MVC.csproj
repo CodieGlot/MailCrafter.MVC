@@ -8,4 +8,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\MailCrafter.Core\Domain\Domain.csproj" />
+    <ProjectReference Include="..\..\MailCrafter.Core\Repositories\Repositories.csproj" />
+    <ProjectReference Include="..\..\MailCrafter.Core\Services\Services.csproj" />
+    <ProjectReference Include="..\..\MailCrafter.Core\Utils\Utils.csproj" />
+  </ItemGroup>
+
 </Project>
