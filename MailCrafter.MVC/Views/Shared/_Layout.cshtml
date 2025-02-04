@@ -3,47 +3,69 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - MailCrafter.MVC</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/MailCrafter.MVC.styles.css" asp-append-version="true" />
+    <title>@ViewData["Title"] - Dashboard</title>
+    <link rel="stylesheet" href="~/css/site.css" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">MailCrafter.MVC</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="logo-container">
+                <img src="~/images/logo.png" alt="MailCrafter" class="logo" />
+            </div>
+
+            <div class="nav-items">
+                <a href="/" class="nav-item">
+                    <i class="icon-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/job-monitor" class="nav-item">
+                    <i class="icon-monitor"></i>
+                    <span>Job Monitor</span>
+                </a>
+                <a href="/insights" class="nav-item">
+                    <i class="icon-insights"></i>
+                    <span>Insights</span>
+                </a>
+                <div class="nav-group">
+                    <a href="#" class="nav-item with-arrow">
+                        <i class="icon-management"></i>
+                        <span>Management</span>
+                    </a>
+                    <div class="subnav">
+                        <a href="/management/email-accounts" class="nav-item">Email Accounts</a>
+                        <a href="/management/email-templates" class="nav-item">Email Templates</a>
+                        <a href="/management/groups" class="nav-item">Groups</a>
+                    </div>
                 </div>
             </div>
         </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="dropdown-container">
+                    <select class="custom-select">
+                        <option>M365vx047293</option>
+                    </select>
+                </div>
+                <div class="header-controls">
+                    <button class="btn-help">?</button>
+                    <button class="btn-language">admin</button>
+                    <form asp-action="Logout" method="post" class="logout-form">
+                        <button type="submit" class="btn-logout">Logout</button>
+                    </form>
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+                @RenderBody()
+            </div>
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - MailCrafter.MVC - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-        </div>
-    </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/site.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+

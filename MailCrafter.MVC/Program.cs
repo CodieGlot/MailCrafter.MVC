@@ -1,27 +1,25 @@
-var builder = WebApplication.CreateBuilder(args);
+using MailCrafter.Repositories;
+using MongoDB.Driver;
 
-// Add services to the container.
+var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
+builder.Services.AddAuthentication("CookieAuth")
+    .AddCookie("CookieAuth", config =>
+    {
+        config.Cookie.Name = "UserLoginCookie";
+        config.LoginPath = "/login";
+    });
+
+builder.Services.AddSingleton<IMongoClient, MongoClient>(sp =>
+    new MongoClient(builder.Configuration.GetConnectionString("MongoDb")));
+builder.Services.AddScoped<IMongoDBRepository, MongoDBRepository>();
+builder.Services.AddScoped<IAppUserRepository, AppUserRepository>();
 
 var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
-    app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
-}
-
 app.UseHttpsRedirection();
-app.UseStaticFiles();
-
-app.UseRouting();
-
+app.UseAuthentication();
 app.UseAuthorization();
-
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+app.UseStaticFiles();
+app.MapControllers();
 
 app.Run();
