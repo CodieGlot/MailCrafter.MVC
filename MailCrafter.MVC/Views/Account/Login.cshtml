@@ -1,0 +1,56 @@
+﻿@model MailCrafter.MVC.Models.Account.LoginViewModel
+
+@{
+    Layout = null;
+    ViewData["Title"] = "Log in";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - MailCrafter</title>
+    <link rel="stylesheet" href="~/css/login.css" />
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <h1>Log in</h1>
+
+            <form asp-action="Login" method="post">
+                <div class="form-group">
+                    <label asp-for="Username"></label>
+                    <input asp-for="Username" class="form-control" />
+                    <span asp-validation-for="Username" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Password"></label>
+                    <div class="password-container">
+                        <input asp-for="Password" type="password" class="form-control" />
+                        <button type="button" class="toggle-password">
+                            <i class="eye-icon"></i>
+                        </button>
+                    </div>
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn-login">Log in</button>
+
+                <div class="forgot-password">
+                    <a href="#">Forgot password?</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="~/js/site.js"></script>
+</body>
+</html>
+
+@section Scripts {
+
+}
+
+

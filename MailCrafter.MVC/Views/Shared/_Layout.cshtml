@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -52,9 +54,10 @@
                 <div class="header-controls">
                     <button class="btn-help">?</button>
                     <button class="btn-language">admin</button>
-                    <form asp-action="Logout" method="post" class="logout-form">
-                        <button type="submit" class="btn-logout">Logout</button>
+                    <form id="logout-form" style="display:none;">
+                        <input name="__RequestVerificationToken" type="hidden" value="@Antiforgery.GetTokens(Context).RequestToken" />
                     </form>
+                    <button type="button" class="btn-logout" onclick="logout()">Logout</button>
                 </div>
             </header>
 
@@ -68,4 +71,6 @@
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
+
+
 

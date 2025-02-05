@@ -1,4 +1,4 @@
-﻿namespace MailCrafter.MVC.Models
+﻿namespace MailCrafter.MVC.Models.Account
 {
     public class LoginViewModel
     {
@@ -6,3 +6,4 @@
         public string Password { get; set; }
     }
 }
+
