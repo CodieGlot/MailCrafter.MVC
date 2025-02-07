@@ -1,8 +1,4 @@
-using MailCrafter.Repositories;
 using MailCrafter.Services;
-using MailCrafter.Utils.Helpers;
-
-
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,7 +15,7 @@ var configuration = new ConfigurationBuilder()
            .Build();
 builder.Services.AddSingleton<IConfiguration>(configuration);
 // Register MongoDB client and repositories
-builder.Services.AddCoreDependencies();
+builder.Services.AddCoreServices();
 
 
 var app = builder.Build();
