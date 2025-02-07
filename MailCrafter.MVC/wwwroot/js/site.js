@@ -1,4 +1,30 @@
-﻿function logout() {
+﻿async function login(event) {
+    event.preventDefault(); // Prevent the form from submitting the traditional way
+
+    const username = document.getElementById('Username').value;
+    const password = document.getElementById('Password').value;
+    const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+    const response = await fetch('/login', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'RequestVerificationToken': token
+        },
+        body: JSON.stringify({ Username: username, Password: password })
+    });
+
+    if (response.ok) {
+        window.location.href = '/';
+    } else {
+        const errorData = await response.json();
+        document.getElementById('login-error').innerText = errorData.message || 'Invalid login attempt.';
+    }
+}
+
+
+
+function logout() {
     fetch('/logout', {
         method: 'POST',
         headers: {

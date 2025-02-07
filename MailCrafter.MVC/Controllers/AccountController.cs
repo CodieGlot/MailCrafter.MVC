@@ -29,7 +29,7 @@ namespace MailCrafter.MVC.Controllers
 
         [HttpPost]
         [Route("login")]
-        public async Task<IActionResult> Login(LoginViewModel model)
+        public async Task<IActionResult> Login([FromBody] LoginViewModel model)
         {
             var user = await _userService.GetByUsernameOrEmail(model.Username);
             if (user != null && user.Password == model.Password)
@@ -44,11 +44,10 @@ namespace MailCrafter.MVC.Controllers
 
                 await HttpContext.SignInAsync("CookieAuth", new ClaimsPrincipal(claimsIdentity));
 
-                return RedirectToAction("Index", "Home");
+                return Ok(new { redirectUrl = Url.Action("Index", "Home") });
             }
 
-            ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-            return View(model);
+            return Unauthorized(new { message = "Invalid login attempt." });
         }
 
         [HttpPost]
@@ -56,7 +55,7 @@ namespace MailCrafter.MVC.Controllers
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync("CookieAuth");
-            return RedirectToAction("Login");
+            return Ok(new { redirectUrl = Url.Action("Login") });
         }
     }
 }
