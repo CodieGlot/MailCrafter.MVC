@@ -19,10 +19,8 @@ var configuration = new ConfigurationBuilder()
            .Build();
 builder.Services.AddSingleton<IConfiguration>(configuration);
 // Register MongoDB client and repositories
-builder.Services.AddScoped<IMongoDBRepository, MongoDBRepository>();
-builder.Services.AddScoped<IAppUserRepository, AppUserRepository>();
-builder.Services.AddScoped<IAppUserService, AppUserService>();
-builder.Services.AddScoped<IAesEncryptionHelper, AesEncryptionHelper>();
+builder.Services.AddCoreDependencies();
+
 
 var app = builder.Build();
 
