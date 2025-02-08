@@ -1,7 +1,7 @@
-﻿@model MailCrafter.MVC.Models.Account.LoginViewModel
+﻿@model MailCrafter.Domain.AppUserEntity
 
 @{
-    Layout = null;
+    Layout = "_AccountLayout";
     ViewData["Title"] = "Log in";
 }
 
@@ -18,17 +18,17 @@
         <div class="login-box">
             <h1>Log in</h1>
 
-            <form asp-action="Login" method="post">
+            <form id="login-form" method="post" onsubmit="login(event)">
                 <div class="form-group">
                     <label asp-for="Username"></label>
-                    <input asp-for="Username" class="form-control" />
+                    <input asp-for="Username" class="form-control" id="Username" />
                     <span asp-validation-for="Username" class="text-danger"></span>
                 </div>
 
                 <div class="form-group">
                     <label asp-for="Password"></label>
                     <div class="password-container">
-                        <input asp-for="Password" type="password" class="form-control" />
+                        <input asp-for="Password" type="password" class="form-control" id="Password" />
                         <button type="button" class="toggle-password">
                             <i class="eye-icon"></i>
                         </button>
@@ -37,6 +37,7 @@
                 </div>
 
                 <button type="submit" class="btn-login">Log in</button>
+                <span id="login-error" class="text-danger"></span>
 
                 <div class="forgot-password">
                     <a href="#">Forgot password?</a>
@@ -44,13 +45,5 @@
             </form>
         </div>
     </div>
-
-    <script src="~/js/site.js"></script>
 </body>
 </html>
-
-@section Scripts {
-
-}
-
-

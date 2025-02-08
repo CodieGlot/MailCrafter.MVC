@@ -1,9 +1,8 @@
-﻿using MailCrafter.MVC.Models.EmailAccount;
+﻿using MailCrafter.Domain;
 using MailCrafter.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace MailCrafter.MVC.Controllers
 {
@@ -26,7 +25,7 @@ namespace MailCrafter.MVC.Controllers
 
         [HttpPost]
         [Route("management/email-accounts/add")]
-        public async Task<IActionResult> AddEmailAccount([FromBody] AddEmailAccountViewModel model)
+        public async Task<IActionResult> AddEmailAccount([FromBody] EmailAccount model)
         {
             if (ModelState.IsValid)
             {

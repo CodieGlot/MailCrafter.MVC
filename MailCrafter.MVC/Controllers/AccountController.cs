@@ -1,11 +1,11 @@
-﻿using MailCrafter.MVC.Models.Account;
+﻿using MailCrafter.Domain;
+using MailCrafter.MVC.Models.AppUser;
 using MailCrafter.Services;
+using MailCrafter.Utils.Helpers;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
 namespace MailCrafter.MVC.Controllers
 {
@@ -29,10 +29,10 @@ namespace MailCrafter.MVC.Controllers
 
         [HttpPost]
         [Route("login")]
-        public async Task<IActionResult> Login(LoginViewModel model)
+        public async Task<IActionResult> Login([FromBody] AppUserEntity model)
         {
             var user = await _userService.GetByUsernameOrEmail(model.Username);
-            if (user != null && user.Password == model.Password)
+            if (user != null && EncryptHelper.Verify(model.Password, user.Password))
             {
                 var claims = new List<Claim>
                 {
@@ -44,11 +44,44 @@ namespace MailCrafter.MVC.Controllers
 
                 await HttpContext.SignInAsync("CookieAuth", new ClaimsPrincipal(claimsIdentity));
 
-                return RedirectToAction("Index", "Home");
+                return Ok(new { redirectUrl = Url.Action("Index", "Home") });
             }
 
-            ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-            return View(model);
+            return Unauthorized(new { message = "Invalid login attempt." });
+        }
+
+        [HttpGet]
+        [Route("register")]
+        public IActionResult Register()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [Route("register")]
+        public async Task<IActionResult> Register([FromBody] UserRegistration model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = new AppUserEntity
+                {
+                    ID = ObjectId.GenerateNewId().ToString(),
+                    Username = model.Username,
+                    Email = model.Email,
+                    Password = EncryptHelper.HashPassword(model.Password)
+                };
+
+                var result = await _userService.Create(user);
+
+                if (result.IsSuccessful)
+                {
+                    return Ok(new { redirectUrl = Url.Action("Login") });
+                }
+
+                ModelState.AddModelError(string.Empty, "Registration failed.");
+            }
+
+            return BadRequest(new { errors = ModelState });
         }
 
         [HttpPost]
@@ -56,7 +89,7 @@ namespace MailCrafter.MVC.Controllers
         public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync("CookieAuth");
-            return RedirectToAction("Login");
+            return Ok(new { redirectUrl = Url.Action("Login") });
         }
     }
 }
