@@ -12,38 +12,57 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - MailCrafter</title>
     <link rel="stylesheet" href="~/css/login.css" />
+    <link rel="stylesheet" href="~/css/base.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400..800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="login-container">
-        <div class="login-box">
-            <h1>Log in</h1>
-
-            <form id="login-form" method="post" onsubmit="login(event)">
-                <div class="form-group">
-                    <label asp-for="Username"></label>
-                    <input asp-for="Username" class="form-control" id="Username" />
-                    <span asp-validation-for="Username" class="text-danger"></span>
+    <div class="auth">
+        <div class="auth__container">
+            <div class="auth__hero">
+                <div class="auth__hero--inner">
+                    <h2 class="auth__hero--title">Let’s explore the world with us</h2>
+                    <img src="~/images/auth-hero.png" alt="Hello there" class="auth__hero--img" />
                 </div>
+            </div>
+            <div class="auth__content">
+                <div class="login-container">
+                    <div class="login-box">
+                        <h1 class="auth__content--title">Log in</h1>
+                        <form asp-action="Login" method="post" onsubmit="login(event)">
+                            <div class="form-group">
+                                <label class="form-label" asp-for="Username"></label>
+                                <input placeholder="Username..." asp-for="Username" class="form-control" id="Username" />
+                                <span asp-validation-for="Username" class="text-danger"></span>
+                            </div>
 
-                <div class="form-group">
-                    <label asp-for="Password"></label>
-                    <div class="password-container">
-                        <input asp-for="Password" type="password" class="form-control" id="Password" />
-                        <button type="button" class="toggle-password">
-                            <i class="eye-icon"></i>
-                        </button>
+                            <div class="form-group">
+                                <label class="form-label" asp-for="Password"></label>
+                                <div class="password-container">
+                                    <input placeholder="Password..." asp-for="Password" type="password" class="form-control" id="Password" />
+                                    <button type="button" class="toggle-password">
+                                        <i class="eye-icon"></i>
+                                    </button>
+                                </div>
+                                <span asp-validation-for="Password" class="text-danger"></span>
+                            </div>
+
+
+                            <div class="auth-text__box">
+                                <a class="auth-text__content auth-text__content--bold" href="#">Forgot password?</a>
+                            </div>
+                            <button type="submit" class="btn-login">Log in</button>
+                            <div class="auth-text__box">
+                                <p class="auth-text__content">Don't have an account? <a class="auth-text__content--bold" href="#">Sign Up</a></p>
+                            </div>
+                        </form>
                     </div>
-                    <span asp-validation-for="Password" class="text-danger"></span>
                 </div>
-
-                <button type="submit" class="btn-login">Log in</button>
-                <span id="login-error" class="text-danger"></span>
-
-                <div class="forgot-password">
-                    <a href="#">Forgot password?</a>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
+
+    <script src="~/js/site.js"></script>
 </body>
 </html>
