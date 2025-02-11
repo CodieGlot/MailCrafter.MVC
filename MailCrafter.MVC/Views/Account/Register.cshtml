@@ -29,28 +29,28 @@
                 <div class="login-container">
                     <div class="login-box">
                         <h1 class="auth__content--title">Register</h1>
-                        <form id="register-form">
+                        <form id="register-form" method="post" onsubmit="registerUser(event)">
                             <div class="form-group">
                                 <label class="form-label" for="username">Username</label>
-                                <input placeholder="Username..." id="username" name="username" class="form-control" />
+                                <input placeholder="Username..." id="username" required name="username" class="form-control" />
                                 <span id="username-error" class="text-danger"></span>
                             </div>
 
                             <div class="form-group">
                                 <label class="form-label" for="email">Email</label>
-                                <input placeholder="Email..." id="email" name="email" class="form-control" />
+                                <input placeholder="Email..." id="email" required name="email" class="form-control" />
                                 <span id="email-error" class="text-danger"></span>
                             </div>
 
                             <div class="form-group">
                                 <label class="form-label" for="password">Password</label>
-                                <input placeholder="Password..." id="password" name="password" type="password" class="form-control" />
+                                <input placeholder="Password..." id="password" name="password" required type="password" class="form-control" />
                                 <span id="password-error" class="text-danger"></span>
                             </div>
 
-                            <button type="button" class="btn-login" onclick="registerUser()">Register</button>
+                            <button type="submit" class="btn-login">Register</button>
                             <div class="auth-text__box">
-                                <p class="auth-text__content">Have an account? <a class="auth-text__content--bold" href="#">Sign In</a></p>
+                                <p class="auth-text__content">Have an account? <a class="auth-text__content--bold" href="/login">Sign In</a></p>
                             </div>
                         </form>
                     </div>
