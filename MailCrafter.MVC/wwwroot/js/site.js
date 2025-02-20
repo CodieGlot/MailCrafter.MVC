@@ -1,4 +1,5 @@
 ﻿async function registerUser(e) {
+    showLoading(true);
     e.preventDefault();
     const username = document.getElementById('username').value;
     const email = document.getElementById('email').value;
@@ -24,6 +25,7 @@
         document.getelementbyid('email-error').innertext = errordata.errors?.email || '';
         document.getelementbyid('password-error').innertext = errordata.errors?.password || '';
     }
+    showLoading(false);
 }
 
 
@@ -31,6 +33,7 @@
 
 
 async function login(event) {
+    showLoading(true);
     event.preventDefault(); // Prevent the form from submitting the traditional way
 
     const username = document.getElementById('Username').value;
@@ -52,6 +55,7 @@ async function login(event) {
         const errorData = await response.json();
         document.getElementById('login-error').innerText = errorData.message || 'Invalid login attempt.';
     }
+    showLoading(false);
 }
 
 
@@ -98,6 +102,21 @@ async function addEmailAccount() {
         document.getElementById('appPassword-error').innerText = errorData.errors.AppPassword || '';
     }
 }
+
+const showLoading = (show = false) => {
+    if (show) {
+        const layerDiv = document.createElement('div');
+        layerDiv.id = 'loading';
+        layerDiv.className = 'loading-container';
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = 'loading-tri-circular center';
+        layerDiv.appendChild(loadingDiv);
+        return document.body.appendChild(layerDiv);
+    } else {
+        const loading = document.getElementById('loading');
+        return loading?.remove();
+    }
+};
 
 
 
