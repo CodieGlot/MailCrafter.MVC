@@ -1,4 +1,5 @@
-﻿async function registerUser() {
+﻿async function registerUser(e) {
+    e.preventDefault();
     const username = document.getElementById('username').value;
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
@@ -18,10 +19,10 @@
     if (response.ok) {
         window.location.href = '/login';
     } else {
-        const errorData = await response.json();
-        document.getElementById('username-error').innerText = errorData.errors?.Username || '';
-        document.getElementById('email-error').innerText = errorData.errors?.Email || '';
-        document.getElementById('password-error').innerText = errorData.errors?.Password || '';
+        const errordata = await response.json();
+        document.getelementbyid('username-error').innertext = errordata.errors?.username || '';
+        document.getelementbyid('email-error').innertext = errordata.errors?.email || '';
+        document.getelementbyid('password-error').innertext = errordata.errors?.password || '';
     }
 }
 

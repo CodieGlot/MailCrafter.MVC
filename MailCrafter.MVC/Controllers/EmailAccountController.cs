@@ -25,12 +25,13 @@ namespace MailCrafter.MVC.Controllers
 
         [HttpPost]
         [Route("management/email-accounts/add")]
-        public async Task<IActionResult> AddEmailAccount([FromBody] EmailAccount model)
+        public async Task<IActionResult> AddEmailAccount([FromBody] EmailAccount emailAccount)
         {
             if (ModelState.IsValid)
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Assuming user ID is stored in the NameIdentifier claim
-                var result = await _userService.AddEmailAccount(userId, model.Email, model.AppPassword);
+
+                var result = await _userService.AddEmailAccount(userId, emailAccount);
 
                 if (result.IsSuccessful)
                 {
