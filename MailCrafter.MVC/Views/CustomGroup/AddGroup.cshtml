@@ -1,0 +1,63 @@
+﻿@model MailCrafter.Domain.CustomGroupEntity
+
+@{
+    ViewData["Title"] = "Add Group";
+}
+
+<div class="container mt-4">
+    <h2>Add Group</h2>
+    <form id="addGroupForm">
+        <div class="form-group mb-3">
+            <label for="GroupName">Group Name</label>
+            <input type="text" class="form-control" id="GroupName" name="GroupName" required />
+        </div>
+
+        <div id="customFieldsContainer">
+            <!-- Custom fields will be added here dynamically -->
+        </div>
+
+        <button type="button" class="btn btn-secondary mb-3" onclick="addCustomField()">Add Custom Field</button>
+        <button type="submit" class="btn btn-primary">Save Group</button>
+    </form>
+</div>
+
+<script>
+    function addCustomField() {
+        const container = document.getElementById('customFieldsContainer');
+        const fieldSet = document.createElement('div');
+        fieldSet.className = 'custom-field-set border p-3 mb-3';
+        fieldSet.innerHTML = `
+            <div class="row">
+                <div class="col-5">
+                    <div class="form-group">
+                        <label>Field Name</label>
+                        <input type="text" class="form-control field-key" />
+                    </div>
+                </div>
+                <div class="col-5">
+                    <div class="form-group">
+                        <label>Field Value</label>
+                        <input type="text" class="form-control field-value" />
+                    </div>
+                </div>
+                <div class="col-2">
+                    <button type="button" class="btn btn-danger mt-4" onclick="removeField(this)">
+                        Remove
+                    </button>
+                </div>
+            </div>
+        `;
+        container.appendChild(fieldSet);
+    }
+
+    function removeField(button) {
+        button.closest('.custom-field-set').remove();
+    }
+</script>
+
+<style>
+    .custom-field-set {
+        background-color: #f8f9fa;
+        border-radius: 4px;
+    }
+</style>
