@@ -7,24 +7,70 @@
 <div class="manage-email-accounts">
     <div class="manage-email-accounts__container">
         <h1 class="manage-email-accounts__title">Manage Email Accounts</h1>
+        <ul class="manage-email-accounts__list">
+            <li class="manage-email-accounts__item fixed">
+                <p class="manage-email-accounts__text heading">Email</p>
+                <p class="manage-email-accounts__text heading center">Edit</p>
+            </li>
+            <li class="manage-email-accounts__item">
+                <p class="manage-email-accounts__text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptas eos quibusdam iusto dolorum reiciendis nihil, ratione ex voluptatem nam inventore mollitia ipsam nisi quas id cumque illo neque hic accusamus?</p>
+                <div class="manage-email-accounts__action">
+                    <i class="fa-regular fa-pen-to-square manage-email-accounts__action--icon"></i>
+                    <i class="fa-regular fa-trash-can manage-email-accounts__action--icon"></i>
+                </div>
+            </li>
 
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Email</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var email in Model)
-                {
-                    <tr>
-                        <td>@email</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-
-        <a asp-action="AddEmailAccount" class="btn btn-primary">Add Email Account</a>
+            <li class="manage-email-accounts__item">
+                <p class="manage-email-accounts__text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptas eos quibusdam iusto dolorum reiciendis nihil, ratione ex voluptatem nam inventore mollitia ipsam nisi quas id cumque illo neque hic accusamus?</p>
+                <div class="manage-email-accounts__action">
+                    <i class="fa-regular fa-pen-to-square manage-email-accounts__action--icon"></i>
+                    <i class="fa-regular fa-trash-can manage-email-accounts__action--icon"></i>
+                </div>
+            </li>
+            <li class="manage-email-accounts__item">
+                <p class="manage-email-accounts__text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptas eos quibusdam iusto dolorum reiciendis nihil, ratione ex voluptatem nam inventore mollitia ipsam nisi quas id cumque illo neque hic accusamus?</p>
+                <div class="manage-email-accounts__action">
+                    <i class="fa-regular fa-pen-to-square manage-email-accounts__action--icon"></i>
+                    <i class="fa-regular fa-trash-can manage-email-accounts__action--icon"></i>
+                </div>
+            </li>
+            <li class="manage-email-accounts__item">
+                <p class="manage-email-accounts__text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptas eos quibusdam iusto dolorum reiciendis nihil, ratione ex voluptatem nam inventore mollitia ipsam nisi quas id cumque illo neque hic accusamus?</p>
+                <div class="manage-email-accounts__action">
+                    <i class="fa-regular fa-pen-to-square manage-email-accounts__action--icon"></i>
+                    <i class="fa-regular fa-trash-can manage-email-accounts__action--icon"></i>
+                </div>
+            </li>
+            <li class="manage-email-accounts__item">
+                <p class="manage-email-accounts__text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptas eos quibusdam iusto dolorum reiciendis nihil, ratione ex voluptatem nam inventore mollitia ipsam nisi quas id cumque illo neque hic accusamus?</p>
+                <div class="manage-email-accounts__action">
+                    <i class="fa-regular fa-pen-to-square manage-email-accounts__action--icon"></i>
+                    <i class="fa-regular fa-trash-can manage-email-accounts__action--icon"></i>
+                </div>
+            </li>
+            <li class="manage-email-accounts__item">
+                <p class="manage-email-accounts__text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptas eos quibusdam iusto dolorum reiciendis nihil, ratione ex voluptatem nam inventore mollitia ipsam nisi quas id cumque illo neque hic accusamus?</p>
+                <div class="manage-email-accounts__action">
+                    <i class="fa-regular fa-pen-to-square manage-email-accounts__action--icon"></i>
+                    <i class="fa-regular fa-trash-can manage-email-accounts__action--icon"></i>
+                </div>
+            </li>
+            <li class="manage-email-accounts__item">
+                <p class="manage-email-accounts__text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptas eos quibusdam iusto dolorum reiciendis nihil, ratione ex voluptatem nam inventore mollitia ipsam nisi quas id cumque illo neque hic accusamus?</p>
+                <div class="manage-email-accounts__action">
+                    <i class="fa-regular fa-pen-to-square manage-email-accounts__action--icon"></i>
+                    <i class="fa-regular fa-trash-can manage-email-accounts__action--icon"></i>
+                </div>
+            </li>
+            <li class="manage-email-accounts__item">
+                <p class="manage-email-accounts__text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptas eos quibusdam iusto dolorum reiciendis nihil, ratione ex voluptatem nam inventore mollitia ipsam nisi quas id cumque illo neque hic accusamus?</p>
+                <div class="manage-email-accounts__action">
+                    <i class="fa-regular fa-pen-to-square manage-email-accounts__action--icon"></i>
+                    <i class="fa-regular fa-trash-can manage-email-accounts__action--icon"></i>
+                </div>
+            </li>
+        </ul>
+        <button onclick="switchToAddEmailAccount()" class="btn-add-email">Add Email Account</button>
     </div>
 </div>
 
