@@ -9,6 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ExtraServices\**" />
+    <Content Remove="ExtraServices\**" />
+    <EmbeddedResource Remove="ExtraServices\**" />
+    <None Remove="ExtraServices\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\MailCrafter.Core\Domain\Domain.csproj" />
     <ProjectReference Include="..\..\MailCrafter.Core\Repositories\Repositories.csproj" />
     <ProjectReference Include="..\..\MailCrafter.Core\Services\Services.csproj" />
@@ -16,7 +23,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="ExtraServices\" />
+    <Folder Include="Views\CustomGroup\" />
+    <Folder Include="Views\AppUser\" />
   </ItemGroup>
 
 </Project>

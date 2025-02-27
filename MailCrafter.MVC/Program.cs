@@ -9,7 +9,6 @@ builder.Services.AddAuthentication("CookieAuth")
         config.Cookie.Name = "UserLoginCookie";
         config.LoginPath = "/login";
     });
-
 var configuration = new ConfigurationBuilder()
            .AddJsonFile(@"C:\MailCrafter\Development\Core\appsettings.Development.json", optional: true, reloadOnChange: true)
            .Build();
