@@ -1,0 +1,99 @@
+﻿.manage-email-accounts {
+    position: absolute;
+    inset: 0;
+}
+
+.manage-email-accounts__container {
+    height: 100%;
+    background: #FFF9E5;
+    padding: 30px 0;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.manage-email-accounts__title {
+    padding: 0 30px;
+    color: #191B1D;
+    font-size: 50px;
+    font-weight: 700;
+    line-height: 100%;
+}
+
+.manage-email-accounts__list {
+    flex: 1;
+    padding: 0 30px;
+    margin: 30px 0;
+    overflow-y: auto;
+    background-color: #fff;
+}
+
+.manage-email-accounts__item {
+    border-bottom: 1px solid #ccc;
+    display: grid;
+    grid-template-columns: 80% auto;
+    gap: 30px;
+}
+
+    .manage-email-accounts__item.fixed {
+        border: none;
+        background: #fff;
+        position: sticky;
+        top: 0;
+        left: 0;
+    }
+
+    .manage-email-accounts__text {
+        font-size: 24px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .manage-email-accounts__text.heading {
+        font-size: 28px;
+        color: #191B1D;
+        font-weight: 700;
+        line-height: 125%;
+    }
+    .manage-email-accounts__text.center {
+        text-align: center;
+    }
+
+        .manage-email-accounts__action {
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 40px;
+        }
+
+.btn-add-email {
+    align-self: flex-start;
+    margin-left: 30px;
+    color: white;
+    border: none;
+    cursor: pointer;
+    height: 60px;
+    font-size: 20px;
+    padding: 0 24px;
+    border-radius: 30px;
+    background: #FF5B26;
+    transition: background-color .3s ease;
+}
+
+    .btn-add-email:hover {
+        background-color: #4a5c7a;
+    }
+
+.manage-email-accounts__action--icon {
+    cursor: pointer;
+    color: #FF5B26;
+    font-size: 34px;
+    transition: color 0.2s ease-in;
+}
+
+    .manage-email-accounts__action--icon:hover {
+        color: #191B1D;
+    }
+
+/*# sourceMappingURL=style.css.map */
