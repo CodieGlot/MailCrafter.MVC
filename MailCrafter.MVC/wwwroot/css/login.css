@@ -15,7 +15,6 @@
 
 .form-label {
     color: #191B1D;
-    font-family: Syne;
     font-size: 22px;
     font-weight: 600;
     line-height: 166.667%;
@@ -74,7 +73,6 @@
 .btn-login {
     color: white;
     border: none;
-    font-family: Syne;
     cursor: pointer;
     margin-bottom: 16px;
     width: 100%;
@@ -98,7 +96,6 @@
 .auth-text__content {
     color: #4E5358;
     text-align: right;
-    font-family: Syne;
     font-size: 18px;
     line-height: 166.667%;
 }
@@ -134,7 +131,6 @@
 
 .auth__hero--title {
     color: #191B1D;
-    font-family: Syne;
     font-size: 52px;
     font-weight: 700;
     line-height: 107.692%;
@@ -151,7 +147,6 @@
 }
 
 .auth__content--title {
-    font-family: Syne;
     color: #191B1D;
     text-align: center;
     font-size: 28px;

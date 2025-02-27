@@ -1,4 +1,19 @@
-﻿async function registerUser(e) {
+﻿const showLoading = (show = false) => {
+    if (show) {
+        const layerDiv = document.createElement('div');
+        layerDiv.id = 'loading';
+        layerDiv.className = 'loading-container';
+        const loadingDiv = document.createElement('div');
+        loadingDiv.className = 'loading-tri-circular center';
+        layerDiv.appendChild(loadingDiv);
+        return document.body.appendChild(layerDiv);
+    } else {
+        const loading = document.getElementById('loading');
+        return loading?.remove();
+    }
+};
+
+async function registerUser(e) {
     showLoading(true);
     e.preventDefault();
     const username = document.getElementById('username').value;
@@ -27,10 +42,6 @@
     }
     showLoading(false);
 }
-
-
-
-
 
 async function login(event) {
     showLoading(true);
@@ -76,8 +87,6 @@ function logout() {
     });
 }
 
-
-
 async function addEmailAccount() {
     const email = document.getElementById('email').value;
     const alias = document.getElementById('alias').value;
@@ -103,20 +112,14 @@ async function addEmailAccount() {
     }
 }
 
-const showLoading = (show = false) => {
-    if (show) {
-        const layerDiv = document.createElement('div');
-        layerDiv.id = 'loading';
-        layerDiv.className = 'loading-container';
-        const loadingDiv = document.createElement('div');
-        loadingDiv.className = 'loading-tri-circular center';
-        layerDiv.appendChild(loadingDiv);
-        return document.body.appendChild(layerDiv);
-    } else {
-        const loading = document.getElementById('loading');
-        return loading?.remove();
-    }
-};
+const switchToAddEmailAccount = () => {
+    return window.location.href = '/management/email-accounts/add';
+}
+
+const viewPassword = () => {
+    const password = document.getElementById('Password');
+    password.type == 'password' ? password.type = 'text' : password.type = 'password';
+}
 
 
 
