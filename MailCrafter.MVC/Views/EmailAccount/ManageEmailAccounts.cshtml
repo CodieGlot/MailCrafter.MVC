@@ -4,6 +4,28 @@
     ViewData["Title"] = "Manage Email Accounts";
 }
 
+<<<<<<< Updated upstream
+<div class="manage-email-accounts-container">
+    <h1>Manage Email Accounts</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Email</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var email in Model)
+            {
+                <tr>
+                    <td>@email</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <a asp-action="AddEmailAccount" class="btn btn-primary">Add Email Account</a>
+=======
 <div class="manage-email-accounts">
     <div class="manage-email-accounts__container">
         <h1 class="manage-email-accounts__title">Manage Email Accounts</h1>
@@ -12,65 +34,117 @@
                 <p class="manage-email-accounts__text heading">Email</p>
                 <p class="manage-email-accounts__text heading center">Edit</p>
             </li>
-            <li class="manage-email-accounts__item">
-                <p class="manage-email-accounts__text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptas eos quibusdam iusto dolorum reiciendis nihil, ratione ex voluptatem nam inventore mollitia ipsam nisi quas id cumque illo neque hic accusamus?</p>
-                <div class="manage-email-accounts__action">
-                    <i class="fa-regular fa-pen-to-square manage-email-accounts__action--icon"></i>
-                    <i class="fa-regular fa-trash-can manage-email-accounts__action--icon"></i>
-                </div>
-            </li>
-
-            <li class="manage-email-accounts__item">
-                <p class="manage-email-accounts__text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptas eos quibusdam iusto dolorum reiciendis nihil, ratione ex voluptatem nam inventore mollitia ipsam nisi quas id cumque illo neque hic accusamus?</p>
-                <div class="manage-email-accounts__action">
-                    <i class="fa-regular fa-pen-to-square manage-email-accounts__action--icon"></i>
-                    <i class="fa-regular fa-trash-can manage-email-accounts__action--icon"></i>
-                </div>
-            </li>
-            <li class="manage-email-accounts__item">
-                <p class="manage-email-accounts__text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptas eos quibusdam iusto dolorum reiciendis nihil, ratione ex voluptatem nam inventore mollitia ipsam nisi quas id cumque illo neque hic accusamus?</p>
-                <div class="manage-email-accounts__action">
-                    <i class="fa-regular fa-pen-to-square manage-email-accounts__action--icon"></i>
-                    <i class="fa-regular fa-trash-can manage-email-accounts__action--icon"></i>
-                </div>
-            </li>
-            <li class="manage-email-accounts__item">
-                <p class="manage-email-accounts__text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptas eos quibusdam iusto dolorum reiciendis nihil, ratione ex voluptatem nam inventore mollitia ipsam nisi quas id cumque illo neque hic accusamus?</p>
-                <div class="manage-email-accounts__action">
-                    <i class="fa-regular fa-pen-to-square manage-email-accounts__action--icon"></i>
-                    <i class="fa-regular fa-trash-can manage-email-accounts__action--icon"></i>
-                </div>
-            </li>
-            <li class="manage-email-accounts__item">
-                <p class="manage-email-accounts__text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptas eos quibusdam iusto dolorum reiciendis nihil, ratione ex voluptatem nam inventore mollitia ipsam nisi quas id cumque illo neque hic accusamus?</p>
-                <div class="manage-email-accounts__action">
-                    <i class="fa-regular fa-pen-to-square manage-email-accounts__action--icon"></i>
-                    <i class="fa-regular fa-trash-can manage-email-accounts__action--icon"></i>
-                </div>
-            </li>
-            <li class="manage-email-accounts__item">
-                <p class="manage-email-accounts__text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptas eos quibusdam iusto dolorum reiciendis nihil, ratione ex voluptatem nam inventore mollitia ipsam nisi quas id cumque illo neque hic accusamus?</p>
-                <div class="manage-email-accounts__action">
-                    <i class="fa-regular fa-pen-to-square manage-email-accounts__action--icon"></i>
-                    <i class="fa-regular fa-trash-can manage-email-accounts__action--icon"></i>
-                </div>
-            </li>
-            <li class="manage-email-accounts__item">
-                <p class="manage-email-accounts__text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptas eos quibusdam iusto dolorum reiciendis nihil, ratione ex voluptatem nam inventore mollitia ipsam nisi quas id cumque illo neque hic accusamus?</p>
-                <div class="manage-email-accounts__action">
-                    <i class="fa-regular fa-pen-to-square manage-email-accounts__action--icon"></i>
-                    <i class="fa-regular fa-trash-can manage-email-accounts__action--icon"></i>
-                </div>
-            </li>
-            <li class="manage-email-accounts__item">
-                <p class="manage-email-accounts__text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptas eos quibusdam iusto dolorum reiciendis nihil, ratione ex voluptatem nam inventore mollitia ipsam nisi quas id cumque illo neque hic accusamus?</p>
-                <div class="manage-email-accounts__action">
-                    <i class="fa-regular fa-pen-to-square manage-email-accounts__action--icon"></i>
-                    <i class="fa-regular fa-trash-can manage-email-accounts__action--icon"></i>
-                </div>
-            </li>
+            @foreach (var email in Model)
+            {
+                <li class="manage-email-accounts__item">
+                    <p class="manage-email-accounts__text">@email</p>
+                    <div class="manage-email-accounts__action">                       
+                        <i class="fa-regular fa-pen-to-square manage-email-accounts__action--icon update-password" data-email="@email"></i>
+                        <i class="fa-regular fa-trash-can manage-email-accounts__action--icon delete-email" data-email="@email"></i>
+                    </div>
+                </li>
+            }
         </ul>
         <button onclick="switchToAddEmailAccount()" class="btn-add-email">Add Email Account</button>
     </div>
+>>>>>>> Stashed changes
 </div>
 
+<!-- Modal Update Password -->
+<div class="modal fade" id="updatePasswordModal" tabindex="-1" aria-labelledby="updatePasswordModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="updatePasswordModalLabel">Update Email Password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="updateEmail">
+                <div class="mb-3">
+                    <label class="form-label">New Password</label>
+                    <input type="password" class="form-control" id="newPassword">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-warning" id="confirmUpdatePassword">
+                    <span id="loadingUpdatePassword" class="spinner-border spinner-border-sm d-none"></span>
+                    Update Password
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Xóa email
+        $(document).on("click", ".delete-email", function () {
+            var email = $(this).data("email");
+
+            if (confirm("Are you sure you want to remove this email account?")) {
+                $.ajax({
+                    url: `/remove?email=${encodeURIComponent(email)}`,
+                    type: "DELETE",
+                    success: function (response) {
+                        showToast(response.message, "success");
+                        location.reload();
+                    },
+                    error: function (xhr) {
+                        var message = xhr.responseJSON?.message || "Failed to remove email.";
+                        showToast(message, "danger");
+                    }
+                });
+            }
+        });
+
+        // Mở modal cập nhật mật khẩu
+        $(document).on("click", ".update-password", function () {
+            var email = $(this).data("email");
+            $("#updateEmail").val(email);
+            $("#updatePasswordModal").modal("show");
+        });
+
+        // Cập nhật mật khẩu email
+            $("#confirmUpdatePassword").click(function () {
+        var email = $("#updateEmail").val();
+        var newPassword = $("#newPassword").val();
+
+        $("#loadingUpdatePassword").removeClass("d-none");
+
+        $.ajax({
+            url: `/update-password?email=${encodeURIComponent(email)}`,
+            type: "PUT",
+            contentType: "application/json",
+            data: JSON.stringify(newPassword),
+            success: function (response) {
+                console.log("Update success:", response);
+                showToast(response.message, "success");
+                $("#updatePasswordModal").modal("hide");
+            },
+            error: function (xhr) {
+                var message = xhr.responseJSON?.message || "Failed to update password.";
+                console.error("Update failed:", message);
+                showToast(message, "danger");
+            },
+            complete: function () {
+                $("#loadingUpdatePassword").addClass("d-none");
+            }
+        });
+    });
+
+        // Hiển thị thông báo
+        function showToast(message, type) {
+            $(".toast").remove(); // Xóa tất cả toast trước đó
+            var toast = `<div class="toast align-items-center text-bg-${type} border-0 show position-fixed top-0 end-0 m-3" role="alert">
+                            <div class="d-flex">
+                                <div class="toast-body">${message}</div>
+                                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"></button>
+                            </div>
+                         </div>`;
+            $("body").append(toast);
+            setTimeout(() => $(".toast").fadeOut(500, function () { $(this).remove(); }), 3000);
+        }
+    });
+</script>
