@@ -7,6 +7,8 @@ public class ApiPageQueryResponse<T>
     public ApiPageQueryResponse(List<T> data, ApiPageQueryRequest request)
     {
         this.Data = data;
-        this.NextToken = request.GenerateNextToken();
+        this.NextToken = data.Count < request.Top
+            ? null
+            : request.GenerateNextToken();
     }
 }
