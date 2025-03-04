@@ -11,37 +11,17 @@ namespace MailCrafter.MVC.Controllers
             _env = env;
         }
 
-        [Route("/management/email-template")]
+        [Route("/management/email-templates")]
         public IActionResult Index()
         {
             return View();
         }
 
-        string GetHtmlFileCode()
+        [Route("/management/email-templates/create")]
+        public IActionResult CreateTemplate()
         {
-            string fullpath = GetHtmlFilePath();
-            if (!System.IO.File.Exists(fullpath))
-                return "<b>No saved data yet</b>";
-            return System.IO.File.ReadAllText(fullpath);
-        }
-        string GetHtmlFilePath()
-        {
-            string filename = "/usertyped_htmlcontent.html";
-            string fullpath = Path.Combine(_env.WebRootPath, filename.TrimStart('/'));
-            return fullpath;
+            return View();
         }
 
-        public IActionResult AjaxLoadHandler()
-        {
-            return Content(GetHtmlFileCode(), "text/html");
-        }
-
-        [HttpPost]
-        public IActionResult AjaxSaveHandler(string htmlcode)
-        {
-            string fullpath = GetHtmlFilePath();
-            System.IO.File.WriteAllText(fullpath, htmlcode);
-            return Content("OK");
-        }
     }
 }
