@@ -91,5 +91,11 @@ namespace MailCrafter.MVC.Controllers
             await HttpContext.SignOutAsync("CookieAuth");
             return Ok(new { redirectUrl = Url.Action("Login") });
         }
+
+        //public async Task<ApiPageQueryResponse<AppUserEntity>> GetAllAppUsers(ApiPageQueryRequest request)
+        //{
+        //    var data = await _userService.GetPageQueryDataAsync(request.ToPageQueryDTO());
+        //    return new ApiPageQueryResponse<AppUserEntity>(data, request);
+        //}
     }
 }
