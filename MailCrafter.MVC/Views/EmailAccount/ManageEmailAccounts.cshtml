@@ -8,11 +8,18 @@
 <div class="manage-email-accounts">
     <div class="manage-email-accounts__container">
         <h1 class="manage-email-accounts__title">Manage Email Accounts</h1>
+        <div class="input-group mb-3">
+            <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+            <input type="text" id="searchInput" class="form-control" placeholder="Search email...">
+        </div>
+
+
         <ul class="manage-email-accounts__list">
             <li class="manage-email-accounts__item fixed">
                 <p class="manage-email-accounts__text heading">Email</p>
                 <p class="manage-email-accounts__text heading center">Edit</p>
             </li>
+
             @foreach (var email in Model)
             {
                 <li class="manage-email-accounts__item">
@@ -26,7 +33,7 @@
         </ul>
         <button onclick="switchToAddEmailAccount()" class="btn-add-email">Add Email Account</button>
     </div>
->>>>>>> Stashed changes
+
 </div>
 
 <!-- Modal Update Password -->
@@ -126,4 +133,18 @@
             setTimeout(() => $(".toast").fadeOut(500, function () { $(this).remove(); }), 3000);
         }
     });
+       document.getElementById('searchInput').addEventListener('input', function () {
+        let filter = this.value.toLowerCase();
+        let items = document.querySelectorAll('.manage-email-accounts__item:not(.fixed)');
+
+        items.forEach(item => {
+            let email = item.querySelector('.manage-email-accounts__text').textContent.toLowerCase();
+            if (email.includes(filter)) {
+                item.style.display = '';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    });
+
 </script>

@@ -23,6 +23,25 @@ namespace MailCrafter.MVC.Controllers
             return View();
         }
 
+        [HttpGet("management/search-email")]
+        public async Task<IActionResult> SearchEmailAccounts([FromQuery] string searchTerm)
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                return Unauthorized(new { message = "User is not authenticated." });
+            }
+
+            var emails = await _userService.SearchEmailAccountsOfUser(userId, searchTerm);
+            if (emails == null || emails.Count == 0)
+            {
+                return NotFound(new { message = "No matching emails found." });
+            }
+
+            return Ok(emails);
+        }
+
+
         [HttpPost]
         [Route("management/email-accounts/add")]
         public async Task<IActionResult> AddEmailAccount([FromBody] EmailAccount emailAccount)
