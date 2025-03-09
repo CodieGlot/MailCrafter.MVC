@@ -63,8 +63,7 @@ async function login(event) {
     if (response.ok) {
         window.location.href = '/';
     } else {
-        const errorData = await response.json();
-        document.getElementById('login-error').innerText = errorData.message || 'Invalid login attempt.';
+        showToastMessage({type: 'error', message: 'Opp! Something went wrong...'})
     }
     showLoading(false);
 }
