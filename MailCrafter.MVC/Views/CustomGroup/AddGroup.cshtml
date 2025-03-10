@@ -5,54 +5,124 @@
 }
 
 <div class="container mt-4">
-    <h2>Add Group</h2>
-    <form id="addGroupForm">
+    <h2>@ViewData["Title"]</h2>
+
+    <!-- Hiển thị thông báo thành công -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    <!-- Hiển thị thông báo lỗi -->
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <!-- Form thêm nhóm -->
+    <form id="addGroupForm" method="post" action="@Url.Action("AddGroup", "CustomGroup")">
         <div class="form-group mb-3">
             <label for="GroupName">Group Name</label>
             <input type="text" class="form-control" id="GroupName" name="GroupName" required />
         </div>
 
-        <div id="customFieldsContainer">
-            <!-- Custom fields will be added here dynamically -->
-        </div>
+        <!-- Các trường tùy chỉnh sẽ được thêm vào đây -->
+        <div id="customFieldsContainer"></div>
 
+        <!-- Các trường ẩn để gửi danh sách fieldNames, fieldValues, và emails -->
+        <input type="hidden" id="fieldNames" name="fieldNames" />
+        <input type="hidden" id="fieldValues" name="fieldValues" />
+        <input type="hidden" id="emails" name="emails" />
+
+        <!-- Các nút thao tác -->
         <button type="button" class="btn btn-secondary mb-3" onclick="addCustomField()">Add Custom Field</button>
         <button type="submit" class="btn btn-primary">Save Group</button>
     </form>
 </div>
 
 <script>
+    // Hàm để thêm trường tùy chỉnh mới
     function addCustomField() {
         const container = document.getElementById('customFieldsContainer');
         const fieldSet = document.createElement('div');
         fieldSet.className = 'custom-field-set border p-3 mb-3';
         fieldSet.innerHTML = `
-            <div class="row">
-                <div class="col-5">
-                    <div class="form-group">
-                        <label>Field Name</label>
-                        <input type="text" class="form-control field-key" />
+                <div class="row">
+                    <div class="col-4">
+                        <div class="form-group">
+                            <label>Field Name</label>
+                            <input type="text" class="form-control field-key" name="fieldNames[]" required />
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="form-group">
+                            <label>Field Value</label>
+                            <input type="text" class="form-control field-value" name="fieldValues[]" required />
+                        </div>
+                    </div>
+                    <div class="col-3">
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" class="form-control field-email" name="emails[]" required />
+                        </div>
+                    </div>
+                    <div class="col-1">
+                        <button type="button" class="btn btn-danger mt-4" onclick="removeField(this)">Remove</button>
                     </div>
                 </div>
-                <div class="col-5">
-                    <div class="form-group">
-                        <label>Field Value</label>
-                        <input type="text" class="form-control field-value" />
-                    </div>
-                </div>
-                <div class="col-2">
-                    <button type="button" class="btn btn-danger mt-4" onclick="removeField(this)">
-                        Remove
-                    </button>
-                </div>
-            </div>
-        `;
+            `;
         container.appendChild(fieldSet);
     }
 
+    // Hàm để xóa một trường tùy chỉnh
     function removeField(button) {
         button.closest('.custom-field-set').remove();
     }
+
+    // Đảm bảo rằng các tên, giá trị và email được gửi lên server
+    document.getElementById('addGroupForm').addEventListener('submit', function (event) {
+        event.preventDefault(); // Ngăn chặn gửi form mặc định để kiểm tra
+
+        const fieldNames = [];
+        const fieldValues = [];
+        const emails = [];
+
+        document.querySelectorAll('input[name="fieldNames[]"]').forEach((input) => {
+            fieldNames.push(input.value);
+        });
+
+        document.querySelectorAll('input[name="fieldValues[]"]').forEach((input) => {
+            fieldValues.push(input.value);
+        });
+
+        document.querySelectorAll('input[name="emails[]"]').forEach((input) => {
+            emails.push(input.value);
+        });
+
+        // Kiểm tra dữ liệu trước khi gửi
+        const groupName = document.getElementById('GroupName').value;
+        console.log('GroupName:', groupName);
+        console.log('FieldNames:', fieldNames);
+        console.log('FieldValues:', fieldValues);
+        console.log('Emails:', emails);
+
+        if (!groupName || fieldNames.length === 0 || fieldValues.length === 0 || emails.length === 0) {
+            alert('Please fill in the group name and add at least one custom field.');
+            return;
+        }
+
+        // Gán giá trị vào các input ẩn
+        document.getElementById('fieldNames').value = JSON.stringify(fieldNames);
+        document.getElementById('fieldValues').value = JSON.stringify(fieldValues);
+        document.getElementById('emails').value = JSON.stringify(emails);
+
+        // Gửi form
+        this.submit();
+    });
 </script>
 
 <style>
