@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Views\CustomGroup\" />
+    <Folder Include="Models\EmailTemplate\" />
   </ItemGroup>
 
 </Project>
