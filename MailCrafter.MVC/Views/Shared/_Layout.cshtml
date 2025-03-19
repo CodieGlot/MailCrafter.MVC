@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css" />
 
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    @await RenderSectionAsync("Styles", required: false)
 
 </head>
 <body>
@@ -28,9 +29,9 @@
                     <i class="icon-home"></i>
                     <span>Dashboard</span>
                 </a>
-                <a href="/job-monitor" class="nav-item">
+                <a href="/jobs" class="nav-item">
                     <i class="icon-monitor"></i>
-                    <span>Job Monitor</span>
+                    <span>Jobs</span>
                 </a>
                 <a href="/insights" class="nav-item">
                     <i class="icon-insights"></i>

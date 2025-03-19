@@ -26,4 +26,8 @@
     <ProjectReference Include="..\..\MailCrafter.Core\Utils\Utils.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\EmailTemplate\" />
+  </ItemGroup>
+
 </Project>
