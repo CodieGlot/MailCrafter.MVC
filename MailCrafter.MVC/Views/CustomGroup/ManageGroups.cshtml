@@ -85,7 +85,7 @@
                                         <p><strong>Updated At:</strong> @group.UpdatedAt</p>
                                         <h6>Custom Fields:</h6>
                                         <ul>
-                                            @foreach (var field in group.CustomFields)
+                                            @foreach (var field in group.CustomFieldsList)
                                             {
                                                 <li>
                                                     @(field.ContainsKey("fieldName") ? field["fieldName"] : "N/A"):
@@ -119,8 +119,8 @@
                                                 <input type="text" class="form-control" id="GroupName-@group.ID" name="GroupName" value="@group.GroupName" required />
                                             </div>
 
-                                            <div id="customFieldsContainer-@group.ID">
-                                                @for (int i = 0; i < group.CustomFields.Count; i++)
+                                            <div id="CustomFieldsListContainer-@group.ID">
+                                                @for (int i = 0; i < group.CustomFieldsList.Count; i++)
                                                 {
                                                     <div class="custom-field-set border p-3 mb-3">
                                                         <div class="row">
@@ -128,21 +128,21 @@
                                                                 <div class="form-group">
                                                                     <label>Field Name</label>
                                                                     <input type="text" class="form-control field-key" name="fieldNames[]"
-                                                                           value="@(group.CustomFields[i].ContainsKey("fieldName") ? group.CustomFields[i]["fieldName"] : "")" required />
+                                                                           value="@(group.CustomFieldsList[i].ContainsKey("fieldName") ? group.CustomFieldsList[i]["fieldName"] : "")" required />
                                                                 </div>
                                                             </div>
                                                             <div class="col-4">
                                                                 <div class="form-group">
                                                                     <label>Field Value</label>
                                                                     <input type="text" class="form-control field-value" name="fieldValues[]"
-                                                                           value="@(group.CustomFields[i].ContainsKey("fieldValue") ? group.CustomFields[i]["fieldValue"] : "")" required />
+                                                                           value="@(group.CustomFieldsList[i].ContainsKey("fieldValue") ? group.CustomFieldsList[i]["fieldValue"] : "")" required />
                                                                 </div>
                                                             </div>
                                                             <div class="col-3">
                                                                 <div class="form-group">
                                                                     <label>Email</label>
                                                                     <input type="email" class="form-control" name="emails[]"
-                                                                           value="@(group.CustomFields[i].ContainsKey("Email") ? group.CustomFields[i]["Email"] : "")" required />
+                                                                           value="@(group.CustomFieldsList[i].ContainsKey("Email") ? group.CustomFieldsList[i]["Email"] : "")" required />
                                                                 </div>
                                                             </div>
                                                             <div class="col-1">
@@ -203,7 +203,7 @@
     <script>
         // Hàm để thêm trường tùy chỉnh mới
         function addCustomField(groupId) {
-            const container = document.getElementById('customFieldsContainer-' + groupId);
+            const container = document.getElementById('CustomFieldsListContainer-' + groupId);
             if (!container) {
                 console.error('Container not found for groupId:', groupId);
                 return;
@@ -251,15 +251,15 @@
                 const fieldValues = [];
                 const emails = [];
 
-                document.querySelectorAll(`#customFieldsContainer-${groupId} input[name="fieldNames[]"]`).forEach((input) => {
+                document.querySelectorAll(`#CustomFieldsListContainer-${groupId} input[name="fieldNames[]"]`).forEach((input) => {
                     fieldNames.push(input.value);
                 });
 
-                document.querySelectorAll(`#customFieldsContainer-${groupId} input[name="fieldValues[]"]`).forEach((input) => {
+                document.querySelectorAll(`#CustomFieldsListContainer-${groupId} input[name="fieldValues[]"]`).forEach((input) => {
                     fieldValues.push(input.value);
                 });
 
-                document.querySelectorAll(`#customFieldsContainer-${groupId} input[name="emails[]"]`).forEach((input) => {
+                document.querySelectorAll(`#CustomFieldsListContainer-${groupId} input[name="emails[]"]`).forEach((input) => {
                     emails.push(input.value);
                 });
 

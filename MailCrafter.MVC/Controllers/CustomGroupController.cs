@@ -24,7 +24,7 @@ namespace MailCrafter.MVC.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var groups = await _customGroupService.GetGroupsByUserId(userId);
-            return View(groups ?? new List<CustomGroupEntity>());
+            return View(groups);
         }
 
         // GET: Thêm nhóm mới (Add)
@@ -48,7 +48,7 @@ namespace MailCrafter.MVC.Controllers
             var model = new CustomGroupEntity
             {
                 GroupName = GroupName,
-                CustomFields = new List<Dictionary<string, string>>()
+                CustomFieldsList = new List<Dictionary<string, string>>()
             };
 
             for (int i = 0; i < fieldNames.Count; i++)
@@ -59,7 +59,7 @@ namespace MailCrafter.MVC.Controllers
                     { "fieldValue", fieldValues[i] },
                     { "Email", emails[i] }
                 };
-                model.CustomFields.Add(customField);
+                model.CustomFieldsList.Add(customField);
             }
 
             model.UserID = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -121,7 +121,7 @@ namespace MailCrafter.MVC.Controllers
             {
                 ID = id,
                 GroupName = GroupName,
-                CustomFields = new List<Dictionary<string, string>>(),
+                CustomFieldsList = new List<Dictionary<string, string>>(),
                 UserID = existingGroup.UserID,
                 CreatedAt = existingGroup.CreatedAt,
                 UpdatedAt = DateTime.UtcNow
@@ -135,7 +135,7 @@ namespace MailCrafter.MVC.Controllers
                     { "fieldValue", fieldValues[i] },
                     { "Email", emails[i] }
                 };
-                updatedEntity.CustomFields.Add(customField);
+                updatedEntity.CustomFieldsList.Add(customField);
             }
 
             var result = await _customGroupService.Update(updatedEntity);
