@@ -2,7 +2,108 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building  aaaWeb apps with ASP.NET Core</a>.</p>
-</div>
+<section class="dashboard">
+    <div class="dashboard__container">
+        <h2 class="section__heading">Doashboard</h2>
+        <div class="dashboard__filter">
+            <select id="group-selection" class="form-select">
+                <option value="" selected disabled hidden>Choose group</option>
+                <option value="HTML">HTML</option>
+                <option value="HTML CSS3 SASS">HTML CSS3 SASS</option>
+                <option value="HTML CSS3 SASS LESS">HTML CSS3 SASS LESS </option>
+            </select>
+            <select id="agent-selection" class="form-select">
+                <option value="" selected disabled hidden>Choose agent</option>
+                <option value="HTML">HTML</option>
+                <option value="HTML CSS3 SASS">HTML CSS3 SASS</option>
+                <option value="HTML CSS3 SASS LESS">HTML CSS3 SASS LESS </option>
+            </select>
+            <button onclick="dashboardFilterButton()" class="form-button dashboard__filter--btn">
+                Filter
+                <i class="fa-solid fa-filter form-icon"></i>
+            </button>
+        </div>
+        <div class="dashboard__content">
+            <ul class="task-manager__list">
+                <li class="task-manager__content-wrapper">
+                    <div class="task-manager__item">
+                        <div class="task-manager__item--content">
+                            <p class="task-manager__item--text">Workflows</p>
+                            <p class="task-manager__item--text">1</p>
+                        </div>
+                        <i class="task-manager__item--icon fa-solid fa-chart-simple"></i>
+                    </div>
+                </li>
+                <li class="task-manager__content-wrapper">
+                    <div class="task-manager__item">
+                        <div class="task-manager__item--content">
+                            <p class="task-manager__item--text">Schedules</p>
+                            <p class="task-manager__item--text">0</p>
+                        </div>
+                        <i class="task-manager__item--icon fa-regular fa-calendar"></i>
+                    </div>
+                </li>
+                <li class="task-manager__content-wrapper">
+                    <div class="task-manager__item">
+                        <div class="task-manager__item--content">
+                            <p class="task-manager__item--text">Queues</p>
+                            <p class="task-manager__item--text">1</p>
+                        </div>
+                        <i class="task-manager__item--icon fa-solid fa-layer-group"></i>
+                    </div>
+                </li>
+                <li class="task-manager__content-wrapper">
+                    <div class="task-manager__item">
+                        <div class="task-manager__item--content">
+                            <p class="task-manager__item--text">Assets</p>
+                            <p class="task-manager__item--text">1</p>
+                        </div>
+                        <i class="task-manager__item--icon fa-regular fa-folder-closed"></i>
+                    </div>
+                </li>
+            </ul>
+            <ul class="task-process__list">
+                <li class="task-process__content-wrapper">
+                    <div class="task-process__item">
+                        <span class="task-process__item--title">Agent</span>
+                        <div class="task-process__item--content">
+                            <div class="task-process__status--list">
+                                <span class="task-process__item--status green">Available (0%)</span>
+                                <span class="task-process__item--status blue">Busy (0%)</span>
+                                <span class="task-process__item--status red">Disconnected (0%)</span>
+                            </div>
+                            <div id="task-container-chart"></div>
+                        </div>
+                    </div>
+                </li>
+                <li class="task-process__content-wrapper">
+                    <div class="task-process__item">
+                        <span class="task-process__item--title">Agent</span>
+                        <div class="task-process__item--content">
+                            <div class="task-process__status--list">
+                                <span class="task-process__item--status green">Available (0%)</span>
+                                <span class="task-process__item--status blue">Busy (0%)</span>
+                                <span class="task-process__item--status red">Disconnected (0%)</span>
+                                <span class="task-process__item--status yellow">Disconnected (0%)</span>
+                                <span class="task-process__item--status gray">Disconnected (0%)</span>
+                            </div>
+                            <div id="task-container-chart2"></div>
+                        </div>
+                    </div>
+                </li>
+                <li class="task-process__content-wrapper">
+                    <div class="task-process__item">
+                        <span class="task-process__item--title">Agent</span>
+                        <div class="task-process__item--content">
+                            <div class="task-process__status--list">
+                                <span class="task-process__item--status green">Busy (0%)</span>
+                                <span class="task-process__item--status blue">Disconnected (0%)</span>
+                            </div>
+                            <div id="task-container-chart3"></div>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</section>
