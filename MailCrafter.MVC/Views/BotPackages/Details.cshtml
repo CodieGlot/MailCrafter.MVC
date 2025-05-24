@@ -1,0 +1,291 @@
+﻿@model MailCrafter.Domain.BotPackage
+@{
+    ViewData["Title"] = $"Package Details - {Model.Name}";
+}
+
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
+    <h1>Package Details</h1>
+    <div>
+        <a href="@Url.Action("Index")" class="btn btn-outline-secondary me-2">
+            <i class="fas fa-arrow-left"></i> Back to List
+        </a>
+        @if (Model.IsActive)
+        {
+            <a href="@Url.Action("Deploy", new { id = Model.ID })" class="btn btn-primary">
+                <i class="fas fa-robot"></i> Deploy to Robot
+            </a>
+        }
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Package Information</h5>
+                @if (Model.IsActive)
+                {
+                    <span class="badge bg-success">Active</span>
+                }
+                else
+                {
+                    <span class="badge bg-secondary">Inactive</span>
+                }
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-3 fw-bold">Name:</div>
+                    <div class="col-md-9">@Model.Name</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3 fw-bold">Version:</div>
+                    <div class="col-md-9">@Model.Version</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3 fw-bold">Description:</div>
+                    <div class="col-md-9">@(string.IsNullOrEmpty(Model.Description) ? "-" : Model.Description)</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3 fw-bold">File Name:</div>
+                    <div class="col-md-9">@Model.FileName</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3 fw-bold">File Size:</div>
+                    <div class="col-md-9">@FormatFileSize(Model.FileSize)</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3 fw-bold">Content Type:</div>
+                    <div class="col-md-9">@Model.ContentType</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3 fw-bold">Uploaded At:</div>
+                    <div class="col-md-9">@Model.UploadedAt.ToString("yyyy-MM-dd HH:mm:ss")</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-3 fw-bold">Uploaded By:</div>
+                    <div class="col-md-9">@(string.IsNullOrEmpty(Model.UploadedByName) ? "Unknown" : Model.UploadedByName)</div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.FileUrl))
+                {
+                    <div class="row mb-3">
+                        <div class="col-md-3 fw-bold">File:</div>
+                        <div class="col-md-9">
+                            <a href="@Model.FileUrl" class="btn btn-sm btn-outline-primary" target="_blank">
+                                <i class="fas fa-download"></i> Download Package
+                            </a>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Deployment History</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.DeployedToRobotIds == null || !Model.DeployedToRobotIds.Any())
+                {
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> This package has not been deployed to any robots yet.
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Robot ID</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="deploymentHistoryTableBody">
+                                @foreach (var robotId in Model.DeployedToRobotIds)
+                                {
+                                    <tr>
+                                        <td>@robotId</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary fetch-robot-info" data-robot-id="@robotId">
+                                                <i class="fas fa-info-circle"></i> View Robot
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    @if (Model.IsActive)
+                    {
+                        <a href="@Url.Action("Deploy", new { id = Model.ID })" class="btn btn-primary mb-2">
+                            <i class="fas fa-robot"></i> Deploy to Robot
+                        </a>
+
+                        <button class="btn btn-warning mb-2" id="deactivatePackageBtn">
+                            <i class="fas fa-ban"></i> Deactivate Package
+                        </button>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i> This package is inactive and cannot be deployed.
+                        </div>
+
+                        <button class="btn btn-success mb-2" id="activatePackageBtn">
+                            <i class="fas fa-check-circle"></i> Activate Package
+                        </button>
+                    }
+
+                    <button class="btn btn-outline-danger" id="deletePackageBtn">
+                        <i class="fas fa-trash"></i> Delete Package
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Package Metadata</h5>
+            </div>
+            <div class="card-body">
+                <div id="packageMetadata">
+                    @if (Model.Metadata != null && Model.Metadata.Any())
+                    {
+                        <dl>
+                            @foreach (var kvp in Model.Metadata)
+                            {
+                                <dt>@kvp.Key</dt>
+                                <dd>@kvp.Value</dd>
+                            }
+                        </dl>
+                    }
+                    else
+                    {
+                        <p class="text-muted">No additional metadata available.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Robot Details Modal -->
+<div class="modal fade" id="robotDetailsModal" tabindex="-1" role="dialog" aria-labelledby="robotDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="robotDetailsModalLabel">Robot Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="robotDetailsContent">
+                    <div class="text-center">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Deactivate Package Confirmation Modal -->
+<div class="modal fade" id="deactivatePackageModal" tabindex="-1" role="dialog" aria-labelledby="deactivatePackageModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deactivatePackageModalLabel">Confirm Deactivation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to deactivate this package?</p>
+                <p>Inactive packages cannot be deployed to robots.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-warning" id="confirmDeactivateBtn">
+                    <i class="fas fa-ban"></i> Deactivate
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Activate Package Confirmation Modal -->
+<div class="modal fade" id="activatePackageModal" tabindex="-1" role="dialog" aria-labelledby="activatePackageModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="activatePackageModalLabel">Confirm Activation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to activate this package?</p>
+                <p>This will allow the package to be deployed to robots.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-success" id="confirmActivateBtn">
+                    <i class="fas fa-check-circle"></i> Activate
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Package Confirmation Modal -->
+<div class="modal fade" id="deletePackageModal" tabindex="-1" role="dialog" aria-labelledby="deletePackageModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deletePackageModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle"></i> Warning: This action cannot be undone!
+                </div>
+                <p>Are you sure you want to permanently delete this package?</p>
+                <p>This will remove all deployment records associated with this package.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                    <i class="fas fa-trash"></i> Delete Permanently
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/botpackages-details.js"></script>
+}
+
+@functions {
+    private string FormatFileSize(long bytes)
+    {
+        if (bytes == 0) return "0 Bytes";
+        string[] sizes = { "Bytes", "KB", "MB", "GB" };
+        int k = 1024;
+        int i = (int)Math.Floor(Math.Log(bytes) / Math.Log(k));
+        return String.Format("{0:0.##} {1}", bytes / Math.Pow(k, i), sizes[i]);
+    }
+}

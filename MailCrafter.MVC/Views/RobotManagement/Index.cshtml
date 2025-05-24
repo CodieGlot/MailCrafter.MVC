@@ -1,0 +1,251 @@
+﻿@model List<MailCrafter.Domain.Robot>
+@{
+    ViewData["Title"] = "Robot Management";
+}
+
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
+    <h1>Robots Management</h1>
+    <button type="button" class="btn btn-primary" id="createRobotBtn">
+        <i class="fas fa-plus"></i> Create New Robot
+    </button>
+</div>
+
+<div class="robots-container">
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-info">
+            <p>No robots found. Create your first robot to start automating tasks.</p>
+        </div>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Machine Name</th>
+                                <th>Status</th>
+                                <th>Last Seen</th>
+                                <th>Agent Version</th>
+                                <th>OS Info</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var robot in Model)
+                            {
+                                <tr>
+                                    <td>@robot.MachineName</td>
+                                    <td>
+                                        @if (robot.IsConnected)
+                                        {
+                                            <span class="badge bg-success">Connected</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">Disconnected</span>
+                                        }
+                                    </td>
+                                    <td>@(robot.LastSeen.ToString("yyyy-MM-dd HH:mm"))</td>
+                                    <td>@(robot.AgentVersion ?? "Unknown")</td>
+                                    <td>@(robot.OsInfo ?? "Unknown")</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <button class="btn btn-sm btn-outline-info view-robot" data-robot-id="@robot.ID">
+                                                <i class="fas fa-info-circle"></i> Details
+                                            </button>
+                                            @if (robot.IsConnected)
+                                            {
+                                                <button class="btn btn-sm btn-outline-primary send-command" data-robot-id="@robot.ID">
+                                                    <i class="fas fa-terminal"></i> Command
+                                                </button>
+                                            }
+                                            <button class="btn btn-sm btn-outline-danger delete-robot" data-robot-id="@robot.ID"
+                                                    data-robot-name="@robot.MachineName">
+                                                <i class="fas fa-trash"></i> Delete
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Create Robot Modal -->
+<div class="modal fade" id="createRobotModal" tabindex="-1" role="dialog" aria-labelledby="createRobotModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createRobotModalLabel">Create New Robot</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group mb-3">
+                    <label for="machineName">Machine Name</label>
+                    <input type="text" class="form-control" id="machineName" placeholder="Enter machine name">
+                    <div class="invalid-feedback" id="machineNameError"></div>
+                    <small class="form-text text-muted">A unique, descriptive name for the robot</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="submitRobotBtn">
+                    <span class="spinner-border spinner-border-sm d-none" id="createSpinner" role="status" aria-hidden="true"></span>
+                    Create Robot
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Robot Creation Success Modal -->
+<div class="modal fade" id="robotCreatedModal" tabindex="-1" role="dialog" aria-labelledby="robotCreatedModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="robotCreatedModalLabel">Robot Created Successfully!</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-warning">
+                    <strong>Important:</strong> Save the Machine Key now. It will not be displayed again.
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Machine Name:</label>
+                    <input type="text" class="form-control" id="createdMachineName" readonly>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Machine Key:</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="createdMachineKey" readonly>
+                        <button class="btn btn-outline-secondary" type="button" id="copyKeyBtn">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Robot Details Modal -->
+<div class="modal fade" id="robotDetailsModal" tabindex="-1" role="dialog" aria-labelledby="robotDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="robotDetailsModalLabel">Robot Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="fw-bold">Machine Name:</label>
+                            <p id="detailMachineName"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="fw-bold">Status:</label>
+                            <p id="detailStatus"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="fw-bold">Last Seen:</label>
+                            <p id="detailLastSeen"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="fw-bold">Agent Version:</label>
+                            <p id="detailAgentVersion"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="fw-bold">Operating System:</label>
+                            <p id="detailOsInfo"></p>
+                        </div>
+                        <div class="mb-3">
+                            <label class="fw-bold">Username:</label>
+                            <p id="detailUsername"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="fw-bold">Machine Key:</label>
+                    <p id="detailMachineKey" class="text-muted">••••••••••••••••••••••••••</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Send Command Modal -->
+<div class="modal fade" id="sendCommandModal" tabindex="-1" role="dialog" aria-labelledby="sendCommandModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="sendCommandModalLabel">Send Command</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group mb-3">
+                    <label for="commandType">Command Type</label>
+                    <select class="form-select" id="commandType">
+                        <option value="status">Status Request</option>
+                        <option value="ping">Ping</option>
+                        <option value="execute">Execute Command</option>
+                    </select>
+                </div>
+                <div class="form-group mb-3" id="payloadContainer" style="display: none;">
+                    <label for="commandPayload">Command Payload</label>
+                    <textarea class="form-control" id="commandPayload" rows="4" placeholder="Enter command payload (JSON)"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="sendCommandBtn">
+                    <span class="spinner-border spinner-border-sm d-none" id="commandSpinner" role="status" aria-hidden="true"></span>
+                    Send Command
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Robot Confirmation Modal -->
+<div class="modal fade" id="deleteRobotModal" tabindex="-1" role="dialog" aria-labelledby="deleteRobotModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteRobotModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the robot "<span id="deleteRobotName"></span>"?</p>
+                <p>This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                    <span class="spinner-border spinner-border-sm d-none" id="deleteSpinner" role="status" aria-hidden="true"></span>
+                    Delete
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/robots.js"></script>
+}

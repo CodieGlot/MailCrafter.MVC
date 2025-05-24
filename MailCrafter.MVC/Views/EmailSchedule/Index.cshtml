@@ -1,0 +1,146 @@
+@model List<MailCrafter.Domain.EmailScheduleEntity>
+@{
+    ViewData["Title"] = "Email Schedules";
+    
+    string GetRecurrenceText(RecurrencePattern recurrence)
+    {
+        return recurrence switch
+        {
+            RecurrencePattern.OneTime => "One Time",
+            RecurrencePattern.Hourly => "Hourly",
+            RecurrencePattern.Daily => "Daily",
+            RecurrencePattern.Weekly => "Weekly",
+            _ => "Unknown"
+        };
+    }
+    
+    string GetEmailType(EmailDetailsAbstractModel details)
+    {
+        if (details is PersonalizedEmailDetailsModel)
+        {
+            return "Group Email";
+        }
+        else if (details is BasicEmailDetailsModel basicDetails)
+        {
+            return $"Regular Email ({basicDetails.Recipients?.Count ?? 0} recipients)";
+        }
+        return "Unknown";
+    }
+}
+
+<div class="container my-4">
+    <div class="row mb-4">
+        <div class="col">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">@ViewData["Title"]</h2>
+                <a asp-action="Create" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-2"></i>Create New Schedule
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="bi bi-calendar-check me-2"></i>Scheduled Emails
+            </h5>
+        </div>
+        <div class="card-body">
+            @if (Model != null && Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Next Send Time</th>
+                                <th>Recurrence</th>
+                                <th>Email Type</th>
+                                <th>From Email</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var schedule in Model)
+                            {
+                                <tr>
+                                    <td>@schedule.NextSendTime.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+                                    <td>@GetRecurrenceText(schedule.Recurrence)</td>
+                                    <td>@GetEmailType(schedule.Details)</td>
+                                    <td>
+                                        @if (schedule.Details is PersonalizedEmailDetailsModel personalized)
+                                        {
+                                            @personalized.FromMail
+                                        }
+                                        else if (schedule.Details is BasicEmailDetailsModel basic)
+                                        {
+                                            @basic.FromMail
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a asp-action="Edit" asp-route-id="@schedule.ID" class="btn btn-sm btn-outline-primary">
+                                                <i class="bi bi-pencil-square"></i> Edit
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                    data-bs-toggle="modal" data-bs-target="#deleteModal-@schedule.ID">
+                                                <i class="bi bi-trash"></i> Delete
+                                            </button>
+                                        </div>
+                                        
+                                        <!-- Delete Confirmation Modal -->
+                                        <div class="modal fade" id="deleteModal-@schedule.ID" tabindex="-1" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header bg-danger text-white">
+                                                        <h5 class="modal-title">Confirm Delete</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>Are you sure you want to delete this scheduled email?</p>
+                                                        <p><strong>Next Send:</strong> @schedule.NextSendTime.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</p>
+                                                        <p><strong>Recurrence:</strong> @GetRecurrenceText(schedule.Recurrence)</p>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <form asp-action="Delete" asp-route-id="@schedule.ID" method="post">
+                                                            @Html.AntiForgeryToken()
+                                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>No scheduled emails found. Click the "Create New Schedule" button to create your first scheduled email.
+                </div>
+            }
+        </div>
+    </div>
+</div> 

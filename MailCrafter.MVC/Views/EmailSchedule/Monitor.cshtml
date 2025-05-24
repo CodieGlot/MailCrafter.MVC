@@ -1,0 +1,175 @@
+@{
+    ViewData["Title"] = "Email Schedule Monitor";
+}
+
+<div class="container pt-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2>Email Schedule Monitoring</h2>
+            <p class="text-muted">Monitor your scheduled email tasks and view upcoming executions. When schedules run, they create email jobs that you can track in the Jobs section.</p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Total Schedules</h5>
+                    <h2 class="display-4">@ViewBag.TotalCount</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">One-time Schedules</h5>
+                    <h2 class="display-4">@ViewBag.OneTimeCount</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-secondary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Recurring Schedules</h5>
+                    <h2 class="display-4">@ViewBag.RecurringCount</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6 offset-md-3">
+            <div class="card bg-warning">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Next Email Execution</h5>
+                    @if (ViewBag.HasScheduledRuns)
+                    {
+                        <h3>@ViewBag.NextExecution.ToString("HH:mm:ss")</h3>
+                        <p>@ViewBag.NextExecution.ToString("yyyy-MM-dd")</p>
+                    }
+                    else
+                    {
+                        <h3>No scheduled emails</h3>
+                        <p class="text-muted">Create a schedule to see the next run time</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="alert alert-info">
+                <strong>Note:</strong> When schedules are processed, they create email jobs that you can view in the <a href="/jobs" class="alert-link">Jobs section</a>. Completed schedules are automatically cleaned up.
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">Upcoming Schedules</h5>
+                </div>
+                <div class="card-body">
+                    @if (ViewBag.UpcomingSchedules.Count > 0)
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Schedule Date</th>
+                                        <th>Email Type</th>
+                                        <th>From</th>
+                                        <th>Recurrence</th>
+                                        <th>Time Until Next Run</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var schedule in ViewBag.UpcomingSchedules)
+                                    {
+                                        <tr>
+                                            <td>@schedule.NextSendTime.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+                                            <td>
+                                                @if (schedule.Details is PersonalizedEmailDetailsModel)
+                                                {
+                                                    <span class="badge bg-primary">Personalized</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-info">Basic</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @if (schedule.Details != null)
+                                                {
+                                                    @schedule.Details.FromMail
+                                                }
+                                            </td>
+                                            <td>
+                                                @switch (schedule.Recurrence)
+                                                {
+                                                    case RecurrencePattern.OneTime:
+                                                        <span class="badge bg-secondary">One-time</span>
+                                                        break;
+                                                    case RecurrencePattern.Hourly:
+                                                        <span class="badge bg-success">Hourly</span>
+                                                        break;
+                                                    case RecurrencePattern.Daily:
+                                                        <span class="badge bg-primary">Daily</span>
+                                                        break;
+                                                    case RecurrencePattern.Weekly:
+                                                        <span class="badge bg-info">Weekly</span>
+                                                        break;
+                                                }
+                                            </td>
+                                            <td>
+                                                @{
+                                                    var timeUntil = schedule.NextSendTime - DateTime.UtcNow;
+                                                    @(timeUntil.Days > 0 ? $"{timeUntil.Days}d " : "")
+                                                    @(timeUntil.Hours > 0 ? $"{timeUntil.Hours}h " : "")
+                                                    @(timeUntil.Minutes > 0 ? $"{timeUntil.Minutes}m" : "")
+                                                    @(timeUntil.Days == 0 && timeUntil.Hours == 0 && timeUntil.Minutes == 0 ? "Less than 1m" : "")
+                                                }
+                                            </td>
+                                            <td>
+                                                <a href="@Url.Action("Edit", new { id = schedule.ID })" class="btn btn-sm btn-outline-primary">Edit</a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info">
+                            No upcoming scheduled emails found.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4 mb-5">
+    <div class="col-12 text-center">
+        <a href="/jobs" class="btn btn-primary">
+            <i class="fas fa-envelope"></i> View Email Jobs
+        </a>
+        <p class="text-muted mt-2">Check the status of emails sent by completed schedules</p>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Auto-refresh the page every minute to show latest stats
+            setTimeout(function() {
+                location.reload();
+            }, 60000);
+        });
+    </script>
+} 

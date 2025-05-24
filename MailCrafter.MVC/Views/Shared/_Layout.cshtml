@@ -1,6 +1,4 @@
-﻿
-
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -33,6 +31,14 @@
                     <i class="icon-monitor"></i>
                     <span>Jobs</span>
                 </a>
+                <a href="/robots" class="nav-item">
+                    <i class="icon-monitor"></i>
+                    <span>Robots</span>
+                </a>
+                <a href="/botpackages" class="nav-item">
+                    <i class="icon-monitor"></i>
+                    <span>Bot Packages</span>
+                </a>
                 <a href="/insights" class="nav-item">
                     <i class="icon-insights"></i>
                     <span>Insights</span>
@@ -46,6 +52,8 @@
                         <a href="/management/email-accounts" class="nav-item">Email Accounts</a>
                         <a href="/management/email-templates" class="nav-item">Email Templates</a>
                         <a href="/management/groups" class="nav-item">Groups</a>
+                        <a href="/EmailSchedule" class="nav-item">Email Schedules</a>
+                        <a href="/schedule/monitor" class="nav-item">Schedule Monitoring</a>
                     </div>
                 </div>
             </div>
@@ -76,9 +84,18 @@
         </main>
     </div>
 
-    <script src="~/js/site.js"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js"></script>
+    <script>
+        // Initialize all tooltips
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+        });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

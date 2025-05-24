@@ -20,6 +20,25 @@ namespace MailCrafter.MVC.Controllers
             _userService = userService;
         }
 
+        [HttpPost]
+        [Route("api/account/login")]
+        public async Task<IActionResult> ApiLogin([FromBody] AppUserEntity model)
+        {
+            var user = await _userService.GetByUsernameOrEmail(model.Username);
+            if (user != null && EncryptHelper.Verify(model.Password, user.Password))
+            {
+                // Generate a simple token (in production, you'd use JWT)
+                string token = Convert.ToBase64String(Guid.NewGuid().ToByteArray());
+                
+                // In a real implementation, you would store this token somewhere
+                // and validate it on protected endpoints
+                
+                return Ok(new { token = token, success = true });
+            }
+
+            return Unauthorized(new { success = false, message = "Invalid credentials" });
+        }
+
         [HttpGet]
         [Route("login")]
         public IActionResult Login()

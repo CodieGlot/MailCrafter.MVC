@@ -1,0 +1,253 @@
+﻿@model MailCrafter.MVC.Controllers.DeployPackageViewModel
+@{
+    ViewData["Title"] = $"Deploy Package - {Model.Package.Name}";
+}
+
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
+    <h1>Deploy Bot Package</h1>
+    <a href="@Url.Action("Details", new { id = Model.Package.ID })" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left"></i> Back to Package
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-5">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Package Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <label class="fw-bold">Name:</label>
+                    <p>@Model.Package.Name</p>
+                </div>
+                <div class="mb-3">
+                    <label class="fw-bold">Version:</label>
+                    <p>@Model.Package.Version</p>
+                </div>
+                <div class="mb-3">
+                    <label class="fw-bold">Description:</label>
+                    <p>@(string.IsNullOrEmpty(Model.Package.Description) ? "-" : Model.Package.Description)</p>
+                </div>
+                <div class="mb-3">
+                    <label class="fw-bold">File:</label>
+                    <p>@Model.Package.FileName</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-7">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Select Robot for Deployment</h5>
+            </div>
+            <div class="card-body">
+                @if (!Model.AvailableRobots.Any())
+                {
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-circle"></i> No connected robots are available for deployment.
+                        <p class="mt-2">Please ensure that at least one robot is connected before attempting to deploy a package.</p>
+                    </div>
+                }
+                else
+                {
+                    <p class="mb-3">Select a robot from the list below to deploy this package:</p>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Machine Name</th>
+                                    <th>Status</th>
+                                    <th>Last Seen</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var robot in Model.AvailableRobots)
+                                {
+                                    <tr>
+                                        <td>@robot.MachineName</td>
+                                        <td>
+                                            @if (robot.IsConnected)
+                                            {
+                                                <span class="badge bg-success">Connected</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">Disconnected</span>
+                                            }
+                                        </td>
+                                        <td>@robot.LastSeen.ToString("yyyy-MM-dd HH:mm")</td>
+                                        <td>
+                                            <button class="btn btn-primary btn-sm deploy-to-robot"
+                                                    data-robot-id="@robot.ID"
+                                                    data-robot-name="@robot.MachineName"
+                                                    data-package-id="@Model.Package.ID">
+                                                <i class="fas fa-cloud-upload-alt"></i> Deploy
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Deployment Confirmation Modal -->
+<div class="modal fade" id="deployConfirmModal" tabindex="-1" aria-labelledby="deployConfirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deployConfirmModalLabel">Confirm Deployment</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to deploy <strong>@Model.Package.Name v@Model.Package.Version</strong> to robot <strong><span id="selectedRobotName"></span></strong>?</p>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> This will immediately send the package to the robot for installation and execution.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="confirmDeployBtn">
+                    <span class="spinner-border spinner-border-sm d-none" id="deploySpinner" role="status" aria-hidden="true"></span>
+                    Deploy Package
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Deployment Result Modal -->
+<div class="modal fade" id="deployResultModal" tabindex="-1" aria-labelledby="deployResultModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header" id="deployResultHeader">
+                <h5 class="modal-title" id="deployResultModalLabel">Deployment Result</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="deployResultBody">
+                <!-- Result content will be inserted here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle deploy button click
+            document.querySelectorAll('.deploy-to-robot').forEach(button => {
+                button.addEventListener('click', function() {
+                    const robotId = this.getAttribute('data-robot-id');
+                    const robotName = this.getAttribute('data-robot-name');
+                    const packageId = this.getAttribute('data-package-id');
+
+                    // Update modal with robot name
+                    document.getElementById('selectedRobotName').textContent = robotName;
+
+                    // Store IDs for deployment
+                    const confirmBtn = document.getElementById('confirmDeployBtn');
+                    confirmBtn.setAttribute('data-robot-id', robotId);
+                    confirmBtn.setAttribute('data-package-id', packageId);
+
+                    // Show modal
+                    const modal = new bootstrap.Modal(document.getElementById('deployConfirmModal'));
+                    modal.show();
+                });
+            });
+
+            // Handle confirm deploy button click
+            document.getElementById('confirmDeployBtn').addEventListener('click', function() {
+                const robotId = this.getAttribute('data-robot-id');
+                const packageId = this.getAttribute('data-package-id');
+                const spinner = document.getElementById('deploySpinner');
+
+                // Show spinner
+                this.disabled = true;
+                spinner.classList.remove('d-none');
+
+                // Call API to deploy package
+                fetch('/api/botpackages/deploy', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        packageId: packageId,
+                        robotId: robotId
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`Deployment failed: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Hide confirm modal
+                    bootstrap.Modal.getInstance(document.getElementById('deployConfirmModal')).hide();
+
+                    // Show success result
+                    const resultHeader = document.getElementById('deployResultHeader');
+                    resultHeader.className = 'modal-header bg-success text-white';
+
+                    const resultBody = document.getElementById('deployResultBody');
+                    resultBody.innerHTML = `
+                        <div class="alert alert-success">
+                            <i class="fas fa-check-circle"></i> ${data.message}
+                        </div>
+                        <p>The package has been successfully sent to the robot for installation.</p>
+                        <p>You can monitor the deployment status on the robot's details page.</p>
+                    `;
+
+                    // Show result modal
+                    const resultModal = new bootstrap.Modal(document.getElementById('deployResultModal'));
+                    resultModal.show();
+
+                    // After closing the result modal, redirect to package details
+                    document.getElementById('deployResultModal').addEventListener('hidden.bs.modal', function () {
+                        window.location.href = `/botpackages/details/${packageId}`;
+                    });
+                })
+                .catch(error => {
+                    console.error('Deployment error:', error);
+
+                    // Hide confirm modal
+                    bootstrap.Modal.getInstance(document.getElementById('deployConfirmModal')).hide();
+
+                    // Show error result
+                    const resultHeader = document.getElementById('deployResultHeader');
+                    resultHeader.className = 'modal-header bg-danger text-white';
+
+                    const resultBody = document.getElementById('deployResultBody');
+                    resultBody.innerHTML = `
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-circle"></i> Deployment Failed
+                        </div>
+                        <p>There was an error deploying the package to the robot:</p>
+                        <p class="text-danger">${error.message}</p>
+                    `;
+
+                    // Show result modal
+                    const resultModal = new bootstrap.Modal(document.getElementById('deployResultModal'));
+                    resultModal.show();
+                })
+                .finally(() => {
+                    // Hide spinner
+                    this.disabled = false;
+                    spinner.classList.add('d-none');
+                });
+            });
+        });
+    </script>
+}

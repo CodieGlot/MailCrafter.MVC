@@ -1,0 +1,314 @@
+@model MailCrafter.MVC.Models.ScheduleEmailViewModel
+@{
+    ViewData["Title"] = "Schedule New Email";
+}
+
+<div class="container my-4">
+    <div class="row mb-4">
+        <div class="col">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">@ViewData["Title"]</h2>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-2"></i>Back to Schedules
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications -->
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="bi bi-calendar-plus me-2"></i>Schedule Details
+            </h5>
+        </div>
+        <div class="card-body">
+            <form method="post" asp-action="Create" id="scheduleForm">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                
+                <!-- Scheduling Options -->
+                <h5 class="border-bottom pb-2 mb-3">When to Send</h5>
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label asp-for="ScheduleDate" class="form-label"></label>
+                            <input asp-for="ScheduleDate" class="form-control" />
+                            <span asp-validation-for="ScheduleDate" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label asp-for="ScheduleTime" class="form-label"></label>
+                            <input asp-for="ScheduleTime" class="form-control" />
+                            <span asp-validation-for="ScheduleTime" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-3">
+                            <label asp-for="Recurrence" class="form-label"></label>
+                            <select asp-for="Recurrence" class="form-select" asp-items="Html.GetEnumSelectList<RecurrencePattern>()"></select>
+                            <span asp-validation-for="Recurrence" class="text-danger"></span>
+                            <div class="form-text">How often the email should be sent</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Email Content -->
+                <h5 class="border-bottom pb-2 mb-3">Email Content</h5>
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="TemplateId" class="form-label"></label>
+                            <select asp-for="TemplateId" class="form-select" asp-items="ViewBag.Templates">
+                                <option value="">-- Select a Template --</option>
+                            </select>
+                            <span asp-validation-for="TemplateId" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="FromEmail" class="form-label"></label>
+                            <select asp-for="FromEmail" class="form-select" asp-items="ViewBag.EmailAccounts">
+                                <option value="">-- Select an Email Account --</option>
+                            </select>
+                            <span asp-validation-for="FromEmail" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recipients Type -->
+                <h5 class="border-bottom pb-2 mb-3">Recipients</h5>
+                <div class="mb-3">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" asp-for="IsPersonalized" id="isPersonalizedSwitch">
+                        <label class="form-check-label" asp-for="IsPersonalized">Send to a group (personalized for each recipient)</label>
+                    </div>
+                </div>
+                
+                <!-- Group Selection (for personalized emails) -->
+                <div id="groupSection" class="mb-4" style="display: none;">
+                    <div class="mb-3">
+                        <label asp-for="GroupId" class="form-label"></label>
+                        <select asp-for="GroupId" class="form-select" asp-items="ViewBag.Groups">
+                            <option value="">-- Select a Group --</option>
+                        </select>
+                        <span asp-validation-for="GroupId" class="text-danger"></span>
+                        <div class="form-text">Each member of the group will receive a personalized email</div>
+                    </div>
+                </div>
+                
+                <!-- Individual Recipients (for regular emails) -->
+                <div id="recipientsSection" class="mb-4">
+                    <div class="mb-3">
+                        <label asp-for="Recipients" class="form-label"></label>
+                        <textarea id="recipientsInput" class="form-control" rows="3" placeholder="Enter email addresses, separated by commas"></textarea>
+                        <span asp-validation-for="Recipients" class="text-danger"></span>
+                        <div class="form-text">Enter one or more email addresses, separated by commas</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Custom Fields (Optional)</label>
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>For non-personalized emails, you can specify custom field values to be used for all recipients.
+                        </div>
+                        <div id="customFieldsContainer">
+                            <div class="row mb-2 custom-field-row">
+                                <div class="col-md-5">
+                                    <input type="text" class="form-control custom-field-key" placeholder="Field Name">
+                                </div>
+                                <div class="col-md-5">
+                                    <input type="text" class="form-control custom-field-value" placeholder="Value">
+                                </div>
+                                <div class="col-md-2">
+                                    <button type="button" class="btn btn-outline-danger remove-field"><i class="bi bi-trash"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" id="addCustomField" class="btn btn-outline-secondary mt-2">
+                            <i class="bi bi-plus-circle me-2"></i>Add Custom Field
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- CC and BCC -->
+                <h5 class="border-bottom pb-2 mb-3">Additional Recipients</h5>
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="CC" class="form-label"></label>
+                            <textarea id="ccInput" class="form-control" rows="2" placeholder="Enter CC email addresses, separated by commas"></textarea>
+                            <span asp-validation-for="CC" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label asp-for="BCC" class="form-label"></label>
+                            <textarea id="bccInput" class="form-control" rows="2" placeholder="Enter BCC email addresses, separated by commas"></textarea>
+                            <span asp-validation-for="BCC" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Submit -->
+                <div class="d-flex justify-content-end">
+                    <a asp-action="Index" class="btn btn-outline-secondary me-2">Cancel</a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-calendar-check me-2"></i>Schedule Email
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Toggle recipient sections based on personalization choice
+            const isPersonalizedSwitch = document.getElementById('isPersonalizedSwitch');
+            const groupSection = document.getElementById('groupSection');
+            const recipientsSection = document.getElementById('recipientsSection');
+            
+            function toggleRecipientSections() {
+                if (isPersonalizedSwitch.checked) {
+                    groupSection.style.display = 'block';
+                    recipientsSection.style.display = 'none';
+                } else {
+                    groupSection.style.display = 'none';
+                    recipientsSection.style.display = 'block';
+                }
+            }
+            
+            isPersonalizedSwitch.addEventListener('change', toggleRecipientSections);
+            toggleRecipientSections(); // Initial state
+            
+            // Custom fields handling
+            const customFieldsContainer = document.getElementById('customFieldsContainer');
+            const addCustomFieldBtn = document.getElementById('addCustomField');
+            
+            addCustomFieldBtn.addEventListener('click', function () {
+                const fieldRow = document.createElement('div');
+                fieldRow.className = 'row mb-2 custom-field-row';
+                fieldRow.innerHTML = `
+                    <div class="col-md-5">
+                        <input type="text" class="form-control custom-field-key" placeholder="Field Name">
+                    </div>
+                    <div class="col-md-5">
+                        <input type="text" class="form-control custom-field-value" placeholder="Value">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-outline-danger remove-field"><i class="bi bi-trash"></i></button>
+                    </div>
+                `;
+                customFieldsContainer.appendChild(fieldRow);
+                
+                // Add event listener to the new remove button
+                fieldRow.querySelector('.remove-field').addEventListener('click', function () {
+                    fieldRow.remove();
+                });
+            });
+            
+            // Add event listeners to existing remove buttons
+            document.querySelectorAll('.remove-field').forEach(button => {
+                button.addEventListener('click', function () {
+                    button.closest('.custom-field-row').remove();
+                });
+            });
+            
+            // Form submission processing
+            const form = document.getElementById('scheduleForm');
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                
+                // Process recipients
+                if (!isPersonalizedSwitch.checked) {
+                    const recipientsInput = document.getElementById('recipientsInput');
+                    const recipientEmails = recipientsInput.value.split(',')
+                        .map(email => email.trim())
+                        .filter(email => email);
+                    
+                    // Remove any existing recipient inputs
+                    document.querySelectorAll('input[name="Recipients"]').forEach(el => el.remove());
+                    
+                    // Create hidden inputs for each recipient
+                    recipientEmails.forEach(email => {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'Recipients';
+                        input.value = email;
+                        form.appendChild(input);
+                    });
+                    
+                    // Process custom fields
+                    const customFieldRows = document.querySelectorAll('.custom-field-row');
+                    customFieldRows.forEach(row => {
+                        const key = row.querySelector('.custom-field-key').value.trim();
+                        const value = row.querySelector('.custom-field-value').value.trim();
+                        
+                        if (key && value) {
+                            const input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = `CustomFields[${key}]`;
+                            input.value = value;
+                            form.appendChild(input);
+                        }
+                    });
+                }
+                
+                // Process CC and BCC
+                const ccInput = document.getElementById('ccInput');
+                const bccInput = document.getElementById('bccInput');
+                
+                // Process CC
+                if (ccInput.value) {
+                    const ccEmails = ccInput.value.split(',')
+                        .map(email => email.trim())
+                        .filter(email => email);
+                    
+                    // Remove any existing CC inputs
+                    document.querySelectorAll('input[name="CC"]').forEach(el => el.remove());
+                    
+                    // Create hidden inputs for each CC recipient
+                    ccEmails.forEach(email => {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'CC';
+                        input.value = email;
+                        form.appendChild(input);
+                    });
+                }
+                
+                // Process BCC
+                if (bccInput.value) {
+                    const bccEmails = bccInput.value.split(',')
+                        .map(email => email.trim())
+                        .filter(email => email);
+                    
+                    // Remove any existing BCC inputs
+                    document.querySelectorAll('input[name="BCC"]').forEach(el => el.remove());
+                    
+                    // Create hidden inputs for each BCC recipient
+                    bccEmails.forEach(email => {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'BCC';
+                        input.value = email;
+                        form.appendChild(input);
+                    });
+                }
+                
+                // Submit the form
+                form.submit();
+            });
+        });
+    </script>
+} 

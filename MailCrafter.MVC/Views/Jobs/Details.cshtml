@@ -1,0 +1,235 @@
+@model MailCrafter.Domain.EmailJobEntity
+@{
+    ViewData["Title"] = "Job Details";
+    
+    string GetStatusClass(string status)
+    {
+        return status switch
+        {
+            "Completed" => "bg-success",
+            "Processing" => "bg-primary",
+            "Pending" => "bg-info",
+            "Failed" => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+    
+    string GetFormattedDate(DateTime? dateTime)
+    {
+        return dateTime.HasValue ? dateTime.Value.ToString("yyyy-MM-dd HH:mm:ss") : "N/A";
+    }
+}
+
+<div class="container my-4">
+    <div class="row mb-4">
+        <div class="col">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">@ViewData["Title"]</h2>
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-2"></i>Back to Jobs
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="bi bi-envelope me-2"></i>@Model.Name
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center">
+                            <strong class="me-2">Status:</strong>
+                            <span class="badge @GetStatusClass(Model.Status)">@Model.Status</span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Job ID:</strong> @Model.ID
+                    </div>
+                    <div class="mb-3">
+                        <strong>Template:</strong> @Model.TemplateName
+                    </div>
+                    <div class="mb-3">
+                        <strong>From Email:</strong> @Model.FromEmail
+                    </div>
+                    <div class="mb-3">
+                        <strong>Job Type:</strong> @(Model.IsPersonalized ? "Personalized Group Email" : "Basic Email")
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <strong>Created:</strong> @GetFormattedDate(Model.CreatedAt)
+                    </div>
+                    <div class="mb-3">
+                        <strong>Started:</strong> @GetFormattedDate(Model.StartedAt)
+                    </div>
+                    <div class="mb-3">
+                        <strong>Completed:</strong> @GetFormattedDate(Model.CompletedAt)
+                    </div>
+                    <div class="mb-3">
+                        <strong>Success Count:</strong> @Model.SuccessCount
+                    </div>
+                    <div class="mb-3">
+                        <strong>Failure Count:</strong> @Model.FailureCount
+                    </div>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+            {
+                <div class="alert alert-danger">
+                    <strong>Error:</strong> @Model.ErrorMessage
+                </div>
+            }
+
+            <!-- Recipients Information -->
+            <h5 class="border-bottom pb-2 mb-3">Recipients</h5>
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <strong>Primary Recipients</strong>
+                        </div>
+                        <div class="card-body">
+                            @if (Model.IsPersonalized)
+                            {
+                                <p>
+                                    <strong>Group ID:</strong> @Model.GroupID
+                                </p>
+                                <p>Personalized emails sent to each member of the group.</p>
+                            }
+                            else if (Model.Recipients != null && Model.Recipients.Any())
+                            {
+                                <ul class="list-group list-group-flush">
+                                    @foreach (var recipient in Model.Recipients.Take(10))
+                                    {
+                                        <li class="list-group-item">@recipient</li>
+                                    }
+                                    @if (Model.Recipients.Count > 10)
+                                    {
+                                        <li class="list-group-item text-muted">
+                                            And @(Model.Recipients.Count - 10) more...
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                            else
+                            {
+                                <p class="text-muted">No recipients specified</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card mb-3">
+                        <div class="card-header">
+                            <strong>CC Recipients</strong>
+                        </div>
+                        <div class="card-body">
+                            @if (Model.CC != null && Model.CC.Any())
+                            {
+                                <ul class="list-group list-group-flush">
+                                    @foreach (var cc in Model.CC)
+                                    {
+                                        <li class="list-group-item">@cc</li>
+                                    }
+                                </ul>
+                            }
+                            else
+                            {
+                                <p class="text-muted">No CC recipients</p>
+                            }
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <strong>BCC Recipients</strong>
+                        </div>
+                        <div class="card-body">
+                            @if (Model.Bcc != null && Model.Bcc.Any())
+                            {
+                                <ul class="list-group list-group-flush">
+                                    @foreach (var bcc in Model.Bcc)
+                                    {
+                                        <li class="list-group-item">@bcc</li>
+                                    }
+                                </ul>
+                            }
+                            else
+                            {
+                                <p class="text-muted">No BCC recipients</p>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Send Results -->
+            @if (Model.SendResults != null && Model.SendResults.Any())
+            {
+                <h5 class="border-bottom pb-2 mb-3">Send Results</h5>
+                <div class="table-responsive">
+                    <table class="table table-sm table-striped table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Recipient</th>
+                                <th>Status</th>
+                                <th>Sent At</th>
+                                <th>Error Message</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var result in Model.SendResults)
+                            {
+                                <tr>
+                                    <td>@result.Recipient</td>
+                                    <td>
+                                        <span class="badge @(result.IsSuccess ? "bg-success" : "bg-danger")">
+                                            @(result.IsSuccess ? "Success" : "Failed")
+                                        </span>
+                                    </td>
+                                    <td>@result.SentAt.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                                    <td>@(string.IsNullOrEmpty(result.ErrorMessage) ? "-" : result.ErrorMessage)</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+            <div class="d-flex justify-content-end mt-4">
+                <a asp-action="Index" class="btn btn-outline-secondary me-2">Back to Jobs</a>
+                @if (Model.Status == "Pending" || Model.Status == "Failed")
+                {
+                    <form method="post" asp-action="RetryJobForm" asp-route-id="@Model.ID" class="d-inline">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-arrow-repeat me-2"></i>Retry Job
+                        </button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</div> 

@@ -4,130 +4,298 @@
     ViewData["Title"] = "Add Group";
 }
 
-<div class="container mt-4">
-    <h2>@ViewData["Title"]</h2>
+<div class="container my-4">
+    <div class="row mb-4">
+        <div class="col">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">@ViewData["Title"]</h2>
+                <a asp-action="ManageGroups" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-2"></i>Back to Groups
+                </a>
+            </div>
+        </div>
+    </div>
 
-    <!-- Hiển thị thông báo thành công -->
+    <!-- Notifications -->
     @if (TempData["SuccessMessage"] != null)
     {
-        <div class="alert alert-success">
-            @TempData["SuccessMessage"]
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
 
-    <!-- Hiển thị thông báo lỗi -->
     @if (TempData["ErrorMessage"] != null)
     {
-        <div class="alert alert-danger">
-            @TempData["ErrorMessage"]
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     }
 
-    <!-- Form thêm nhóm -->
-    <form id="addGroupForm" method="post" action="@Url.Action("AddGroup", "CustomGroup")">
-        <div class="form-group mb-3">
-            <label for="GroupName">Group Name</label>
-            <input type="text" class="form-control" id="GroupName" name="GroupName" required />
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="bi bi-people me-2"></i>Create New Recipient Group
+            </h5>
         </div>
+        <div class="card-body">
+            <form id="addGroupForm" method="post" asp-action="AddGroup">
+                <div class="mb-4">
+                    <label for="GroupName" class="form-label">Group Name</label>
+                    <input type="text" class="form-control" id="GroupName" name="GroupName" placeholder="E.g., Marketing Contacts, Team Members" required />
+                    <div class="form-text">
+                        Enter a descriptive name for this group of recipients.
+                    </div>
+                </div>
 
-        <!-- Các trường tùy chỉnh sẽ được thêm vào đây -->
-        <div id="customFieldsContainer"></div>
+                <h5 class="border-bottom pb-2 mb-3">Recipients</h5>
+                <div class="alert alert-info mb-4">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>Group Structure:</strong> Add recipients to your group. Each recipient must have an email address and can have custom fields (like FirstName, LastName) that will be used as placeholders in email templates.
+                </div>
 
-        <!-- Các trường ẩn để gửi danh sách fieldNames, fieldValues, và emails -->
-        <input type="hidden" id="fieldNames" name="fieldNames" />
-        <input type="hidden" id="fieldValues" name="fieldValues" />
-        <input type="hidden" id="emails" name="emails" />
+                <div id="recipientsContainer">
+                    <!-- Recipients will be added here -->
+                    <div class="recipient-container mb-4 p-3 border rounded bg-light">
+                        <h6 class="mb-3">Recipient #1</h6>
+                        <div class="mb-3">
+                            <div class="form-floating">
+                                <input type="email" class="form-control recipient-email" id="email-0" name="emails" placeholder="Email" required />
+                                <label for="email-0">Email Address</label>
+                            </div>
+                        </div>
+                        
+                        <div class="recipient-fields">
+                            <!-- First Name field -->
+                            <div class="custom-field-set rounded mb-3">
+                                <div class="row g-3">
+                                    <div class="col-lg-5">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control field-key" id="fieldName-0-0" name="fieldNames" value="FirstName" placeholder="Field Name" required />
+                                            <label for="fieldName-0-0">Field Name</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control field-value" id="fieldValue-0-0" name="fieldValues" placeholder="Field Value" required />
+                                            <label for="fieldValue-0-0">Field Value</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-1 d-flex align-items-center">
+                                        <button type="button" class="btn btn-outline-danger" onclick="removeField(this)">
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Last Name field -->
+                            <div class="custom-field-set rounded mb-3">
+                                <div class="row g-3">
+                                    <div class="col-lg-5">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control field-key" id="fieldName-0-1" name="fieldNames" value="LastName" placeholder="Field Name" required />
+                                            <label for="fieldName-0-1">Field Name</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-floating">
+                                            <input type="text" class="form-control field-value" id="fieldValue-0-1" name="fieldValues" placeholder="Field Value" required />
+                                            <label for="fieldValue-0-1">Field Value</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-1 d-flex align-items-center">
+                                        <button type="button" class="btn btn-outline-danger" onclick="removeField(this)">
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-2">
+                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="addFieldToRecipient(this, 0)">
+                                <i class="bi bi-plus-circle me-1"></i>Add Field
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
-        <!-- Các nút thao tác -->
-        <button type="button" class="btn btn-secondary mb-3" onclick="addCustomField()">Add Custom Field</button>
-        <button type="submit" class="btn btn-primary">Save Group</button>
-    </form>
+                <div class="d-flex justify-content-between mt-3">
+                    <button type="button" class="btn btn-outline-primary" onclick="addRecipient()">
+                        <i class="bi bi-plus-circle me-2"></i>Add Recipient
+                    </button>
+                    <div>
+                        <a asp-action="ManageGroups" class="btn btn-outline-secondary me-2">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save me-2"></i>Save Group
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 <script>
-    // Hàm để thêm trường tùy chỉnh mới
-    function addCustomField() {
-        const container = document.getElementById('customFieldsContainer');
-        const fieldSet = document.createElement('div');
-        fieldSet.className = 'custom-field-set border p-3 mb-3';
-        fieldSet.innerHTML = `
-                <div class="row">
-                    <div class="col-4">
-                        <div class="form-group">
-                            <label>Field Name</label>
-                            <input type="text" class="form-control field-key" name="fieldNames[]" required />
-                        </div>
-                    </div>
-                    <div class="col-4">
-                        <div class="form-group">
-                            <label>Field Value</label>
-                            <input type="text" class="form-control field-value" name="fieldValues[]" required />
-                        </div>
-                    </div>
-                    <div class="col-3">
-                        <div class="form-group">
-                            <label>Email</label>
-                            <input type="email" class="form-control field-email" name="emails[]" required />
-                        </div>
-                    </div>
-                    <div class="col-1">
-                        <button type="button" class="btn btn-danger mt-4" onclick="removeField(this)">Remove</button>
-                    </div>
-                </div>
-            `;
-        container.appendChild(fieldSet);
-    }
-
-    // Hàm để xóa một trường tùy chỉnh
-    function removeField(button) {
-        button.closest('.custom-field-set').remove();
-    }
-
-    // Đảm bảo rằng các tên, giá trị và email được gửi lên server
-    document.getElementById('addGroupForm').addEventListener('submit', function (event) {
-        event.preventDefault(); // Ngăn chặn gửi form mặc định để kiểm tra
-
-        const fieldNames = [];
-        const fieldValues = [];
-        const emails = [];
-
-        document.querySelectorAll('input[name="fieldNames[]"]').forEach((input) => {
-            fieldNames.push(input.value);
-        });
-
-        document.querySelectorAll('input[name="fieldValues[]"]').forEach((input) => {
-            fieldValues.push(input.value);
-        });
-
-        document.querySelectorAll('input[name="emails[]"]').forEach((input) => {
-            emails.push(input.value);
-        });
-
-        // Kiểm tra dữ liệu trước khi gửi
-        const groupName = document.getElementById('GroupName').value;
-        console.log('GroupName:', groupName);
-        console.log('FieldNames:', fieldNames);
-        console.log('FieldValues:', fieldValues);
-        console.log('Emails:', emails);
-
-        if (!groupName || fieldNames.length === 0 || fieldValues.length === 0 || emails.length === 0) {
-            alert('Please fill in the group name and add at least one custom field.');
+    function addRecipient() {
+        const container = document.getElementById('recipientsContainer');
+        if (!container) {
+            console.error('Recipients container not found');
             return;
         }
-
-        // Gán giá trị vào các input ẩn
-        document.getElementById('fieldNames').value = JSON.stringify(fieldNames);
-        document.getElementById('fieldValues').value = JSON.stringify(fieldValues);
-        document.getElementById('emails').value = JSON.stringify(emails);
-
-        // Gửi form
-        this.submit();
-    });
+        
+        const recipientCount = container.querySelectorAll('.recipient-container').length;
+        const recipientIndex = recipientCount;
+        
+        const recipientDiv = document.createElement('div');
+        recipientDiv.className = 'recipient-container mb-4 p-3 border rounded bg-light';
+        recipientDiv.innerHTML = `
+            <h6 class="mb-3">Recipient #${recipientIndex + 1}</h6>
+            <div class="mb-3">
+                <div class="form-floating">
+                    <input type="email" class="form-control recipient-email" id="email-${recipientIndex}" name="emails" placeholder="Email" required />
+                    <label for="email-${recipientIndex}">Email Address</label>
+                </div>
+            </div>
+            
+            <div class="recipient-fields">
+                <!-- First Name field -->
+                <div class="custom-field-set rounded mb-3">
+                    <div class="row g-3">
+                        <div class="col-lg-5">
+                            <div class="form-floating">
+                                <input type="text" class="form-control field-key" id="fieldName-${recipientIndex}-0" name="fieldNames" value="FirstName" placeholder="Field Name" required />
+                                <label for="fieldName-${recipientIndex}-0">Field Name</label>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-floating">
+                                <input type="text" class="form-control field-value" id="fieldValue-${recipientIndex}-0" name="fieldValues" placeholder="Field Value" required />
+                                <label for="fieldValue-${recipientIndex}-0">Field Value</label>
+                            </div>
+                        </div>
+                        <div class="col-lg-1 d-flex align-items-center">
+                            <button type="button" class="btn btn-outline-danger" onclick="removeField(this)">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Last Name field -->
+                <div class="custom-field-set rounded mb-3">
+                    <div class="row g-3">
+                        <div class="col-lg-5">
+                            <div class="form-floating">
+                                <input type="text" class="form-control field-key" id="fieldName-${recipientIndex}-1" name="fieldNames" value="LastName" placeholder="Field Name" required />
+                                <label for="fieldName-${recipientIndex}-1">Field Name</label>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-floating">
+                                <input type="text" class="form-control field-value" id="fieldValue-${recipientIndex}-1" name="fieldValues" placeholder="Field Value" required />
+                                <label for="fieldValue-${recipientIndex}-1">Field Value</label>
+                            </div>
+                        </div>
+                        <div class="col-lg-1 d-flex align-items-center">
+                            <button type="button" class="btn btn-outline-danger" onclick="removeField(this)">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-2 d-flex">
+                <button type="button" class="btn btn-sm btn-outline-primary" onclick="addFieldToRecipient(this, ${recipientIndex})">
+                    <i class="bi bi-plus-circle me-1"></i>Add Field
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="removeRecipient(this)">
+                    <i class="bi bi-trash me-1"></i>Remove Recipient
+                </button>
+            </div>
+        `;
+        
+        container.appendChild(recipientDiv);
+    }
+    
+    function addFieldToRecipient(button, recipientIndex) {
+        const recipientDiv = button.closest('.recipient-container');
+        const fieldsContainer = recipientDiv.querySelector('.recipient-fields');
+        const fieldSets = fieldsContainer.querySelectorAll('.custom-field-set');
+        const fieldIndex = fieldSets.length;
+        
+        const fieldDiv = document.createElement('div');
+        fieldDiv.className = 'custom-field-set rounded mb-3';
+        fieldDiv.innerHTML = `
+            <div class="row g-3">
+                <div class="col-lg-5">
+                    <div class="form-floating">
+                        <input type="text" class="form-control field-key" id="fieldName-${recipientIndex}-${fieldIndex}" name="fieldNames" placeholder="Field Name" required />
+                        <label for="fieldName-${recipientIndex}-${fieldIndex}">Field Name</label>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="form-floating">
+                        <input type="text" class="form-control field-value" id="fieldValue-${recipientIndex}-${fieldIndex}" name="fieldValues" placeholder="Field Value" required />
+                        <label for="fieldValue-${recipientIndex}-${fieldIndex}">Field Value</label>
+                    </div>
+                </div>
+                <div class="col-lg-1 d-flex align-items-center">
+                    <button type="button" class="btn btn-outline-danger" onclick="removeField(this)">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        fieldsContainer.appendChild(fieldDiv);
+    }
+    
+    function removeField(button) {
+        const fieldSet = button.closest('.custom-field-set');
+        const recipientDiv = fieldSet.closest('.recipient-container');
+        const fieldsContainer = recipientDiv.querySelector('.recipient-fields');
+        
+        // Ensure at least one field remains
+        if (fieldsContainer.querySelectorAll('.custom-field-set').length > 1) {
+            fieldSet.remove();
+        } else {
+            alert('Each recipient must have at least one custom field.');
+        }
+    }
+    
+    function removeRecipient(button) {
+        const recipientDiv = button.closest('.recipient-container');
+        const container = document.getElementById('recipientsContainer');
+        
+        // Ensure at least one recipient remains
+        if (container.querySelectorAll('.recipient-container').length > 1) {
+            recipientDiv.remove();
+            
+            // Renumber recipient headers
+            const recipients = container.querySelectorAll('.recipient-container');
+            recipients.forEach((recipient, index) => {
+                const header = recipient.querySelector('h6');
+                header.textContent = `Recipient #${index + 1}`;
+            });
+        } else {
+            alert('You must have at least one recipient in the group.');
+        }
+    }
 </script>
 
 <style>
     .custom-field-set {
         background-color: #f8f9fa;
-        border-radius: 4px;
+        padding: 1rem;
+        border: 1px solid #dee2e6;
+        transition: all 0.2s ease;
+    }
+    
+    .custom-field-set:hover {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
     }
 </style>

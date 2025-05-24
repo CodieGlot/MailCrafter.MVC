@@ -1,289 +1,506 @@
-﻿    @model List<MailCrafter.Domain.CustomGroupEntity>
+﻿@model List<MailCrafter.Domain.CustomGroupEntity>
 
-    @{
-        ViewData["Title"] = "Manage Groups";
+@{
+    ViewData["Title"] = "Manage Groups";
+}
+
+<div class="container my-4">
+    <!-- Debug information -->
+    <div class="alert alert-info mb-3">
+        <strong>Debug:</strong> Total groups in model: @Model.Count
+        <ul>
+            @foreach (var group in Model)
+            {
+                <li>Group ID: @group.ID, Name: @group.GroupName</li>
+            }
+        </ul>
+    </div>
+    
+    <div class="row mb-4">
+        <div class="col">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">@ViewData["Title"]</h2>
+                <a asp-action="AddGroup" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-2"></i>Add New Group
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
     }
-<head>
-    <!-- Các thẻ meta, tiêu đề và các liên kết khác -->
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manage Groups</title>
 
-    <!-- Liên kết đến Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
 
-    <!-- Thêm các tệp JavaScript của Bootstrap và jQuery -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
-</head>
+    @if (TempData["InfoMessage"] != null)
+    {
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <i class="bi bi-info-circle me-2"></i>@TempData["InfoMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
 
-    <div class="container mt-4">
-        <h2>@ViewData["Title"]</h2>
-
-        <!-- Hiển thị thông báo thành công -->
-        @if (TempData["SuccessMessage"] != null)
-        {
-            <div class="alert alert-success">
-                @TempData["SuccessMessage"]
+    <!-- Groups List -->
+    @if (!Model.Any())
+    {
+        <div class="card shadow-sm">
+            <div class="card-body text-center p-5">
+                <i class="bi bi-inbox display-1 text-muted mb-3"></i>
+                <h5>No Groups Found</h5>
+                <p class="text-muted">You haven't created any groups yet. Click "Add New Group" to get started.</p>
             </div>
-        }
-
-        <!-- Hiển thị thông báo lỗi -->
-        @if (TempData["ErrorMessage"] != null)
-        {
-            <div class="alert alert-danger">
-                @TempData["ErrorMessage"]
-            </div>
-        }
-
-        @if (!Model.Any())
-        {
-            <p>No groups found.</p>
-        }
-        else
-        {
-            <table class="table">
-                <thead>
-                    <tr>
-                        <th>Group Name</th>
-                        <th>Created At</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var group in Model)
-                    {
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm mb-4">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
                         <tr>
-                            <td>@group.GroupName</td>
-                            <td>@group.CreatedAt</td>
-                            <td>
-                                <!-- Nút View (hiển thị chi tiết trong modal) -->
-                                <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal" data-bs-target="#viewModal-@group.ID">View</button>
-
-                                <!-- Nút Edit (mở form chỉnh sửa trong modal) -->
-                                <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#editModal-@group.ID">Edit</button>
-
-                                <!-- Nút Delete (mở form xác nhận xóa trong modal) -->
-                                <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal-@group.ID">Delete</button>
-                            </td>
+                            <th>Group Name</th>
+                            <th>Created</th>
+                            <th>Fields</th>
+                            <th class="text-end">Actions</th>
                         </tr>
-
-                        <!-- Modal cho View -->
-                        <div class="modal fade" id="viewModal-@group.ID" tabindex="-1" role="dialog" aria-labelledby="viewModalLabel-@group.ID" aria-hidden="true">
-                            <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="viewModalLabel-@group.ID">View Group: @group.GroupName</h5>
-                                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">×</span>
+                    </thead>
+                    <tbody>
+                        @{int counter = 0;}
+                        @foreach (var group in Model)
+                        {
+                            counter++;
+                            <tr>
+                                <td class="align-middle fw-medium">@counter. @group.GroupName</td>
+                                <td class="align-middle">@group.CreatedAt.ToString("MMM dd, yyyy")</td>
+                                <td class="align-middle">@group.CustomFieldsList.Count field(s)</td>
+                                <td class="text-end">
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#viewModal-@group.ID">
+                                            <i class="bi bi-eye me-1"></i>View
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#editModal-@group.ID">
+                                            <i class="bi bi-pencil me-1"></i>Edit
+                                        </button>
+                                        <a href="@Url.Action("SendEmail", "CustomGroup", new { id = group.ID })" class="btn btn-outline-success btn-sm">
+                                            <i class="bi bi-envelope me-1"></i>Send Email
+                                        </a>
+                                        <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal-@group.ID">
+                                            <i class="bi bi-trash me-1"></i>Delete
                                         </button>
                                     </div>
-                                    <div class="modal-body">
-                                        <p><strong>ID:</strong> @group.ID</p>
-                                        <p><strong>User ID:</strong> @group.UserID</p>
-                                        <p><strong>Created At:</strong> @group.CreatedAt</p>
-                                        <p><strong>Updated At:</strong> @group.UpdatedAt</p>
-                                        <h6>Custom Fields:</h6>
-                                        <ul>
-                                            @foreach (var field in group.CustomFieldsList)
-                                            {
-                                                <li>
-                                                    @(field.ContainsKey("fieldName") ? field["fieldName"] : "N/A"):
-                                                    @(field.ContainsKey("fieldValue") ? field["fieldValue"] : "N/A")
-                                                    (Email: @(field.ContainsKey("Email") ? field["Email"] : "N/A"))
-                                                </li>
-                                            }
-                                        </ul>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="alert alert-info mb-4">
+            <strong>Table Row Count:</strong> @counter group(s) displayed in the table
+        </div>
+        
+        <!-- Modals Section -->
+        @foreach (var group in Model)
+        {
+            <!-- View Modal -->
+            <div class="modal fade" id="viewModal-@group.ID" tabindex="-1" aria-labelledby="viewModalLabel-@group.ID" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="viewModalLabel-@group.ID">
+                                <i class="bi bi-people me-2"></i>@group.GroupName
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <p class="mb-1 text-muted small">Created</p>
+                                    <p class="mb-0">@group.CreatedAt.ToString("MMM dd, yyyy HH:mm")</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="mb-1 text-muted small">Last Updated</p>
+                                    <p class="mb-0">@(group.UpdatedAt != null ? group.UpdatedAt.ToString("MMM dd, yyyy HH:mm") : "N/A")</p>
                                 </div>
                             </div>
+                            
+                            <h6 class="border-bottom pb-2 mb-3">Custom Fields</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Email</th>
+                                            <th>Custom Fields</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @for (int i = 0; i < group.CustomFieldsList.Count; i++)
+                                        {
+                                            var recipient = group.CustomFieldsList[i];
+                                            <tr>
+                                                <td>@(i + 1)</td>
+                                                <td>@(recipient.TryGetValue("Email", out var email) ? email.Replace("[", "").Replace("]", "").Replace("\"", "") : "N/A")</td>
+                                                <td>
+                                                    <ul class="list-unstyled mb-0">
+                                                        @foreach (var kvp in recipient.Where(k => k.Key != "Email"))
+                                                        {
+                                                            <li>
+                                                                <strong>@kvp.Key.Replace("[", "").Replace("]", "").Replace("\"", ""):</strong> 
+                                                                @kvp.Value.Replace("[", "").Replace("]", "").Replace("\"", "")
+                                                            </li>
+                                                        }
+                                                    </ul>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                        <!-- Modal cho Edit -->
-                        <div class="modal fade" id="editModal-@group.ID" tabindex="-1" role="dialog" aria-labelledby="editModalLabel-@group.ID" aria-hidden="true">
-                            <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="editModalLabel-@group.ID">Edit Group: @group.GroupName</h5>
-                                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">×</span>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <form id="editForm-@group.ID" method="post" action="@Url.Action("EditGroup", "CustomGroup", new { id = group.ID })">
-                                            <div class="form-group mb-3">
-                                                <label for="GroupName-@group.ID">Group Name</label>
-                                                <input type="text" class="form-control" id="GroupName-@group.ID" name="GroupName" value="@group.GroupName" required />
+            <!-- Edit Modal -->
+            <div class="modal fade" id="editModal-@group.ID" tabindex="-1" aria-labelledby="editModalLabel-@group.ID" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editModalLabel-@group.ID">
+                                <i class="bi bi-pencil-square me-2"></i>Edit Group
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="editForm-@group.ID" method="post" action="@Url.Action("EditGroup", "CustomGroup", new { id = group.ID })">
+                                <div class="mb-3">
+                                    <label for="GroupName-@group.ID" class="form-label">Group Name</label>
+                                    <input type="text" class="form-control" id="GroupName-@group.ID" name="GroupName" value="@group.GroupName" required />
+                                </div>
+
+                                <h6 class="border-bottom pb-2 mb-3">Custom Fields</h6>
+                                <div id="CustomFieldsListContainer-@group.ID">
+                                    @for (int i = 0; i < group.CustomFieldsList.Count; i++)
+                                    {
+                                        var recipient = group.CustomFieldsList[i];
+                                        <div class="recipient-container mb-4 p-3 border rounded bg-light">
+                                            <h6 class="mb-3">Recipient #@(i + 1)</h6>
+                                            <div class="mb-3">
+                                                <div class="form-floating">
+                                                    <input type="email" class="form-control recipient-email" 
+                                                           id="email-@group.ID-@i" name="emails[]"
+                                                           value="@(recipient.TryGetValue("Email", out var email) ? email : "")" 
+                                                           placeholder="Email" required />
+                                                    <label>Email Address</label>
+                                                </div>
                                             </div>
-
-                                            <div id="CustomFieldsListContainer-@group.ID">
-                                                @for (int i = 0; i < group.CustomFieldsList.Count; i++)
+                                            
+                                            <div class="recipient-fields">
+                                                @foreach (var kvp in recipient.Where(k => k.Key != "Email"))
                                                 {
-                                                    <div class="custom-field-set border p-3 mb-3">
-                                                        <div class="row">
-                                                            <div class="col-4">
-                                                                <div class="form-group">
+                                                    <div class="custom-field-set rounded mb-3">
+                                                        <div class="row g-3">
+                                                            <div class="col-lg-5">
+                                                                <div class="form-floating">
+                                                                    <input type="text" class="form-control field-key" 
+                                                                           id="fieldName-@group.ID-@i-@kvp.Key" name="fieldNames[]"
+                                                                           value="@kvp.Key" 
+                                                                           placeholder="Field Name" required />
                                                                     <label>Field Name</label>
-                                                                    <input type="text" class="form-control field-key" name="fieldNames[]"
-                                                                           value="@(group.CustomFieldsList[i].ContainsKey("fieldName") ? group.CustomFieldsList[i]["fieldName"] : "")" required />
                                                                 </div>
                                                             </div>
-                                                            <div class="col-4">
-                                                                <div class="form-group">
+                                                            <div class="col-lg-6">
+                                                                <div class="form-floating">
+                                                                    <input type="text" class="form-control field-value" 
+                                                                           id="fieldValue-@group.ID-@i-@kvp.Key" name="fieldValues[]"
+                                                                           value="@kvp.Value" 
+                                                                           placeholder="Field Value" required />
                                                                     <label>Field Value</label>
-                                                                    <input type="text" class="form-control field-value" name="fieldValues[]"
-                                                                           value="@(group.CustomFieldsList[i].ContainsKey("fieldValue") ? group.CustomFieldsList[i]["fieldValue"] : "")" required />
                                                                 </div>
                                                             </div>
-                                                            <div class="col-3">
-                                                                <div class="form-group">
-                                                                    <label>Email</label>
-                                                                    <input type="email" class="form-control" name="emails[]"
-                                                                           value="@(group.CustomFieldsList[i].ContainsKey("Email") ? group.CustomFieldsList[i]["Email"] : "")" required />
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-1">
-                                                                <button type="button" class="btn btn-danger mt-4" onclick="removeField(this, '@group.ID')">Remove</button>
+                                                            <div class="col-lg-1 d-flex align-items-center">
+                                                                <button type="button" class="btn btn-outline-danger" onclick="removeField(this, '@group.ID')">
+                                                                    <i class="bi bi-x-lg"></i>
+                                                                </button>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 }
                                             </div>
+                                            
+                                            <div class="mt-2">
+                                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="addFieldToRecipient(this, '@group.ID', @i)">
+                                                    <i class="bi bi-plus-circle me-1"></i>Add Field
+                                                </button>
+                                                @if (i > 0)
+                                                {
+                                                    <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="removeRecipient(this, '@group.ID')">
+                                                        <i class="bi bi-trash me-1"></i>Remove Recipient
+                                                    </button>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
 
-                                            <input type="hidden" id="fieldNames-@group.ID" name="fieldNames" />
-                                            <input type="hidden" id="fieldValues-@group.ID" name="fieldValues" />
-                                            <input type="hidden" id="emails-@group.ID" name="emails" />
+                                <input type="hidden" id="emails-@group.ID" name="emails" />
+                                <input type="hidden" id="fieldNames-@group.ID" name="fieldNames" />
+                                <input type="hidden" id="fieldValues-@group.ID" name="fieldValues" />
 
-                                            <button type="button" class="btn btn-secondary mb-3" onclick="addCustomField('@group.ID')">Add Custom Field</button>
-                                            <button type="submit" class="btn btn-primary">Save Changes</button>
-                                        </form>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <div class="d-flex justify-content-between mt-3">
+                                    <button type="button" class="btn btn-outline-primary" onclick="addRecipient('@group.ID')">
+                                        <i class="bi bi-plus-circle me-2"></i>Add Recipient
+                                    </button>
+                                    <div>
+                                        <button type="button" class="btn btn-outline-secondary me-2" data-bs-dismiss="modal">Cancel</button>
+                                        <button type="submit" class="btn btn-primary">Save Changes</button>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-
-                        <!-- Modal cho Delete -->
-                        <div class="modal fade" id="deleteModal-@group.ID" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel-@group.ID" aria-hidden="true">
-                            <div class="modal-dialog" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="deleteModalLabel-@group.ID">Delete Group: @group.GroupName</h5>
-                                        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-                                            <span aria-hidden="true">×</span>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <p>Are you sure you want to delete this group?</p>
-                                        <p><strong>Group Name:</strong> @group.GroupName</p>
-                                        <p><strong>User ID:</strong> @group.UserID</p>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <form asp-action="DeleteGroupConfirmed" asp-route-id="@group.ID" method="post">
-                                            <button type="submit" class="btn btn-danger">Yes, Delete</button>
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    }
-                </tbody>
-            </table>
-        }
-
-        <a asp-action="AddGroup" class="btn btn-primary">Add New Group</a>
-    </div>
-
-    <script>
-        // Hàm để thêm trường tùy chỉnh mới
-        function addCustomField(groupId) {
-            const container = document.getElementById('CustomFieldsListContainer-' + groupId);
-            if (!container) {
-                console.error('Container not found for groupId:', groupId);
-                return;
-            }
-            const fieldSet = document.createElement('div');
-            fieldSet.className = 'custom-field-set border p-3 mb-3';
-            fieldSet.innerHTML = `
-                    <div class="row">
-                        <div class="col-4">
-                            <div class="form-group">
-                                <label>Field Name</label>
-                                <input type="text" class="form-control field-key" name="fieldNames[]" required />
-                            </div>
-                        </div>
-                        <div class="col-4">
-                            <div class="form-group">
-                                <label>Field Value</label>
-                                <input type="text" class="form-control field-value" name="fieldValues[]" required />
-                            </div>
-                        </div>
-                        <div class="col-3">
-                            <div class="form-group">
-                                <label>Email</label>
-                                <input type="email" class="form-control" name="emails[]" required />
-                            </div>
-                        </div>
-                        <div class="col-1">
-                            <button type="button" class="btn btn-danger mt-4" onclick="removeField(this, '${groupId}')">Remove</button>
+                            </form>
                         </div>
                     </div>
-                `;
-            container.appendChild(fieldSet);
+                </div>
+            </div>
+
+            <!-- Delete Modal -->
+            <div class="modal fade" id="deleteModal-@group.ID" tabindex="-1" aria-labelledby="deleteModalLabel-@group.ID" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header bg-danger text-white">
+                            <h5 class="modal-title" id="deleteModalLabel-@group.ID">
+                                <i class="bi bi-exclamation-triangle me-2"></i>Delete Group
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Are you sure you want to delete this group?</p>
+                            <p class="mb-0"><strong>Group Name:</strong> @group.GroupName</p>
+                            <p class="mb-0 text-danger"><small>This action cannot be undone.</small></p>
+                        </div>
+                        <div class="modal-footer">
+                            <form asp-action="DeleteGroupConfirmed" asp-route-id="@group.ID" method="post">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="bi bi-trash me-2"></i>Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
         }
+    }
+</div>
 
-        // Hàm để xóa một trường tùy chỉnh
-        function removeField(button, groupId) {
-            button.closest('.custom-field-set').remove();
+<script>
+    function addRecipient(groupId) {
+        const container = document.getElementById('CustomFieldsListContainer-' + groupId);
+        if (!container) {
+            console.error('Container not found for groupId:', groupId);
+            return;
         }
-
-        // Đảm bảo rằng các tên, giá trị và email được gửi lên server cho mỗi form edit
-        document.querySelectorAll('[id^="editForm-"]').forEach(form => {
-            form.addEventListener('submit', function (event) {
-                const groupId = form.id.replace('editForm-', '');
-                const fieldNames = [];
-                const fieldValues = [];
-                const emails = [];
-
-                document.querySelectorAll(`#CustomFieldsListContainer-${groupId} input[name="fieldNames[]"]`).forEach((input) => {
-                    fieldNames.push(input.value);
-                });
-
-                document.querySelectorAll(`#CustomFieldsListContainer-${groupId} input[name="fieldValues[]"]`).forEach((input) => {
-                    fieldValues.push(input.value);
-                });
-
-                document.querySelectorAll(`#CustomFieldsListContainer-${groupId} input[name="emails[]"]`).forEach((input) => {
-                    emails.push(input.value);
-                });
-
-                document.getElementById(`fieldNames-${groupId}`).value = JSON.stringify(fieldNames);
-                document.getElementById(`fieldValues-${groupId}`).value = JSON.stringify(fieldValues);
-                document.getElementById(`emails-${groupId}`).value = JSON.stringify(emails);
-            });
+        
+        const recipientCount = container.querySelectorAll('.recipient-container').length;
+        const recipientIndex = recipientCount;
+        
+        const recipientDiv = document.createElement('div');
+        recipientDiv.className = 'recipient-container mb-4 p-3 border rounded bg-light';
+        recipientDiv.innerHTML = `
+            <h6 class="mb-3">Recipient #${recipientIndex + 1}</h6>
+            <div class="mb-3">
+                <div class="form-floating">
+                    <input type="email" class="form-control recipient-email" 
+                           id="email-${groupId}-${recipientIndex}" name="emails[]"
+                           placeholder="Email" required />
+                    <label>Email Address</label>
+                </div>
+            </div>
+            
+            <div class="recipient-fields">
+                <!-- Fields will be added here -->
+            </div>
+            
+            <div class="mt-2">
+                <button type="button" class="btn btn-sm btn-outline-primary" onclick="addFieldToRecipient(this, '${groupId}', ${recipientIndex})">
+                    <i class="bi bi-plus-circle me-1"></i>Add Field
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-danger ms-2" onclick="removeRecipient(this, '${groupId}')">
+                    <i class="bi bi-trash me-1"></i>Remove Recipient
+                </button>
+            </div>
+        `;
+        
+        container.appendChild(recipientDiv);
+        
+        // Add default fields (FirstName, LastName)
+        const fieldsContainer = recipientDiv.querySelector('.recipient-fields');
+        
+        addDefaultField(fieldsContainer, groupId, recipientIndex, 'FirstName', '');
+        addDefaultField(fieldsContainer, groupId, recipientIndex, 'LastName', '');
+    }
+    
+    function addDefaultField(container, groupId, recipientIndex, fieldName, fieldValue) {
+        const fieldDiv = document.createElement('div');
+        fieldDiv.className = 'custom-field-set rounded mb-3';
+        fieldDiv.innerHTML = `
+            <div class="row g-3">
+                <div class="col-lg-5">
+                    <div class="form-floating">
+                        <input type="text" class="form-control field-key" 
+                               id="fieldName-${groupId}-${recipientIndex}-${fieldName}" name="fieldNames[]"
+                               value="${fieldName}" 
+                               placeholder="Field Name" required />
+                        <label>Field Name</label>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="form-floating">
+                        <input type="text" class="form-control field-value" 
+                               id="fieldValue-${groupId}-${recipientIndex}-${fieldName}" name="fieldValues[]"
+                               value="${fieldValue}" 
+                               placeholder="Field Value" required />
+                        <label>Field Value</label>
+                    </div>
+                </div>
+                <div class="col-lg-1 d-flex align-items-center">
+                    <button type="button" class="btn btn-outline-danger" onclick="removeField(this, '${groupId}')">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        container.appendChild(fieldDiv);
+    }
+    
+    function addFieldToRecipient(button, groupId, recipientIndex) {
+        const recipientDiv = button.closest('.recipient-container');
+        const fieldsContainer = recipientDiv.querySelector('.recipient-fields');
+        
+        const fieldDiv = document.createElement('div');
+        fieldDiv.className = 'custom-field-set rounded mb-3';
+        fieldDiv.innerHTML = `
+            <div class="row g-3">
+                <div class="col-lg-5">
+                    <div class="form-floating">
+                        <input type="text" class="form-control field-key" 
+                               id="fieldName-${groupId}-${recipientIndex}-new" name="fieldNames[]"
+                               placeholder="Field Name" required />
+                        <label>Field Name</label>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="form-floating">
+                        <input type="text" class="form-control field-value" 
+                               id="fieldValue-${groupId}-${recipientIndex}-new" name="fieldValues[]"
+                               placeholder="Field Value" required />
+                        <label>Field Value</label>
+                    </div>
+                </div>
+                <div class="col-lg-1 d-flex align-items-center">
+                    <button type="button" class="btn btn-outline-danger" onclick="removeField(this, '${groupId}')">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        fieldsContainer.appendChild(fieldDiv);
+    }
+    
+    function removeField(button, groupId) {
+        button.closest('.custom-field-set').remove();
+    }
+    
+    function removeRecipient(button, groupId) {
+        const recipientDiv = button.closest('.recipient-container');
+        recipientDiv.remove();
+        
+        // Renumber recipient headers
+        const container = document.getElementById('CustomFieldsListContainer-' + groupId);
+        const recipients = container.querySelectorAll('.recipient-container');
+        recipients.forEach((recipient, index) => {
+            const header = recipient.querySelector('h6');
+            header.textContent = `Recipient #${index + 1}`;
         });
+    }
 
-        // Debug cho các nút modal
-        document.querySelectorAll('button[data-bs-toggle="modal"]').forEach(button => {
-            button.addEventListener('click', function () {
-                console.log('Button clicked, target:', this.getAttribute('data-bs-target'));
+    // Handle form submission
+    document.querySelectorAll('[id^="editForm-"]').forEach(form => {
+        form.addEventListener('submit', function (event) {
+            const groupId = form.id.replace('editForm-', '');
+            const emails = [];
+            const fieldNames = [];
+            const fieldValues = [];
+
+            // Get all recipient containers
+            const recipients = document.querySelectorAll(`#CustomFieldsListContainer-${groupId} .recipient-container`);
+            
+            // Process each recipient
+            recipients.forEach((recipient, recipientIndex) => {
+                // Get the email
+                const emailInput = recipient.querySelector('.recipient-email');
+                emails.push(emailInput.value);
+                
+                // Get all custom fields for this recipient
+                const fieldInputs = recipient.querySelectorAll('.custom-field-set');
+                fieldInputs.forEach(field => {
+                    const nameInput = field.querySelector('.field-key');
+                    const valueInput = field.querySelector('.field-value');
+                    
+                    if (nameInput && valueInput) {
+                        fieldNames.push(nameInput.value);
+                        fieldValues.push(valueInput.value);
+                    }
+                });
             });
+
+            document.getElementById(`emails-${groupId}`).value = JSON.stringify(emails);
+            document.getElementById(`fieldNames-${groupId}`).value = JSON.stringify(fieldNames);
+            document.getElementById(`fieldValues-${groupId}`).value = JSON.stringify(fieldValues);
         });
-    </script>
+    });
+</script>
 
-    <style>
-        .modal {
-            z-index: 1050 !important;
+<style>
+    .custom-field-set {
+        background-color: #f8f9fa;
+        padding: 1rem;
+        border: 1px solid #dee2e6;
+        transition: all 0.2s ease;
+    }
+    
+    .custom-field-set:hover {
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+    
+    .modal-dialog-centered {
+        display: flex;
+        align-items: center;
+        min-height: calc(100% - 1rem);
+    }
+    
+    /* Media query for responsive design */
+    @@media (min-width: 576px) {
+        .modal-dialog-centered {
+            min-height: calc(100% - 3.5rem);
         }
-
-        .custom-field-set {
-            background-color: #f8f9fa;
-            border-radius: 4px;
-        }
-    </style>
+    }
+</style>

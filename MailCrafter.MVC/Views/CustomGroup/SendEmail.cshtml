@@ -1,0 +1,157 @@
+@model MailCrafter.MVC.Models.SendEmailViewModel
+@{
+    ViewData["Title"] = "Send Personalized Email";
+    var group = ViewBag.Group as MailCrafter.Domain.CustomGroupEntity;
+    var templates = ViewBag.Templates as List<MailCrafter.Domain.EmailTemplateEntity>;
+    var emailAccounts = ViewBag.EmailAccounts as List<MailCrafter.Domain.EmailAccount>;
+}
+
+<div class="container my-4">
+    <div class="row mb-4">
+        <div class="col">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">@ViewData["Title"]</h2>
+                <a asp-action="ManageGroups" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-2"></i>Back to Groups
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">
+                <i class="bi bi-envelope me-2"></i>Send Personalized Email to Group: @group.GroupName
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info mb-4">
+                <i class="bi bi-info-circle me-2"></i>
+                <strong>Personalized Email:</strong> This will send individual emails to each member of the group, with custom fields personalized for each recipient.
+            </div>
+
+            <form method="post" asp-action="SendEmail" asp-route-id="@group.ID" id="sendEmailForm">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="GroupId" value="@group.ID" />
+
+                <div class="mb-3">
+                    <label asp-for="TemplateId" class="form-label">Email Template</label>
+                    <select asp-for="TemplateId" class="form-select" asp-items="@(new SelectList(templates, "ID", "Name"))">
+                        <option value="">-- Select a Template --</option>
+                    </select>
+                    <span asp-validation-for="TemplateId" class="text-danger"></span>
+                    <div class="form-text">
+                        Select the email template to use. The template should include placeholders matching your group's custom fields.
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="FromEmail" class="form-label">Send From</label>
+                    <select asp-for="FromEmail" class="form-select" asp-items="@(new SelectList(emailAccounts, "Email", "Email"))">
+                        <option value="">-- Select an Email Account --</option>
+                    </select>
+                    <span asp-validation-for="FromEmail" class="text-danger"></span>
+                </div>
+
+                <!-- Template Preview -->
+                <div id="templatePreview" class="mb-4 d-none">
+                    <h5 class="border-bottom pb-2 mb-3">Template Preview</h5>
+                    <div class="card">
+                        <div class="card-header">
+                            <strong id="previewSubject"></strong>
+                        </div>
+                        <div class="card-body">
+                            <div id="previewBody"></div>
+                        </div>
+                    </div>
+                    <div class="form-text">
+                        <strong>Note:</strong> Placeholders will be replaced with actual values from each recipient's data.
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="CC" class="form-label">CC (Optional)</label>
+                    <input type="text" id="ccInput" class="form-control" placeholder="Enter email addresses separated by commas">
+                    <span asp-validation-for="CC" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Bcc" class="form-label">BCC (Optional)</label>
+                    <input type="text" id="bccInput" class="form-control" placeholder="Enter email addresses separated by commas">
+                    <span asp-validation-for="Bcc" class="text-danger"></span>
+                </div>
+
+                <div class="mb-4">
+                    <h5 class="border-bottom pb-2 mb-3">Group Information</h5>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Field Name</th>
+                                    <th>Sample Values</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (group != null && group.CustomFieldsList != null && group.CustomFieldsList.Count > 0)
+                                {
+                                    var sampleRecipient = group.CustomFieldsList.FirstOrDefault();
+                                    if (sampleRecipient != null)
+                                    {
+                                        foreach (var kvp in sampleRecipient)
+                                        {
+                                            string key = kvp.Key.Replace("[", "").Replace("]", "").Replace("\"", "");
+                                            string value = kvp.Value.Replace("[", "").Replace("]", "").Replace("\"", "");
+                                            <tr>
+                                                <td>@key</td>
+                                                <td>@value</td>
+                                            </tr>
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="2" class="text-center">No custom fields found in this group.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="form-text">
+                        <strong>Note:</strong> These are sample values from one of the group members. 
+                        Each recipient will receive personalized content based on their own data.
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    <a asp-action="ManageGroups" class="btn btn-outline-secondary me-2">Cancel</a>
+                    <button type="submit" class="btn btn-primary" id="submitButton">
+                        <i class="bi bi-send me-2"></i>Send Personalized Emails
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/js/emailValidation.js"></script>
+} 

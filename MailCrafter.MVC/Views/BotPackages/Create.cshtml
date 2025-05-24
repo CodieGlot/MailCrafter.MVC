@@ -1,0 +1,108 @@
+﻿@model MailCrafter.MVC.Controllers.BotPackageCreateViewModel
+@{
+    ViewData["Title"] = "Upload Bot Package";
+}
+
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
+    <h1>Upload Bot Package</h1>
+    <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
+        <i class="fas fa-arrow-left"></i> Back to List
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Package Information</h5>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post" enctype="multipart/form-data">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label">Package Name</label>
+                        <input asp-for="Name" class="form-control" placeholder="Enter package name" required />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                        <small class="form-text text-muted">A descriptive name for this package</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label">Description</label>
+                        <textarea asp-for="Description" class="form-control" rows="3" placeholder="Enter package description"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                        <small class="form-text text-muted">Optional description of what this package does</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Version" class="form-label">Version</label>
+                        <input asp-for="Version" class="form-control" placeholder="1.0.0" />
+                        <span asp-validation-for="Version" class="text-danger"></span>
+                        <small class="form-text text-muted">Version number in format X.Y.Z</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="PackageFile" class="form-label">Package File</label>
+                        <input asp-for="PackageFile" type="file" class="form-control" accept=".zip,.py" required />
+                        <span asp-validation-for="PackageFile" class="text-danger"></span>
+                        <small class="form-text text-muted">Upload a .zip file containing Python code or a single .py file</small>
+                    </div>
+
+                    <div class="mt-4 d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-upload"></i> Upload Package
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Package Guidelines</h5>
+            </div>
+            <div class="card-body">
+                <h6>Supported File Types</h6>
+                <ul>
+                    <li><strong>.zip</strong> - Compressed Python project</li>
+                    <li><strong>.py</strong> - Single Python script file</li>
+                </ul>
+
+                <h6>Package Structure</h6>
+                <p>For ZIP files, include:</p>
+                <ul>
+                    <li><code>main.py</code> or <code>__main__.py</code> - Entry point</li>
+                    <li><code>requirements.txt</code> - Python dependencies</li>
+                </ul>
+
+                <div class="alert alert-info mt-3">
+                    <i class="fas fa-info-circle"></i> Packages are deployed to robots and executed in a Python environment.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Preview the selected file details
+        document.addEventListener('DOMContentLoaded', function() {
+            const fileInput = document.getElementById('PackageFile');
+            if (fileInput) {
+                fileInput.addEventListener('change', function() {
+                    if (this.files && this.files[0]) {
+                        const file = this.files[0];
+                        // Auto-fill the name field if empty
+                        const nameField = document.getElementById('Name');
+                        if (nameField.value === '') {
+                            let baseName = file.name.replace(/\.[^/.]+$/, ""); // Remove extension
+                            nameField.value = baseName;
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+}
