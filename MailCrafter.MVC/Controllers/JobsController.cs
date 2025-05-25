@@ -19,15 +19,18 @@ namespace MailCrafter.MVC.Controllers
         private readonly IEmailTemplateService _templateService = templateService;
         private readonly IAppUserService _accountService = accountService;
         private readonly ICustomGroupService _groupService = groupService;
+        private readonly MVCTaskQueueInstance _taskQueue = taskQueue;
+        private readonly IAesEncryptionHelper _encryptionHelper = encryptionHelper;
         private readonly ILogger<JobsController> _logger = logger;
 
+        [Route("/jobs")]
         [HttpGet]
         public async Task<IActionResult> Index()
         {
             var details = new BasicEmailDetailsModel
             {
                 TemplateID = "67b1641f204c8d7bf4162658",
-                Recipients = ["recipient@gmail.com"],
+                Recipients = ["minhdqde180271@fpt.edu.vn"],
                 FromMail = "codie.technical@gmail.com",
                 AppPassword = encryptionHelper.Encrypt("app-password"),
             };
@@ -35,6 +38,58 @@ namespace MailCrafter.MVC.Controllers
             await taskQueue.EnqueueAsync(WorkerTaskNames.Send_Basic_Email, details);
 
             return View();
+        }
+
+        [HttpPost]
+        [Route("api/jobs")]
+        public async Task<IActionResult> CreateJob([FromBody] CreateJobRequest request)
+        {
+            try
+            {
+                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                
+                // Get template details
+                var template = await _templateService.GetById(request.TemplateId);
+                if (template == null || template.UserID != userId)
+                {
+                    return BadRequest("Invalid template selected");
+                }
+
+                // Get group details if group is selected
+                var recipients = new List<string>();
+                if (!string.IsNullOrEmpty(request.GroupId))
+                {
+                    var group = await _groupService.GetById(request.GroupId);
+                    if (group == null || group.UserID != userId)
+                    {
+                        return BadRequest("Invalid group selected");
+                    }
+                    // Extract emails from CustomFieldsList
+                    recipients = group.CustomFieldsList
+                        .Where(field => field.ContainsKey("Email"))
+                        .Select(field => field["Email"])
+                        .ToList();
+                }
+
+                // Create email details
+                var details = new BasicEmailDetailsModel
+                {
+                    TemplateID = request.TemplateId,
+                    Recipients = recipients,
+                    FromMail = request.FromEmail,
+                    AppPassword = _encryptionHelper.Encrypt("app-password"), // You should get this from your email account settings
+                };
+
+                // Queue the email sending task
+                await _taskQueue.EnqueueAsync(WorkerTaskNames.Send_Basic_Email, details);
+
+                return Ok(new { message = "Email job created successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating email job");
+                return StatusCode(500, "Failed to create email job");
+            }
         }
 
         #region API Endpoints for AJAX
@@ -162,5 +217,12 @@ namespace MailCrafter.MVC.Controllers
         }
 
         #endregion
+    }
+
+    public class CreateJobRequest
+    {
+        public string TemplateId { get; set; }
+        public string FromEmail { get; set; }
+        public string GroupId { get; set; }
     }
 }

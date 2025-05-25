@@ -4,50 +4,76 @@
     ViewData["Title"] = "Manage Email Accounts";
 }
 
-
-<div class="manage-email-accounts">
-    <div class="manage-email-accounts__container">
-        <h1 class="manage-email-accounts__title">Manage Email Accounts</h1>
-        <ul class="manage-email-accounts__list">
-            <li class="manage-email-accounts__item fixed">
-                <p class="manage-email-accounts__text heading">Email</p>
-                <p class="manage-email-accounts__text heading center">Edit</p>
-            </li>
-            @foreach (var email in Model)
-            {
-                <li class="manage-email-accounts__item">
-                    <p class="manage-email-accounts__text">@email</p>
-                    <div class="manage-email-accounts__action">                       
-                        <i class="fa-regular fa-pen-to-square manage-email-accounts__action--icon update-password" data-email="@email"></i>
-                        <i class="fa-regular fa-trash-can manage-email-accounts__action--icon delete-email" data-email="@email"></i>
-                    </div>
-                </li>
-            }
-        </ul>
-        <button onclick="switchToAddEmailAccount()" class="btn-add-email">Add Email Account</button>
+<div class="container py-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="h4 mb-0 text-primary">Email Accounts</h2>
+                <button onclick="switchToAddEmailAccount()" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Add Email Account
+                </button>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="py-3 px-4">Email Address</th>
+                            <th class="py-3 px-4 text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var email in Model)
+                        {
+                            <tr>
+                                <td class="py-3 px-4 align-middle">
+                                    <i class="fas fa-envelope text-muted me-2"></i>
+                                    @email
+                                </td>
+                                <td class="py-3 px-4 text-end">
+                                    <button class="btn btn-sm btn-outline-warning me-2 update-password" data-email="@email">
+                                        <i class="fas fa-key me-1"></i>Change Password
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger delete-email" data-email="@email">
+                                        <i class="fas fa-trash-alt me-1"></i>Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
->>>>>>> Stashed changes
 </div>
 
 <!-- Modal Update Password -->
 <div class="modal fade" id="updatePasswordModal" tabindex="-1" aria-labelledby="updatePasswordModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header bg-warning text-dark">
-                <h5 class="modal-title" id="updatePasswordModalLabel">Update Email Password</h5>
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title" id="updatePasswordModalLabel">
+                    <i class="fas fa-key me-2"></i>Update Email Password
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <input type="hidden" id="updateEmail">
                 <div class="mb-3">
                     <label class="form-label">New Password</label>
-                    <input type="password" class="form-control" id="newPassword">
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="newPassword" placeholder="Enter new password">
+                        <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 <button type="button" class="btn btn-warning" id="confirmUpdatePassword">
-                    <span id="loadingUpdatePassword" class="spinner-border spinner-border-sm d-none"></span>
+                    <span id="loadingUpdatePassword" class="spinner-border spinner-border-sm d-none me-1"></span>
                     Update Password
                 </button>
             </div>
@@ -58,10 +84,17 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function () {
-        // Xóa email
+        // Toggle password visibility
+        $("#togglePassword").click(function() {
+            const passwordInput = $("#newPassword");
+            const type = passwordInput.attr("type") === "password" ? "text" : "password";
+            passwordInput.attr("type", type);
+            $(this).find("i").toggleClass("fa-eye fa-eye-slash");
+        });
+
+        // Delete email
         $(document).on("click", ".delete-email", function () {
             var email = $(this).data("email");
-
             if (confirm("Are you sure you want to remove this email account?")) {
                 $.ajax({
                     url: `/remove?email=${encodeURIComponent(email)}`,
@@ -78,51 +111,63 @@
             }
         });
 
-        // Mở modal cập nhật mật khẩu
+        // Open update password modal
         $(document).on("click", ".update-password", function () {
             var email = $(this).data("email");
             $("#updateEmail").val(email);
+            $("#newPassword").val("");
             $("#updatePasswordModal").modal("show");
         });
 
-        // Cập nhật mật khẩu email
-            $("#confirmUpdatePassword").click(function () {
-        var email = $("#updateEmail").val();
-        var newPassword = $("#newPassword").val();
+        // Update email password
+        $("#confirmUpdatePassword").click(function () {
+            var email = $("#updateEmail").val();
+            var newPassword = $("#newPassword").val();
 
-        $("#loadingUpdatePassword").removeClass("d-none");
-
-        $.ajax({
-            url: `/update-password?email=${encodeURIComponent(email)}`,
-            type: "PUT",
-            contentType: "application/json",
-            data: JSON.stringify(newPassword),
-            success: function (response) {
-                console.log("Update success:", response);
-                showToast(response.message, "success");
-                $("#updatePasswordModal").modal("hide");
-            },
-            error: function (xhr) {
-                var message = xhr.responseJSON?.message || "Failed to update password.";
-                console.error("Update failed:", message);
-                showToast(message, "danger");
-            },
-            complete: function () {
-                $("#loadingUpdatePassword").addClass("d-none");
+            if (!newPassword) {
+                showToast("Please enter a new password", "warning");
+                return;
             }
-        });
-    });
 
-        // Hiển thị thông báo
+            $("#loadingUpdatePassword").removeClass("d-none");
+            $(this).prop("disabled", true);
+
+            $.ajax({
+                url: `/update-password?email=${encodeURIComponent(email)}`,
+                type: "PUT",
+                contentType: "application/json",
+                data: JSON.stringify(newPassword),
+                success: function (response) {
+                    showToast(response.message, "success");
+                    $("#updatePasswordModal").modal("hide");
+                },
+                error: function (xhr) {
+                    var message = xhr.responseJSON?.message || "Failed to update password.";
+                    showToast(message, "danger");
+                },
+                complete: function () {
+                    $("#loadingUpdatePassword").addClass("d-none");
+                    $("#confirmUpdatePassword").prop("disabled", false);
+                }
+            });
+        });
+
+        // Show toast notification
         function showToast(message, type) {
-            $(".toast").remove(); // Xóa tất cả toast trước đó
-            var toast = `<div class="toast align-items-center text-bg-${type} border-0 show position-fixed top-0 end-0 m-3" role="alert">
-                            <div class="d-flex">
-                                <div class="toast-body">${message}</div>
-                                <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"></button>
-                            </div>
-                         </div>`;
+            $(".toast").remove();
+            var toast = `
+                <div class="toast align-items-center text-white bg-${type} border-0 position-fixed top-0 end-0 m-3" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'warning' ? 'fa-exclamation-circle' : 'fa-times-circle'} me-2"></i>
+                            ${message}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                    </div>
+                </div>`;
             $("body").append(toast);
+            var toastElement = new bootstrap.Toast($(".toast"));
+            toastElement.show();
             setTimeout(() => $(".toast").fadeOut(500, function () { $(this).remove(); }), 3000);
         }
     });
