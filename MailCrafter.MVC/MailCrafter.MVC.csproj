@@ -20,14 +20,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Models\EmailTemplate\" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\MailCrafter.Core\Domain\Domain.csproj" />
     <ProjectReference Include="..\..\MailCrafter.Core\Repositories\Repositories.csproj" />
     <ProjectReference Include="..\..\MailCrafter.Core\Services\Services.csproj" />
     <ProjectReference Include="..\..\MailCrafter.Core\Utils\Utils.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Models\EmailTemplate\" />
+    <ProjectReference Include="..\..\MailCrafter.Worker\MailCrafter.Worker\Worker.csproj" />
   </ItemGroup>
 
 </Project>

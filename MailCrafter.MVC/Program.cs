@@ -1,5 +1,5 @@
 using MailCrafter.Services;
-
+using MailCrafter.Worker;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
@@ -9,13 +9,19 @@ builder.Services.AddAuthentication("CookieAuth")
         config.Cookie.Name = "UserLoginCookie";
         config.LoginPath = "/login";
     });
+
 var configuration = new ConfigurationBuilder()
-           .AddJsonFile(@"C:\MailCrafter\Development\Core\appsettings.Development.json", optional: true, reloadOnChange: true)
-           .Build();
+    .AddJsonFile(@"C:\MailCrafter\Development\Core\appsettings.Development.json", optional: false, reloadOnChange: true)
+    .Build();
 builder.Services.AddSingleton<IConfiguration>(configuration);
+
 // Register MongoDB client and repositories
 builder.Services.AddCoreServices();
 
+// Add MVCWorker
+builder.Services.AddHostedService<MVCWorker>();
+builder.Services.AddSingleton<MVCTaskQueueInstance>();
+builder.Services.AddTaskHandlers();
 
 var app = builder.Build();
 

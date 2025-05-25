@@ -1,6 +1,6 @@
 ﻿using MailCrafter.Domain;
 using MailCrafter.Services;
-using MailCrafter.Services.Job;
+using MailCrafter.Utils.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -8,94 +8,33 @@ using System.Security.Claims;
 namespace MailCrafter.MVC.Controllers
 {
     [Authorize]
-    public class JobsController : Controller
+    public class JobsController(
+        IEmailTemplateService templateService,
+        IAppUserService accountService,
+        ICustomGroupService groupService,
+        MVCTaskQueueInstance taskQueue,
+        IAesEncryptionHelper encryptionHelper,
+        ILogger<JobsController> logger) : Controller
     {
-        private readonly IEmailJobService _jobService;
-        private readonly IEmailTemplateService _templateService;
-        private readonly IAppUserService _accountService;
-        private readonly ICustomGroupService _groupService;
-        private readonly ILogger<JobsController> _logger;
+        private readonly IEmailTemplateService _templateService = templateService;
+        private readonly IAppUserService _accountService = accountService;
+        private readonly ICustomGroupService _groupService = groupService;
+        private readonly ILogger<JobsController> _logger = logger;
 
-        public JobsController(
-            IEmailJobService jobService,
-            IEmailTemplateService templateService,
-            IAppUserService accountService,
-            ICustomGroupService groupService,
-            ILogger<JobsController> logger)
-        {
-            _jobService = jobService;
-            _templateService = templateService;
-            _accountService = accountService;
-            _groupService = groupService;
-            _logger = logger;
-        }
-
-        /// <summary>
-        /// Display the jobs list page
-        /// </summary>
         [HttpGet]
-        [Route("jobs")]
-        public async Task<IActionResult> Index(PageQueryDTO queryDTO)
+        public async Task<IActionResult> Index()
         {
-            try
+            var details = new BasicEmailDetailsModel
             {
-                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                //var queryDTO = new PageQueryDTO
-                //{
-                //    Top = 100,  // Get most recent jobs, can implement pagination later
-                //    Skip = 0,
-                //    SortBy = "CreatedAt",
-                //    SortOrder = SortOrder.Desc
-                //};
-                 queryDTO = new PageQueryDTO
-                {
-                    Top = 100,
-                    Skip = 0
-                };
+                TemplateID = "67b1641f204c8d7bf4162658",
+                Recipients = ["recipient@gmail.com"],
+                FromMail = "codie.technical@gmail.com",
+                AppPassword = encryptionHelper.Encrypt("app-password"),
+            };
 
-                var jobs = await _jobService.GetPageQueryDataAsync(queryDTO);
-                jobs = jobs.Where(j => j.UserID == userId).ToList();
+            await taskQueue.EnqueueAsync(WorkerTaskNames.Send_Basic_Email, details);
 
-                return View(jobs);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving jobs");
-                TempData["ErrorMessage"] = "Failed to retrieve jobs. Please try again later.";
-                return View(new List<EmailJobEntity>());
-            }
-        }
-
-        /// <summary>
-        /// Show detailed information about a specific job
-        /// </summary>
-        [HttpGet]
-        [Route("jobs/{id}")]
-        public async Task<IActionResult> Details(string id)
-        {
-            if (string.IsNullOrEmpty(id))
-            {
-                return BadRequest("Job ID is required");
-            }
-
-            try
-            {
-                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var job = await _jobService.GetById(id);
-
-                if (job == null || job.UserID != userId)
-                {
-                    return NotFound();
-                }
-
-                return View(job);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving job details for ID {JobId}", id);
-                TempData["ErrorMessage"] = "Failed to retrieve job details. Please try again later.";
-                return RedirectToAction(nameof(Index));
-            }
+            return View();
         }
 
         #region API Endpoints for AJAX
@@ -119,7 +58,8 @@ namespace MailCrafter.MVC.Controllers
                 var templates = await _templateService.GetPageQueryDataAsync(queryDTO);
                 templates = templates.Where(t => t.UserID == userId).ToList();
 
-                var result = templates.Select(t => new {
+                var result = templates.Select(t => new
+                {
                     id = t.ID,
                     name = t.Name
                 });
@@ -206,7 +146,8 @@ namespace MailCrafter.MVC.Controllers
                 var groups = await _groupService.GetPageQueryDataAsync(queryDTO);
                 groups = groups.Where(g => g.UserID == userId).ToList();
 
-                var result = groups.Select(g => new {
+                var result = groups.Select(g => new
+                {
                     id = g.ID,
                     name = g.GroupName
                 });
@@ -220,168 +161,6 @@ namespace MailCrafter.MVC.Controllers
             }
         }
 
-        /// <summary>
-        /// Create a new job
-        /// </summary>
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Route("api/jobs")]
-        public async Task<IActionResult> CreateJob([FromBody] CreateJobRequest request)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            try
-            {
-                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-                // Get template to verify access and get name
-                var template = await _templateService.GetById(request.TemplateId);
-                if (template == null || template.UserID != userId)
-                {
-                    return BadRequest("Invalid template selection");
-                }
-
-                // Create the job entity
-                var job = new EmailJobEntity
-                {
-                    UserID = userId,
-                    Name = request.Name,
-                    TemplateID = request.TemplateId,
-                    TemplateName = template.Name,
-                    FromEmail = request.FromEmail,
-                    Status = "Pending",
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                };
-
-                // Set recipients based on type
-                if (request.IsPersonalized)
-                {
-                    // Group-based
-                    var group = await _groupService.GetById(request.GroupId);
-                    if (group == null || group.UserID != userId)
-                    {
-                        return BadRequest("Invalid group selection");
-                    }
-
-                    job.GroupID = request.GroupId;
-                    job.IsPersonalized = true;
-                    job.Recipients = new List<string>();
-                }
-                else
-                {
-                    // Individual recipients
-                    job.Recipients = request.Recipients;
-                    job.CustomFields = request.CustomFields;
-                    job.IsPersonalized = false;
-                }
-
-                // CC and BCC
-                job.CC = request.Cc ?? new List<string>();
-                job.Bcc = request.Bcc ?? new List<string>();
-
-                // Save to database
-                var result = await _jobService.Create(job);
-                return Json(new { id = job.ID, success = result.IsSuccessful });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error creating job");
-                return StatusCode(500, "Failed to create job");
-            }
-        }
-
-        /// <summary>
-        /// Delete a job
-        /// </summary>
-        [HttpDelete]
-        [ValidateAntiForgeryToken]
-        [Route("api/jobs/{id}")]
-        public async Task<IActionResult> DeleteJob(string id)
-        {
-            try
-            {
-                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var job = await _jobService.GetById(id);
-
-                if (job == null || job.UserID != userId)
-                {
-                    return NotFound();
-                }
-
-                if (job.Status == "Processing")
-                {
-                    return BadRequest("Cannot delete a job that is currently processing");
-                }
-
-                var result = await _jobService.Delete(id);
-                return Json(new { success = result.IsSuccessful });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error deleting job with ID {JobId}", id);
-                return StatusCode(500, "Failed to delete job");
-            }
-        }
-
-        /// <summary>
-        /// Retry a failed job
-        /// </summary>
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Route("api/jobs/{id}/retry")]
-        public async Task<IActionResult> RetryJob(string id)
-        {
-            try
-            {
-                string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var job = await _jobService.GetById(id);
-
-                if (job == null || job.UserID != userId)
-                {
-                    return NotFound();
-                }
-
-                if (job.Status != "Failed" && job.Status != "Pending")
-                {
-                    return BadRequest("Can only retry failed or pending jobs");
-                }
-
-                // Reset job status and error message
-                job.Status = "Pending";
-                job.ErrorMessage = string.Empty;
-                job.UpdatedAt = DateTime.UtcNow;
-
-                var result = await _jobService.Update(job);
-
-                return Json(new { success = result.IsSuccessful });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrying job with ID {JobId}", id);
-                return StatusCode(500, "Failed to retry job");
-            }
-        }
-
         #endregion
-    }
-
-    /// <summary>
-    /// Request model for creating a new job
-    /// </summary>
-    public class CreateJobRequest
-    {
-        public string Name { get; set; }
-        public string TemplateId { get; set; }
-        public string FromEmail { get; set; }
-        public List<string> Recipients { get; set; }
-        public List<string> Cc { get; set; }
-        public List<string> Bcc { get; set; }
-        public Dictionary<string, string> CustomFields { get; set; }
-        public string? GroupId { get; set; }
-        public bool IsPersonalized { get; set; }
     }
 }
