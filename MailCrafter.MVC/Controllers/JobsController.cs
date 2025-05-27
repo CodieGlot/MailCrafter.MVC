@@ -279,7 +279,6 @@ namespace MailCrafter.MVC.Controllers
                 // More permissive email validation regex that accepts more valid email formats
                 string pattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
                 var isValid = Regex.IsMatch(email, pattern);
-                _logger.LogInformation("Validating email: {Email}, Result: {IsValid}", email, isValid);
                 return isValid;
             }
             catch (Exception ex)
@@ -289,23 +288,7 @@ namespace MailCrafter.MVC.Controllers
             }
         }
 
-        private bool AreValidEmails(List<string> emails)
-        {
-            if (emails == null || !emails.Any())
-            {
-                _logger.LogWarning("Email list is null or empty");
-                return false;
-            }
-
-            var invalidEmails = emails.Where(email => !IsValidEmail(email)).ToList();
-            if (invalidEmails.Any())
-            {
-                _logger.LogWarning("Invalid emails found: {InvalidEmails}", string.Join(", ", invalidEmails));
-                return false;
-            }
-
-            return true;
-        }
+    
 
         #region API Endpoints for AJAX
 
