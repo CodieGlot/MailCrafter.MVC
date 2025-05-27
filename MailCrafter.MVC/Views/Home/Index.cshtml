@@ -2,7 +2,82 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="hero-section bg-light py-5 text-center">
+    <div class="container">
+        <h1 class="display-3 fw-bold mb-4">Welcome to MailCrafter</h1>
+        <p class="lead mb-4">Your Ultimate Email Marketing Solution</p>
+        <div class="d-grid d-sm-flex justify-content-sm-center gap-2">
+            <a href="/jobs" class="btn btn-primary btn-lg gap-3 px-4">Create Job</a>
+            <a href="/management/email-templates" class="btn btn-outline-secondary btn-lg px-4">Browse Templates</a>
+        </div>
+    </div>
 </div>
+
+<div class="container my-5">
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-envelope fa-3x text-primary mb-3"></i>
+                    <h3 class="card-title h4">Email Jobs</h3>
+                    <p class="card-text">Create and manage professional email jobs with our easy-to-use platform.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-paint-brush fa-3x text-primary mb-3"></i>
+                    <h3 class="card-title h4">Beautiful Templates</h3>
+                    <p class="card-text">Choose from a wide range of responsive and customizable email templates.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-chart-line fa-3x text-primary mb-3"></i>
+                    <h3 class="card-title h4">Analytics</h3>
+                    <p class="card-text">Track your job performance with detailed analytics and insights.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="bg-light py-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h2 class="fw-bold mb-4">Why Choose MailCrafter?</h2>
+                <ul class="list-unstyled">
+                    <li class="mb-3"><i class="fas fa-check text-success me-2"></i> User-friendly interface</li>
+                    <li class="mb-3"><i class="fas fa-check text-success me-2"></i> Advanced email automation</li>
+                    <li class="mb-3"><i class="fas fa-check text-success me-2"></i> Responsive design templates</li>
+                    <li class="mb-3"><i class="fas fa-check text-success me-2"></i> Real-time analytics</li>
+                </ul>
+            </div>
+            <div class="col-lg-6">
+                <img src="/images/email-marketing.svg" alt="Email Marketing" class="img-fluid" />
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 6rem 0;
+        }
+
+        .card {
+            transition: transform 0.3s ease;
+        }
+
+            .card:hover {
+                transform: translateY(-5px);
+            }
+    </style>
+}

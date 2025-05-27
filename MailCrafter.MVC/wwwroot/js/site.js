@@ -121,5 +121,9 @@ const viewPassword = () => {
     password.type == 'password' ? password.type = 'text' : password.type = 'password';
 }
 
+function isValidEmail(email) {
+    return email.includes('@') && email.includes('.') && email.indexOf('@') < email.lastIndexOf('.');
+}
+
 
 

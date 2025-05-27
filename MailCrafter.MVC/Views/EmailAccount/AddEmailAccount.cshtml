@@ -1,35 +1,171 @@
 ﻿@model MailCrafter.Domain.EmailAccount
 
-
 @{
     ViewData["Title"] = "Add Email Account";
 }
 
-<div class="add-email-account-container">
-    <h1>Add Email Account</h1>
-    <form id="add-email-account-form">
-        <div class="form-group">
-            <label for="email">Email</label>
-            <input id="email" name="email" class="form-control" />
-            <span id="email-error" class="text-danger"></span>
-        </div>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-envelope text-primary me-2"></i>
+                        <h2 class="h4 mb-0 text-primary">Add Email Account</h2>
+                    </div>
+                </div>
+                <div class="card-body p-4">
+                    <form id="add-email-account-form">
+                        <div class="mb-4">
+                            <label for="email" class="form-label">
+                                <i class="fas fa-at text-muted me-2"></i>Email Address
+                            </label>
+                            <input id="email" name="email" class="form-control form-control-lg" 
+                                   placeholder="Enter your email address" />
+                            <div id="email-error" class="invalid-feedback"></div>
+                        </div>
 
-        <div class="form-group">
-            <label for="alias">Alias</label>
-            <input id="alias" name="alias" class="form-control" />
-            <span id="alias-error" class="text-danger"></span>
-        </div>
+                        <div class="mb-4">
+                            <label for="alias" class="form-label">
+                                <i class="fas fa-user text-muted me-2"></i>Alias
+                            </label>
+                            <input id="alias" name="alias" class="form-control form-control-lg" 
+                                   placeholder="Enter an alias for this email" />
+                            <div id="alias-error" class="invalid-feedback"></div>
+                        </div>
 
-        <div class="form-group">
-            <label for="appPassword">App Password</label>
-            <input id="appPassword" name="appPassword" type="password" class="form-control" />
-            <span id="appPassword-error" class="text-danger"></span>
-        </div>
+                        <div class="mb-4">
+                            <label for="appPassword" class="form-label">
+                                <i class="fas fa-key text-muted me-2"></i>App Password
+                            </label>
+                            <div class="input-group">
+                                <input id="appPassword" name="appPassword" type="password" 
+                                       class="form-control form-control-lg" 
+                                       placeholder="Enter your app password" />
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div id="appPassword-error" class="invalid-feedback"></div>
+                            <div class="form-text mt-2">
+                                <i class="fas fa-info-circle me-1"></i>
+                                This is the app password generated from your email provider's security settings.
+                            </div>
+                        </div>
 
-        <button type="button" class="btn btn-primary" onclick="addEmailAccount()">Add Email Account</button>
-    </form>
+                        <div class="d-grid gap-2">
+                            <button type="button" class="btn btn-primary btn-lg" onclick="addEmailAccount()">
+                                <i class="fas fa-plus-circle me-2"></i>Add Email Account
+                            </button>
+                            <a href="/EmailAccount/ManageEmailAccounts" class="btn btn-outline-secondary btn-lg">
+                                <i class="fas fa-arrow-left me-2"></i>Back to Email Accounts
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
     <script src="~/js/site.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Toggle password visibility
+            $("#togglePassword").click(function() {
+                const passwordInput = $("#appPassword");
+                const type = passwordInput.attr("type") === "password" ? "text" : "password";
+                passwordInput.attr("type", type);
+                $(this).find("i").toggleClass("fa-eye fa-eye-slash");
+            });
+
+            // Form validation
+            $("#add-email-account-form input").on("input", function() {
+                $(this).removeClass("is-invalid");
+                $(`#${$(this).attr("id")}-error`).text("");
+            });
+        });
+
+        function addEmailAccount() {
+            const email = $("#email").val();
+            const alias = $("#alias").val();
+            const appPassword = $("#appPassword").val();
+            let isValid = true;
+
+            // Reset previous errors
+            $(".is-invalid").removeClass("is-invalid");
+            $(".invalid-feedback").text("");
+
+            // Validate email
+            if (!email) {
+                $("#email").addClass("is-invalid");
+                $("#email-error").text("Email is required");
+                isValid = false;
+            } else if (!isValidEmail(email)) {
+                $("#email").addClass("is-invalid");
+                $("#email-error").text("Please enter a valid email address");
+                isValid = false;
+            }
+
+            // Validate alias
+            if (!alias) {
+                $("#alias").addClass("is-invalid");
+                $("#alias-error").text("Alias is required");
+                isValid = false;
+            }
+
+            // Validate password
+            if (!appPassword) {
+                $("#appPassword").addClass("is-invalid");
+                $("#appPassword-error").text("App password is required");
+                isValid = false;
+            }
+
+            if (!isValid) return;
+
+            // Show loading state
+            const submitBtn = $("button[onclick='addEmailAccount()']");
+            const originalText = submitBtn.html();
+            submitBtn.prop("disabled", true)
+                    .html('<span class="spinner-border spinner-border-sm me-2"></span>Adding...');
+
+            // Make API call
+            $.ajax({
+                url: "/add",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify({ email, alias, appPassword }),
+                success: function(response) {
+                    showToast(response.message, "success");
+                    setTimeout(() => window.location.href = "/EmailAccount/ManageEmailAccounts", 1500);
+                },
+                error: function(xhr) {
+                    const message = xhr.responseJSON?.message || "Failed to add email account";
+                    showToast(message, "danger");
+                },
+                complete: function() {
+                    submitBtn.prop("disabled", false).html(originalText);
+                }
+            });
+        }
+
+        function showToast(message, type) {
+            $(".toast").remove();
+            var toast = `
+                <div class="toast align-items-center text-white bg-${type} border-0 position-fixed top-0 end-0 m-3" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-times-circle'} me-2"></i>
+                            ${message}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                    </div>
+                </div>`;
+            $("body").append(toast);
+            var toastElement = new bootstrap.Toast($(".toast"));
+            toastElement.show();
+            setTimeout(() => $(".toast").fadeOut(500, function () { $(this).remove(); }), 3000);
+        }
+    </script>
 }

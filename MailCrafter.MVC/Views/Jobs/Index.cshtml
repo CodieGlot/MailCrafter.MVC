@@ -20,7 +20,7 @@
     else
     {
         <div class="table-responsive">
-            <table class="table table-striped table-hover">
+            <table class="table-striped table-hover table">
                 <thead>
                     <tr>
                         <th>Job Name</th>
@@ -103,14 +103,14 @@
                             </select>
                         </div>
 
-                        <div class="template-preview mt-4 d-none" id="templatePreview">
+                        <div class="template-preview d-none mt-4" id="templatePreview">
                             <h6>Template Preview:</h6>
                             <div class="card">
                                 <div class="card-header">
                                     <strong>Subject:</strong> <span id="previewSubject"></span>
                                 </div>
                                 <div class="card-body">
-                                    <div id="previewBody" class="border p-2 bg-light"></div>
+                                    <div id="previewBody" class="bg-light border p-2"></div>
                                 </div>
                                 <div class="card-footer">
                                     <strong>Placeholders:</strong> <span id="previewPlaceholders" class="text-muted"></span>
@@ -118,7 +118,7 @@
                             </div>
                         </div>
 
-                        <div class="text-end mt-4">
+                        <div class="mt-4 text-end">
                             <button class="btn btn-primary" id="step1NextBtn">Next</button>
                         </div>
                     </div>
@@ -147,7 +147,7 @@
                             <div class="form-group mb-3">
                                 <label class="form-label">Custom Fields</label>
                                 <div id="customFieldsContainer">
-                                    <div class="row mb-2 custom-field-row">
+                                    <div class="row custom-field-row mb-2">
                                         <div class="col-5">
                                             <input type="text" class="form-control form-control-sm custom-field-key" placeholder="Field name">
                                         </div>
@@ -185,7 +185,7 @@
                             <input type="text" class="form-control" id="bccInput">
                         </div>
 
-                        <div class="text-end mt-4">
+                        <div class="mt-4 text-end">
                             <button class="btn btn-secondary me-2" id="step2BackBtn">Back</button>
                             <button class="btn btn-primary" id="step2NextBtn">Next</button>
                         </div>
@@ -220,7 +220,7 @@
                             </div>
                         </div>
 
-                        <div class="text-end mt-4">
+                        <div class="mt-4 text-end">
                             <button class="btn btn-secondary me-2" id="step3BackBtn">Back</button>
                             <button class="btn btn-success" id="submitJobBtn">
                                 <span id="submitSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
@@ -317,3 +317,196 @@
     <script src="~/js/jobs.js"></script>
 }
  *@
+
+@{
+    ViewData["Title"] = "Create Email Job";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Create New Email Job</h4>
+                </div>
+                <div class="card-body">
+                    <form id="emailJobForm">
+                        <div class="row g-3">
+                            <!-- Template Selection -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="templateSelect" class="form-label">Email Template</label>
+                                    <select class="form-select" id="templateSelect" required>
+                                        <option value="">Select a template...</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Email Account Selection -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="emailAccountSelect" class="form-label">From Email Account</label>
+                                    <select class="form-select" id="emailAccountSelect" required>
+                                        <option value="">Select an email account...</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Recipient Group Selection -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="groupSelect" class="form-label">Recipient Group</label>
+                                    <select class="form-select" id="groupSelect" required>
+                                        <option value="">Select a recipient group...</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Schedule Time -->
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="scheduleTime" class="form-label">Schedule Time</label>
+                                    <input type="datetime-local" class="form-control" id="scheduleTime">
+                                </div>
+                            </div>
+
+                            <!-- Subject Line -->
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="subject" class="form-label">Subject Line</label>
+                                    <input type="text" class="form-control" id="subject" required>
+                                </div>
+                            </div>
+
+                            <!-- Email Body -->
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label for="body" class="form-label">Email Body</label>
+                                    <textarea class="form-control" id="body" rows="10" required></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="col-12 text-end">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane me-2"></i>Send Email
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Load templates
+            $.get('/api/email-templates', function(data) {
+                const templateSelect = $('#templateSelect');
+                data.forEach(template => {
+                    templateSelect.append(`<option value="${template.id}">${template.name}</option>`);
+                });
+            });
+
+            // Load email accounts
+            $.get('/api/email-accounts', function(data) {
+                const accountSelect = $('#emailAccountSelect');
+                data.forEach(account => {
+                    accountSelect.append(`<option value="${account.email}">${account.email}</option>`);
+                });
+            });
+
+            // Load recipient groups
+            $.get('/api/groups', function(data) {
+                const groupSelect = $('#groupSelect');
+                data.forEach(group => {
+                    groupSelect.append(`<option value="${group.id}">${group.name}</option>`);
+                });
+            });
+
+            // Handle template selection
+            $('#templateSelect').change(function() {
+                const templateId = $(this).val();
+                if (templateId) {
+                    $.get(`/api/email-templates/${templateId}`, function(data) {
+                        $('#subject').val(data.subject);
+                        $('#body').val(data.body);
+                    });
+                }
+            });
+
+            // Handle form submission
+            $('#emailJobForm').submit(function(e) {
+                e.preventDefault();
+                
+                const jobData = {
+                    templateId: $('#templateSelect').val(),
+                    fromEmail: $('#emailAccountSelect').val(),
+                    groupId: $('#groupSelect').val(),
+                    subject: $('#subject').val(),
+                    body: $('#body').val()
+                };
+
+                // Show loading state
+                const submitBtn = $(this).find('button[type="submit"]');
+                const originalText = submitBtn.html();
+                submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Sending...');
+
+                // Send the request
+                $.ajax({
+                    url: '/api/jobs',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(jobData),
+                    success: function(response) {
+                        // Show success message
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Success!',
+                            text: 'Email job has been created and queued for sending.',
+                            confirmButtonText: 'OK'
+                        }).then(() => {
+                            // Reset form
+                            $('#emailJobForm')[0].reset();
+                        });
+                    },
+                    error: function(xhr) {
+                        // Show error message
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: xhr.responseText || 'Failed to create email job. Please try again.',
+                            confirmButtonText: 'OK'
+                        });
+                    },
+                    complete: function() {
+                        // Reset button state
+                        submitBtn.prop('disabled', false).html(originalText);
+                    }
+                });
+            });
+        });
+    </script>
+}
+
+@section Styles {
+    <style>
+        .form-label {
+            font-weight: 500;
+        }
+        .card {
+            border: none;
+            border-radius: 10px;
+        }
+        .card-header {
+            border-radius: 10px 10px 0 0 !important;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+    </style>
+}
