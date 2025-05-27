@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using System.Security.Claims;
+using System.Text.Json;
 
 namespace MailCrafter.MVC.Controllers
 {
@@ -38,41 +39,58 @@ namespace MailCrafter.MVC.Controllers
         // POST: Thêm nhóm mới
         [HttpPost]
         [Route("management/groups/add")]
-        public async Task<IActionResult> AddGroup([FromForm] string GroupName, [FromForm] List<string> fieldNames, [FromForm] List<string> fieldValues, [FromForm] List<string> emails)
+        public async Task<IActionResult> AddGroup([FromForm] string GroupName, [FromForm] string fieldNames, [FromForm] string fieldValues, [FromForm] string emails)
         {
-            if (string.IsNullOrWhiteSpace(GroupName) || fieldNames.Count == 0 || fieldValues.Count == 0 || emails.Count == 0)
+            if (string.IsNullOrWhiteSpace(GroupName))
             {
-                return BadRequest(new { message = "Group name and custom fields are required." });
+                return BadRequest(new { message = "Group name is required." });
             }
 
-            var model = new CustomGroupEntity
+            try
             {
-                GroupName = GroupName,
-                CustomFieldsList = new List<Dictionary<string, string>>()
-            };
+                var fieldNamesList = JsonSerializer.Deserialize<List<string>>(fieldNames);
+                var fieldValuesList = JsonSerializer.Deserialize<List<string>>(fieldValues);
+                var emailsList = JsonSerializer.Deserialize<List<string>>(emails);
 
-            for (int i = 0; i < fieldNames.Count; i++)
-            {
-                var customField = new Dictionary<string, string>
+                if (fieldNamesList == null || fieldValuesList == null || emailsList == null || 
+                    fieldNamesList.Count == 0 || fieldValuesList.Count == 0 || emailsList.Count == 0)
                 {
-                    { "fieldName", fieldNames[i] },
-                    { "fieldValue", fieldValues[i] },
-                    { "Email", emails[i] }
+                    return BadRequest(new { message = "Custom fields are required." });
+                }
+
+                var model = new CustomGroupEntity
+                {
+                    GroupName = GroupName,
+                    CustomFieldsList = new List<Dictionary<string, string>>()
                 };
-                model.CustomFieldsList.Add(customField);
+
+                for (int i = 0; i < fieldNamesList.Count; i++)
+                {
+                    var customField = new Dictionary<string, string>
+                    {
+                        { "fieldName", fieldNamesList[i] },
+                        { "fieldValue", fieldValuesList[i] },
+                        { "Email", emailsList[i] }
+                    };
+                    model.CustomFieldsList.Add(customField);
+                }
+
+                model.UserID = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                model.ID = ObjectId.GenerateNewId().ToString();
+
+                var result = await _customGroupService.Create(model);
+
+                if (result.IsSuccessful)
+                {
+                    return RedirectToAction("ManageGroups");
+                }
+
+                return BadRequest(new { message = "Failed to add group." });
             }
-
-            model.UserID = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            model.ID = ObjectId.GenerateNewId().ToString();
-
-            var result = await _customGroupService.Create(model);
-
-            if (result.IsSuccessful)
+            catch (Exception ex)
             {
-                return RedirectToAction("ManageGroups");
+                return BadRequest(new { message = $"Error processing group data: {ex.Message}" });
             }
-
-            return BadRequest(new { message = "Failed to add group." });
         }
 
         // GET: Xem chi tiết một nhóm (View)
@@ -104,47 +122,64 @@ namespace MailCrafter.MVC.Controllers
         // POST: Cập nhật một nhóm
         [HttpPost]
         [Route("management/groups/edit/{id}")]
-        public async Task<IActionResult> EditGroup(string id, [FromForm] string GroupName, [FromForm] List<string> fieldNames, [FromForm] List<string> fieldValues, [FromForm] List<string> emails)
+        public async Task<IActionResult> EditGroup(string id, [FromForm] string GroupName, [FromForm] string fieldNames, [FromForm] string fieldValues, [FromForm] string emails)
         {
-            if (string.IsNullOrWhiteSpace(GroupName) || fieldNames.Count == 0 || fieldValues.Count == 0 || emails.Count == 0)
+            if (string.IsNullOrWhiteSpace(GroupName))
             {
-                return BadRequest(new { message = "Group name and custom fields are required." });
+                return BadRequest(new { message = "Group name is required." });
             }
 
-            var existingGroup = await _customGroupService.GetById(id);
-            if (existingGroup == null || existingGroup.UserID != User.FindFirstValue(ClaimTypes.NameIdentifier))
+            try
             {
-                return BadRequest(new { message = "Group not found or you do not have access." });
-            }
+                var fieldNamesList = JsonSerializer.Deserialize<List<string>>(fieldNames);
+                var fieldValuesList = JsonSerializer.Deserialize<List<string>>(fieldValues);
+                var emailsList = JsonSerializer.Deserialize<List<string>>(emails);
 
-            var updatedEntity = new CustomGroupEntity
-            {
-                ID = id,
-                GroupName = GroupName,
-                CustomFieldsList = new List<Dictionary<string, string>>(),
-                UserID = existingGroup.UserID,
-                CreatedAt = existingGroup.CreatedAt,
-                UpdatedAt = DateTime.UtcNow
-            };
-
-            for (int i = 0; i < fieldNames.Count; i++)
-            {
-                var customField = new Dictionary<string, string>
+                if (fieldNamesList == null || fieldValuesList == null || emailsList == null || 
+                    fieldNamesList.Count == 0 || fieldValuesList.Count == 0 || emailsList.Count == 0)
                 {
-                    { "fieldName", fieldNames[i] },
-                    { "fieldValue", fieldValues[i] },
-                    { "Email", emails[i] }
+                    return BadRequest(new { message = "Custom fields are required." });
+                }
+
+                var existingGroup = await _customGroupService.GetById(id);
+                if (existingGroup == null || existingGroup.UserID != User.FindFirstValue(ClaimTypes.NameIdentifier))
+                {
+                    return BadRequest(new { message = "Group not found or you do not have access." });
+                }
+
+                var updatedEntity = new CustomGroupEntity
+                {
+                    ID = id,
+                    GroupName = GroupName,
+                    CustomFieldsList = new List<Dictionary<string, string>>(),
+                    UserID = existingGroup.UserID,
+                    CreatedAt = existingGroup.CreatedAt,
+                    UpdatedAt = DateTime.UtcNow
                 };
-                updatedEntity.CustomFieldsList.Add(customField);
-            }
 
-            var result = await _customGroupService.Update(updatedEntity);
-            if (result.IsSuccessful)
+                for (int i = 0; i < fieldNamesList.Count; i++)
+                {
+                    var customField = new Dictionary<string, string>
+                    {
+                        { "fieldName", fieldNamesList[i] },
+                        { "fieldValue", fieldValuesList[i] },
+                        { "Email", emailsList[i] }
+                    };
+                    updatedEntity.CustomFieldsList.Add(customField);
+                }
+
+                var result = await _customGroupService.Update(updatedEntity);
+                if (result.IsSuccessful)
+                {
+                    return RedirectToAction("ManageGroups");
+                }
+
+                return BadRequest(new { message = "Failed to update group." });
+            }
+            catch (Exception ex)
             {
-                return RedirectToAction("ManageGroups");
+                return BadRequest(new { message = $"Error processing group data: {ex.Message}" });
             }
-
-            return BadRequest(new { message = "Failed to update group." });
         }
 
         // GET: Xóa một nhóm (Delete - Xác nhận)

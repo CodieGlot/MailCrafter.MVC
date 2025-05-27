@@ -411,7 +411,9 @@ function submitJob() {
     })
         .then(response => {
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                return response.text().then(text => {
+                    throw new Error(text || 'Network response was not ok');
+                });
             }
             return response.json();
         })
@@ -421,7 +423,7 @@ function submitJob() {
         })
         .catch(error => {
             console.error('Error creating job:', error);
-            alert('There was a problem creating the job. Please try again.');
+            alert(error.message || 'There was a problem creating the job. Please try again.');
 
             // Hide spinner
             spinner.classList.add('d-none');
@@ -430,83 +432,145 @@ function submitJob() {
 }
 
 /**
- * Show the delete confirmation dialog
+ * Show delete confirmation modal
  * @param {string} jobId - The ID of the job to delete
  */
 function showDeleteConfirmation(jobId) {
     const modal = new bootstrap.Modal(document.getElementById('deleteJobModal'));
-    document.getElementById('confirmDeleteButton').setAttribute('data-job-id', jobId);
+    const confirmButton = document.getElementById('confirmDeleteButton');
+    
+    // Store the job ID in the confirm button's data attribute
+    confirmButton.setAttribute('data-job-id', jobId);
+    
     modal.show();
 }
 
 /**
  * Confirm and execute job deletion
  */
-function confirmDelete() {
-    const button = document.getElementById('confirmDeleteButton');
-    const jobId = button.getAttribute('data-job-id');
-
-    if (!jobId) return;
-
-    // Generate request verification token
-    const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
-    const token = tokenInput ? tokenInput.value : '';
-
-    // Send delete request
-    fetch(`/api/jobs/${jobId}`, {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json',
-            'RequestVerificationToken': token
-        }
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
+async function confirmDelete() {
+    const confirmButton = document.getElementById('confirmDeleteButton');
+    const jobId = confirmButton.getAttribute('data-job-id');
+    
+    try {
+        const response = await fetch(`/api/jobs/${jobId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
             }
-
-            // Close modal and reload page
-            bootstrap.Modal.getInstance(document.getElementById('deleteJobModal')).hide();
-            window.location.reload();
-        })
-        .catch(error => {
-            console.error('Error deleting job:', error);
-            alert('There was a problem deleting the job. Please try again.');
         });
+
+        if (response.ok) {
+            // Close the modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('deleteJobModal'));
+            modal.hide();
+            
+            // Show success message
+            showToast('Success', 'Job deleted successfully', 'success');
+            
+            // Remove the row from the table
+            const row = document.querySelector(`tr[data-job-id="${jobId}"]`);
+            if (row) {
+                row.remove();
+            }
+            
+            // If no jobs left, show empty state
+            const tbody = document.querySelector('table tbody');
+            if (tbody && !tbody.children.length) {
+                location.reload(); // Reload to show empty state
+            }
+        } else {
+            const error = await response.json();
+            showToast('Error', error.message || 'Failed to delete job', 'error');
+        }
+    } catch (error) {
+        console.error('Error deleting job:', error);
+        showToast('Error', 'An error occurred while deleting the job', 'error');
+    }
 }
 
 /**
  * Retry a failed job
  * @param {string} jobId - The ID of the job to retry
  */
-/**
- * Retry a failed job
- * @param {string} jobId - The ID of the job to retry
- */
-function retryJob(jobId) {
-    // Generate request verification token
-    const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
-    const token = tokenInput ? tokenInput.value : '';
-
-    fetch(`/api/jobs/${jobId}/retry`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'RequestVerificationToken': token
-        }
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
+async function retryJob(jobId) {
+    try {
+        const response = await fetch(`/api/jobs/${jobId}/retry`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
             }
-            return response.json();
-        })
-        .then(data => {
-            // Success - reload the page to show updated job status
-            window.location.reload();
-        })
-        .catch(error => {
-            console.error('Error retrying job:', error);
-            alert('There was a problem retrying the job. Please try again.');
         });
+
+        if (response.ok) {
+            showToast('Success', 'Job queued for retry', 'success');
+            
+            // Update the status badge
+            const statusBadge = document.querySelector(`tr[data-job-id="${jobId}"] .badge`);
+            if (statusBadge) {
+                statusBadge.textContent = 'Pending';
+                statusBadge.className = 'badge bg-warning';
+            }
+            
+            // Disable retry button
+            const retryButton = document.querySelector(`tr[data-job-id="${jobId}"] .retry-job`);
+            if (retryButton) {
+                retryButton.disabled = true;
+                retryButton.classList.add('disabled');
+            }
+        } else {
+            const error = await response.json();
+            showToast('Error', error.message || 'Failed to retry job', 'error');
+        }
+    } catch (error) {
+        console.error('Error retrying job:', error);
+        showToast('Error', 'An error occurred while retrying the job', 'error');
+    }
+}
+
+/**
+ * Show a toast notification
+ * @param {string} title - The toast title
+ * @param {string} message - The toast message
+ * @param {string} type - The type of toast (success, error, warning, info)
+ */
+function showToast(title, message, type = 'info') {
+    const toastContainer = document.getElementById('toastContainer') || createToastContainer();
+    
+    const toast = document.createElement('div');
+    toast.className = `toast align-items-center text-white bg-${type === 'error' ? 'danger' : type} border-0`;
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'assertive');
+    toast.setAttribute('aria-atomic', 'true');
+    
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">
+                <strong>${title}</strong><br>
+                ${message}
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    `;
+    
+    toastContainer.appendChild(toast);
+    const bsToast = new bootstrap.Toast(toast);
+    bsToast.show();
+    
+    // Remove the toast after it's hidden
+    toast.addEventListener('hidden.bs.toast', () => {
+        toast.remove();
+    });
+}
+
+/**
+ * Create toast container if it doesn't exist
+ * @returns {HTMLElement} The toast container element
+ */
+function createToastContainer() {
+    const container = document.createElement('div');
+    container.id = 'toastContainer';
+    container.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+    document.body.appendChild(container);
+    return container;
 }
