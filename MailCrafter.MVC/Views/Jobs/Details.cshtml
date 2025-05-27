@@ -1,0 +1,171 @@
+@model MailCrafter.Domain.EmailJobEntity
+@{
+    ViewData["Title"] = "Job Details";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Job Details</h5>
+                        <a href="@Url.Action("Index", "Jobs")" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Back to Jobs
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card border-0 shadow-sm mb-4">
+                                <div class="card-body">
+                                    <h6 class="card-subtitle mb-3 text-muted">Basic Information</h6>
+                                    <dl class="row mb-0">
+                                        <dt class="col-sm-4">Job Name:</dt>
+                                        <dd class="col-sm-8">@Model.Name</dd>
+
+                                        <dt class="col-sm-4">Status:</dt>
+                                        <dd class="col-sm-8">
+                                            <span class="badge @GetStatusBadgeClass(Model.Status)">
+                                                @Model.Status
+                                            </span>
+                                        </dd>
+
+                                        <dt class="col-sm-4">Created:</dt>
+                                        <dd class="col-sm-8">@Model.CreatedAt.ToString("yyyy-MM-dd HH:mm")</dd>
+
+                                        <dt class="col-sm-4">Template:</dt>
+                                        <dd class="col-sm-8">@Model.TemplateName</dd>
+
+                                        <dt class="col-sm-4">From Email:</dt>
+                                        <dd class="col-sm-8">@Model.FromEmail</dd>
+                                    </dl>
+                                </div>
+                            </div>
+
+                            <div class="card border-0 shadow-sm mb-4">
+                                <div class="card-body">
+                                    <h6 class="card-subtitle mb-3 text-muted">Timing Information</h6>
+                                    <dl class="row mb-0">
+                                        <dt class="col-sm-4">Scheduled For:</dt>
+                                        <dd class="col-sm-8">@(Model.ScheduledFor?.ToString("yyyy-MM-dd HH:mm") ?? "Not scheduled")</dd>
+
+                                        <dt class="col-sm-4">Started At:</dt>
+                                        <dd class="col-sm-8">@(Model.StartedAt?.ToString("yyyy-MM-dd HH:mm") ?? "Not started")</dd>
+
+                                        <dt class="col-sm-4">Completed At:</dt>
+                                        <dd class="col-sm-8">@(Model.CompletedAt?.ToString("yyyy-MM-dd HH:mm") ?? "Not completed")</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card border-0 shadow-sm mb-4">
+                                <div class="card-body">
+                                    <h6 class="card-subtitle mb-3 text-muted">Recipients Information</h6>
+                                    <dl class="row mb-0">
+                                        <dt class="col-sm-4">Type:</dt>
+                                        <dd class="col-sm-8">@(Model.IsPersonalized ? "Group" : "Individual")</dd>
+
+                                        <dt class="col-sm-4">Total Recipients:</dt>
+                                        <dd class="col-sm-8">@Model.TotalRecipients</dd>
+
+                                        <dt class="col-sm-4">Processed:</dt>
+                                        <dd class="col-sm-8">@Model.ProcessedRecipients</dd>
+
+                                        <dt class="col-sm-4">Failed:</dt>
+                                        <dd class="col-sm-8">@Model.FailedRecipients</dd>
+
+                                        @if (!string.IsNullOrEmpty(Model.GroupId))
+                                        {
+                                            <dt class="col-sm-4">Group ID:</dt>
+                                            <dd class="col-sm-8">@Model.GroupId</dd>
+                                        }
+                                    </dl>
+                                </div>
+                            </div>
+
+                            @if (Model.CC?.Any() == true || Model.BCC?.Any() == true)
+                            {
+                                <div class="card border-0 shadow-sm mb-4">
+                                    <div class="card-body">
+                                        <h6 class="card-subtitle mb-3 text-muted">Additional Recipients</h6>
+                                        @if (Model.CC?.Any() == true)
+                                        {
+                                            <div class="mb-3">
+                                                <strong>CC:</strong>
+                                                <ul class="list-unstyled mb-0">
+                                                    @foreach (var cc in Model.CC)
+                                                    {
+                                                        <li>@cc</li>
+                                                    }
+                                                </ul>
+                                            </div>
+                                        }
+                                        @if (Model.BCC?.Any() == true)
+                                        {
+                                            <div>
+                                                <strong>BCC:</strong>
+                                                <ul class="list-unstyled mb-0">
+                                                    @foreach (var bcc in Model.BCC)
+                                                    {
+                                                        <li>@bcc</li>
+                                                    }
+                                                </ul>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+
+                            @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                            {
+                                <div class="card border-0 shadow-sm mb-4">
+                                    <div class="card-body">
+                                        <h6 class="card-subtitle mb-3 text-danger">Error Message</h6>
+                                        <p class="mb-0">@Model.ErrorMessage</p>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    @if (Model.Status == "Failed" || Model.Status == "Pending")
+                    {
+                        <div class="text-end mt-4">
+                            @if (Model.Status == "Failed")
+                            {
+                                <button class="btn btn-success me-2 retry-job" data-job-id="@Model.ID">
+                                    <i class="fas fa-redo me-1"></i> Retry Job
+                                </button>
+                            }
+                            <button class="btn btn-danger delete-job" data-job-id="@Model.ID">
+                                <i class="fas fa-trash-alt me-1"></i> Delete Job
+                            </button>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "Completed" => "bg-success",
+            "Processing" => "bg-primary",
+            "Pending" => "bg-warning",
+            "Failed" => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+}
+
+@section Scripts {
+    <script src="~/js/jobs.js"></script>
+} 

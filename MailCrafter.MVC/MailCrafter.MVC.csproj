@@ -24,6 +24,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\MailCrafter.Core\Domain\Domain.csproj" />
     <ProjectReference Include="..\..\MailCrafter.Core\Repositories\Repositories.csproj" />
     <ProjectReference Include="..\..\MailCrafter.Core\Services\Services.csproj" />

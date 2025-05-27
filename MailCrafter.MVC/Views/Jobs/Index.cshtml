@@ -1,75 +1,100 @@
-﻿@* @model List<MailCrafter.Domain.EmailJobEntity>
+﻿@model List<MailCrafter.Domain.EmailJobEntity>
 @{
     ViewData["Title"] = "Email Jobs";
 }
 
-<div class="jobs-container">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Email Jobs</h1>
-        <button class="btn btn-primary" id="createJobButton">
-            <i class="fas fa-plus-circle me-1"></i> Create New Job
-        </button>
-    </div>
-
-    @if (Model == null || !Model.Any())
-    {
-        <div class="alert alert-info">
-            <p>No email jobs found. Create your first job to start sending emails.</p>
-        </div>
-    }
-    else
-    {
-        <div class="table-responsive">
-            <table class="table-striped table-hover table">
-                <thead>
-                    <tr>
-                        <th>Job Name</th>
-                        <th>Template</th>
-                        <th>Status</th>
-                        <th>Created</th>
-                        <th>Recipients</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var job in Model)
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Email Jobs</h5>
+                        <button class="btn btn-primary" id="createJobButton">
+                            <i class="fas fa-plus-circle me-1"></i> Create New Job
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    @if (Model == null || !Model.Any())
                     {
-                        <tr>
-                            <td>@job.Name</td>
-                            <td>@job.TemplateName</td>
-                            <td>
-                                <span class="badge @GetStatusBadgeClass(job.Status)">
-                                    @job.Status
-                                </span>
-                            </td>
-                            <td>@job.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
-                            <td>@(job.IsPersonalized ? "Group" : $"{job.Recipients?.Count ?? 0} recipients")</td>
-                            <td>
-                                <div class="btn-group">
-                                    <a href="@Url.Action("Details", "Jobs", new { id = job.ID })" class="btn btn-sm btn-outline-info">Details</a>
-                                    @if (job.Status == "Pending" || job.Status == "Failed")
-                                    {
-                                        <button class="btn btn-sm btn-outline-success retry-job" data-job-id="@job.ID">Retry</button>
-                                    }
-                                    @if (job.Status != "Processing")
-                                    {
-                                        <button class="btn btn-sm btn-outline-danger delete-job" data-job-id="@job.ID">Delete</button>
-                                    }
-                                </div>
-                            </td>
-                        </tr>
+                        <div class="text-center py-5">
+                            <div class="mb-3">
+                                <i class="fas fa-envelope fa-3x text-muted"></i>
+                            </div>
+                            <h5 class="text-muted">No email jobs found</h5>
+                            <p class="text-muted">Create your first job to start sending emails</p>
+                        </div>
                     }
-                </tbody>
-            </table>
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Job Name</th>
+                                        <th>Template</th>
+                                        <th>Status</th>
+                                        <th>Created</th>
+                                        <th>Recipients</th>
+                                        <th class="text-end">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var job in Model)
+                                    {
+                                        <tr data-job-id="@job.ID">
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <i class="fas fa-envelope me-2 text-primary"></i>
+                                                    <span>@job.Name</span>
+                                                </div>
+                                            </td>
+                                            <td>@job.TemplateName</td>
+                                            <td>
+                                                <span class="badge @GetStatusBadgeClass(job.Status)">
+                                                    @job.Status
+                                                </span>
+                                            </td>
+                                            <td>@job.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                                            <td>@(job.IsPersonalized ? "Group" : $"{job.Recipients?.Count ?? 0} recipients")</td>
+                                            <td>
+                                                <div class="d-flex justify-content-end gap-2">
+                                                    <a href="@Url.Action("Details", "Jobs", new { id = job.ID })" 
+                                                       class="btn btn-sm btn-outline-primary">
+                                                        <i class="fas fa-info-circle me-1"></i> Details
+                                                    </a>
+                                                    @if (job.Status == "Pending" || job.Status == "Failed")
+                                                    {
+                                                        <button class="btn btn-sm btn-outline-success retry-job" data-job-id="@job.ID">
+                                                            <i class="fas fa-redo me-1"></i> Retry
+                                                        </button>
+                                                    }
+                                                    @if (job.Status != "Processing")
+                                                    {
+                                                        <button class="btn btn-sm btn-outline-danger delete-job" data-job-id="@job.ID">
+                                                            <i class="fas fa-trash-alt me-1"></i> Delete
+                                                        </button>
+                                                    }
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
         </div>
-    }
+    </div>
 </div>
 
 <!-- Create Job Modal -->
 <div class="modal fade" id="createJobModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header bg-white">
                 <h5 class="modal-title">Create New Email Job</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -77,154 +102,186 @@
                 <div class="job-creation-wizard">
                     <!-- Step indicators -->
                     <div class="step-indicators mb-4">
-                        <div class="step active" id="step1-indicator">1. Select Template</div>
-                        <div class="step" id="step2-indicator">2. Configure Recipients</div>
-                        <div class="step" id="step3-indicator">3. Review & Send</div>
+                        <div class="step active" id="step1-indicator">
+                            <div class="step-number">1</div>
+                            <div class="step-title">Select Template</div>
+                        </div>
+                        <div class="step" id="step2-indicator">
+                            <div class="step-number">2</div>
+                            <div class="step-title">Configure Recipients</div>
+                        </div>
+                        <div class="step" id="step3-indicator">
+                            <div class="step-number">3</div>
+                            <div class="step-title">Review & Send</div>
+                        </div>
                     </div>
 
                     <!-- Step 1: Select Template -->
                     <div class="step-content active" id="step1-content">
-                        <div class="form-group mb-3">
-                            <label for="jobName" class="form-label">Job Name</label>
-                            <input type="text" class="form-control" id="jobName" placeholder="Enter job name">
-                        </div>
-
-                        <div class="form-group mb-3">
-                            <label for="templateSelect" class="form-label">Select Email Template</label>
-                            <select class="form-select" id="templateSelect">
-                                <option value="">-- Select a template --</option>
-                            </select>
-                        </div>
-
-                        <div class="form-group mb-3">
-                            <label for="fromEmailSelect" class="form-label">From Email</label>
-                            <select class="form-select" id="fromEmailSelect">
-                                <option value="">-- Select sender email --</option>
-                            </select>
-                        </div>
-
-                        <div class="template-preview d-none mt-4" id="templatePreview">
-                            <h6>Template Preview:</h6>
-                            <div class="card">
-                                <div class="card-header">
-                                    <strong>Subject:</strong> <span id="previewSubject"></span>
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <div class="form-group mb-3">
+                                    <label for="jobName" class="form-label">Job Name</label>
+                                    <input type="text" class="form-control" id="jobName" placeholder="Enter job name">
                                 </div>
-                                <div class="card-body">
-                                    <div id="previewBody" class="bg-light border p-2"></div>
+
+                                <div class="form-group mb-3">
+                                    <label for="templateSelect" class="form-label">Select Email Template</label>
+                                    <select class="form-select" id="templateSelect">
+                                        <option value="">-- Select a template --</option>
+                                    </select>
                                 </div>
-                                <div class="card-footer">
-                                    <strong>Placeholders:</strong> <span id="previewPlaceholders" class="text-muted"></span>
+
+                                <div class="form-group mb-3">
+                                    <label for="fromEmailSelect" class="form-label">From Email</label>
+                                    <select class="form-select" id="fromEmailSelect">
+                                        <option value="">-- Select sender email --</option>
+                                    </select>
+                                </div>
+
+                                <div class="template-preview d-none mt-4" id="templatePreview">
+                                    <h6 class="mb-3">Template Preview</h6>
+                                    <div class="card">
+                                        <div class="card-header bg-light">
+                                            <strong>Subject:</strong> <span id="previewSubject"></span>
+                                        </div>
+                                        <div class="card-body">
+                                            <div id="previewBody" class="bg-light border p-3 rounded"></div>
+                                        </div>
+                                        <div class="card-footer bg-light">
+                                            <strong>Placeholders:</strong> <span id="previewPlaceholders" class="text-muted"></span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="mt-4 text-end">
-                            <button class="btn btn-primary" id="step1NextBtn">Next</button>
+                            <button class="btn btn-primary" id="step1NextBtn">
+                                Next <i class="fas fa-arrow-right ms-1"></i>
+                            </button>
                         </div>
                     </div>
 
                     <!-- Step 2: Configure Recipients -->
                     <div class="step-content" id="step2-content">
-                        <div class="form-group mb-4">
-                            <label class="form-label d-block">Recipient Type</label>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="recipientType" id="recipientTypeBasic" value="basic" checked>
-                                <label class="form-check-label" for="recipientTypeBasic">Individual Recipients</label>
-                            </div>
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="recipientType" id="recipientTypeGroup" value="group">
-                                <label class="form-check-label" for="recipientTypeGroup">Group</label>
-                            </div>
-                        </div>
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body">
+                                <div class="form-group mb-4">
+                                    <label class="form-label d-block">Recipient Type</label>
+                                    <div class="btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="recipientType" id="recipientTypeBasic" value="basic" checked>
+                                        <label class="btn btn-outline-primary" for="recipientTypeBasic">
+                                            <i class="fas fa-users me-1"></i> Individual Recipients
+                                        </label>
 
-                        <!-- Basic recipient options -->
-                        <div id="basicRecipientOptions">
-                            <div class="form-group mb-3">
-                                <label for="recipients" class="form-label">Recipients (one per line)</label>
-                                <textarea class="form-control" id="recipients" rows="5"></textarea>
-                            </div>
-
-                            <div class="form-group mb-3">
-                                <label class="form-label">Custom Fields</label>
-                                <div id="customFieldsContainer">
-                                    <div class="row custom-field-row mb-2">
-                                        <div class="col-5">
-                                            <input type="text" class="form-control form-control-sm custom-field-key" placeholder="Field name">
-                                        </div>
-                                        <div class="col-6">
-                                            <input type="text" class="form-control form-control-sm custom-field-value" placeholder="Value">
-                                        </div>
-                                        <div class="col-1">
-                                            <button type="button" class="btn btn-sm btn-outline-danger remove-custom-field">×</button>
-                                        </div>
+                                        <input type="radio" class="btn-check" name="recipientType" id="recipientTypeGroup" value="group">
+                                        <label class="btn btn-outline-primary" for="recipientTypeGroup">
+                                            <i class="fas fa-user-friends me-1"></i> Group
+                                        </label>
                                     </div>
                                 </div>
-                                <button type="button" class="btn btn-sm btn-outline-secondary mt-2" id="addCustomFieldBtn">
-                                    Add Field
-                                </button>
+
+                                <!-- Basic recipient options -->
+                                <div id="basicRecipientOptions">
+                                    <div class="form-group mb-3">
+                                        <label for="recipients" class="form-label">Recipients (one per line)</label>
+                                        <textarea class="form-control" id="recipients" rows="5"></textarea>
+                                    </div>
+
+                                    <div class="form-group mb-3">
+                                        <label class="form-label">Custom Fields</label>
+                                        <div id="customFieldsContainer">
+                                            <div class="row custom-field-row mb-2">
+                                                <div class="col-5">
+                                                    <input type="text" class="form-control form-control-sm custom-field-key" placeholder="Field name">
+                                                </div>
+                                                <div class="col-6">
+                                                    <input type="text" class="form-control form-control-sm custom-field-value" placeholder="Value">
+                                                </div>
+                                                <div class="col-1">
+                                                    <button type="button" class="btn btn-sm btn-outline-danger remove-custom-field">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary mt-2" id="addCustomFieldBtn">
+                                            <i class="fas fa-plus me-1"></i> Add Field
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Group recipient options -->
+                                <div id="groupRecipientOptions" class="d-none">
+                                    <div class="form-group mb-3">
+                                        <label for="groupSelect" class="form-label">Select Group</label>
+                                        <select class="form-select" id="groupSelect">
+                                            <option value="">-- Select a group --</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label for="ccInput" class="form-label">CC (optional, comma separated)</label>
+                                    <input type="text" class="form-control" id="ccInput">
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label for="bccInput" class="form-label">BCC (optional, comma separated)</label>
+                                    <input type="text" class="form-control" id="bccInput">
+                                </div>
                             </div>
-                        </div>
-
-                        <!-- Group recipient options -->
-                        <div id="groupRecipientOptions" class="d-none">
-                            <div class="form-group mb-3">
-                                <label for="groupSelect" class="form-label">Select Group</label>
-                                <select class="form-select" id="groupSelect">
-                                    <option value="">-- Select a group --</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="form-group mb-3">
-                            <label for="ccInput" class="form-label">CC (optional, comma separated)</label>
-                            <input type="text" class="form-control" id="ccInput">
-                        </div>
-
-                        <div class="form-group mb-3">
-                            <label for="bccInput" class="form-label">BCC (optional, comma separated)</label>
-                            <input type="text" class="form-control" id="bccInput">
                         </div>
 
                         <div class="mt-4 text-end">
-                            <button class="btn btn-secondary me-2" id="step2BackBtn">Back</button>
-                            <button class="btn btn-primary" id="step2NextBtn">Next</button>
+                            <button class="btn btn-secondary me-2" id="step2BackBtn">
+                                <i class="fas fa-arrow-left me-1"></i> Back
+                            </button>
+                            <button class="btn btn-primary" id="step2NextBtn">
+                                Next <i class="fas fa-arrow-right ms-1"></i>
+                            </button>
                         </div>
                     </div>
 
                     <!-- Step 3: Review and Send -->
                     <div class="step-content" id="step3-content">
-                        <h5 class="mb-3">Review Email Job</h5>
-
-                        <div class="card mb-4">
+                        <div class="card border-0 shadow-sm">
                             <div class="card-body">
-                                <h6 class="card-subtitle mb-3">Job Details</h6>
-                                <dl class="row">
-                                    <dt class="col-sm-4">Job Name:</dt>
-                                    <dd class="col-sm-8" id="reviewJobName"></dd>
+                                <h5 class="mb-4">Review Email Job</h5>
 
-                                    <dt class="col-sm-4">Template:</dt>
-                                    <dd class="col-sm-8" id="reviewTemplate"></dd>
+                                <div class="review-section mb-4">
+                                    <h6 class="text-muted mb-3">Job Details</h6>
+                                    <dl class="row mb-0">
+                                        <dt class="col-sm-4">Job Name:</dt>
+                                        <dd class="col-sm-8" id="reviewJobName"></dd>
 
-                                    <dt class="col-sm-4">From Email:</dt>
-                                    <dd class="col-sm-8" id="reviewFromEmail"></dd>
+                                        <dt class="col-sm-4">Template:</dt>
+                                        <dd class="col-sm-8" id="reviewTemplate"></dd>
 
-                                    <dt class="col-sm-4">Recipients:</dt>
-                                    <dd class="col-sm-8" id="reviewRecipients"></dd>
+                                        <dt class="col-sm-4">From Email:</dt>
+                                        <dd class="col-sm-8" id="reviewFromEmail"></dd>
 
-                                    <dt class="col-sm-4">CC:</dt>
-                                    <dd class="col-sm-8" id="reviewCC"></dd>
+                                        <dt class="col-sm-4">Recipients:</dt>
+                                        <dd class="col-sm-8" id="reviewRecipients"></dd>
 
-                                    <dt class="col-sm-4">BCC:</dt>
-                                    <dd class="col-sm-8" id="reviewBCC"></dd>
-                                </dl>
+                                        <dt class="col-sm-4">CC:</dt>
+                                        <dd class="col-sm-8" id="reviewCC"></dd>
+
+                                        <dt class="col-sm-4">BCC:</dt>
+                                        <dd class="col-sm-8" id="reviewBCC"></dd>
+                                    </dl>
+                                </div>
                             </div>
                         </div>
 
                         <div class="mt-4 text-end">
-                            <button class="btn btn-secondary me-2" id="step3BackBtn">Back</button>
+                            <button class="btn btn-secondary me-2" id="step3BackBtn">
+                                <i class="fas fa-arrow-left me-1"></i> Back
+                            </button>
                             <button class="btn btn-success" id="submitJobBtn">
-                                <span id="submitSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
-                                Send Email
+                                <span id="submitSpinner" class="spinner-border spinner-border-sm d-none me-1" role="status" aria-hidden="true"></span>
+                                <i class="fas fa-paper-plane me-1"></i> Send Email
                             </button>
                         </div>
                     </div>
@@ -238,16 +295,20 @@
 <div class="modal fade" id="deleteJobModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
+            <div class="modal-header bg-white">
                 <h5 class="modal-title">Confirm Delete</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                Are you sure you want to delete this job?
+            <div class="modal-body text-center py-4">
+                <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                <h5>Are you sure?</h5>
+                <p class="text-muted">This action cannot be undone.</p>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-danger" id="confirmDeleteButton">Delete</button>
+            <div class="modal-footer bg-white">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteButton">
+                    <i class="fas fa-trash-alt me-1"></i> Delete
+                </button>
             </div>
         </div>
     </div>
@@ -269,244 +330,101 @@
 
 @section Styles {
     <style>
-        .jobs-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
         .step-indicators {
             display: flex;
-            margin-bottom: 20px;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .step-indicators::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #e9ecef;
+            z-index: 1;
         }
 
         .step {
-            flex: 1;
+            position: relative;
+            z-index: 2;
             text-align: center;
-            padding: 10px;
-            background-color: #f0f0f0;
-            border-radius: 4px;
-            margin: 0 5px;
-            color: #666;
+            flex: 1;
+            padding: 0 1rem;
         }
 
-            .step.active {
-                background-color: #007bff;
-                color: white;
-                font-weight: bold;
-            }
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e9ecef;
+            color: #6c757d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .step-title {
+            font-size: 0.875rem;
+            color: #6c757d;
+            transition: all 0.3s ease;
+        }
+
+        .step.active .step-number {
+            background: #0d6efd;
+            color: white;
+        }
+
+        .step.active .step-title {
+            color: #0d6efd;
+            font-weight: 600;
+        }
 
         .step-content {
             display: none;
         }
 
-            .step-content.active {
-                display: block;
-            }
+        .step-content.active {
+            display: block;
+        }
 
         .template-preview {
-            border: 1px solid #ddd;
-            padding: 15px;
-            border-radius: 4px;
-            background-color: #fafafa;
+            border: 1px solid #e9ecef;
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        .btn-check:checked + .btn-outline-primary {
+            background-color: #0d6efd;
+            color: white;
+        }
+
+        .review-section dt {
+            font-weight: 500;
+            color: #6c757d;
+        }
+
+        .review-section dd {
+            margin-bottom: 1rem;
+        }
+
+        .table > :not(caption) > * > * {
+            padding: 1rem;
+        }
+
+        .badge {
+            padding: 0.5em 0.75em;
+            font-weight: 500;
         }
     </style>
 }
 
 @section Scripts {
     <script src="~/js/jobs.js"></script>
-}
- *@
-
-@{
-    ViewData["Title"] = "Create Email Job";
-}
-
-<div class="container py-4">
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0">Create New Email Job</h4>
-                </div>
-                <div class="card-body">
-                    <form id="emailJobForm">
-                        <div class="row g-3">
-                            <!-- Template Selection -->
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="templateSelect" class="form-label">Email Template</label>
-                                    <select class="form-select" id="templateSelect" required>
-                                        <option value="">Select a template...</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <!-- Email Account Selection -->
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="emailAccountSelect" class="form-label">From Email Account</label>
-                                    <select class="form-select" id="emailAccountSelect" required>
-                                        <option value="">Select an email account...</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <!-- Recipient Group Selection -->
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="groupSelect" class="form-label">Recipient Group</label>
-                                    <select class="form-select" id="groupSelect" required>
-                                        <option value="">Select a recipient group...</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <!-- Schedule Time -->
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="scheduleTime" class="form-label">Schedule Time</label>
-                                    <input type="datetime-local" class="form-control" id="scheduleTime">
-                                </div>
-                            </div>
-
-                            <!-- Subject Line -->
-                            <div class="col-12">
-                                <div class="form-group">
-                                    <label for="subject" class="form-label">Subject Line</label>
-                                    <input type="text" class="form-control" id="subject" required>
-                                </div>
-                            </div>
-
-                            <!-- Email Body -->
-                            <div class="col-12">
-                                <div class="form-group">
-                                    <label for="body" class="form-label">Email Body</label>
-                                    <textarea class="form-control" id="body" rows="10" required></textarea>
-                                </div>
-                            </div>
-
-                            <!-- Submit Button -->
-                            <div class="col-12 text-end">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-paper-plane me-2"></i>Send Email
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-@section Scripts {
-    <script>
-        $(document).ready(function() {
-            // Load templates
-            $.get('/api/email-templates', function(data) {
-                const templateSelect = $('#templateSelect');
-                data.forEach(template => {
-                    templateSelect.append(`<option value="${template.id}">${template.name}</option>`);
-                });
-            });
-
-            // Load email accounts
-            $.get('/api/email-accounts', function(data) {
-                const accountSelect = $('#emailAccountSelect');
-                data.forEach(account => {
-                    accountSelect.append(`<option value="${account.email}">${account.email}</option>`);
-                });
-            });
-
-            // Load recipient groups
-            $.get('/api/groups', function(data) {
-                const groupSelect = $('#groupSelect');
-                data.forEach(group => {
-                    groupSelect.append(`<option value="${group.id}">${group.name}</option>`);
-                });
-            });
-
-            // Handle template selection
-            $('#templateSelect').change(function() {
-                const templateId = $(this).val();
-                if (templateId) {
-                    $.get(`/api/email-templates/${templateId}`, function(data) {
-                        $('#subject').val(data.subject);
-                        $('#body').val(data.body);
-                    });
-                }
-            });
-
-            // Handle form submission
-            $('#emailJobForm').submit(function(e) {
-                e.preventDefault();
-                
-                const jobData = {
-                    templateId: $('#templateSelect').val(),
-                    fromEmail: $('#emailAccountSelect').val(),
-                    groupId: $('#groupSelect').val(),
-                    subject: $('#subject').val(),
-                    body: $('#body').val()
-                };
-
-                // Show loading state
-                const submitBtn = $(this).find('button[type="submit"]');
-                const originalText = submitBtn.html();
-                submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Sending...');
-
-                // Send the request
-                $.ajax({
-                    url: '/api/jobs',
-                    method: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify(jobData),
-                    success: function(response) {
-                        // Show success message
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Success!',
-                            text: 'Email job has been created and queued for sending.',
-                            confirmButtonText: 'OK'
-                        }).then(() => {
-                            // Reset form
-                            $('#emailJobForm')[0].reset();
-                        });
-                    },
-                    error: function(xhr) {
-                        // Show error message
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error!',
-                            text: xhr.responseText || 'Failed to create email job. Please try again.',
-                            confirmButtonText: 'OK'
-                        });
-                    },
-                    complete: function() {
-                        // Reset button state
-                        submitBtn.prop('disabled', false).html(originalText);
-                    }
-                });
-            });
-        });
-    </script>
-}
-
-@section Styles {
-    <style>
-        .form-label {
-            font-weight: 500;
-        }
-        .card {
-            border: none;
-            border-radius: 10px;
-        }
-        .card-header {
-            border-radius: 10px 10px 0 0 !important;
-        }
-        .form-control:focus, .form-select:focus {
-            border-color: #0d6efd;
-            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
-        }
-    </style>
 }
