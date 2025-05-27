@@ -200,6 +200,7 @@ body {
     color: rgba(255, 255, 255, 0.9);
     font-weight: 500;
     margin-bottom: 0.5rem;
+    position: relative;
 }
 
 .profile-section i {
@@ -220,6 +221,25 @@ body {
 
 .logout-item i {
     color: #dc3545 !important;
+}
+
+.btn-edit-profile {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    padding: 0.25rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-left: auto;
+}
+
+.btn-edit-profile:hover {
+    color: var(--accent-color);
+    transform: scale(1.1);
+}
+
+.btn-edit-profile i {
+    font-size: 0.9rem;
 }
 
 /* Main Content Styles */
@@ -510,4 +530,64 @@ a.text-primary:focus {
 .card-header .btn-primary:active {
     transform: translateY(0);
     box-shadow: 0 2px 6px rgba(255, 91, 38, 0.2);
+}
+
+/* Edit Profile Modal Styles */
+#editProfileModal .modal-content {
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+#editProfileModal .modal-header {
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 1.5rem;
+}
+
+#editProfileModal .modal-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary-text-color);
+}
+
+#editProfileModal .modal-body {
+    padding: 1.5rem;
+}
+
+#editProfileModal .modal-footer {
+    border-top: 1px solid var(--border-color);
+    padding: 1rem 1.5rem;
+}
+
+#editProfileModal .form-label {
+    font-weight: 500;
+    color: var(--primary-text-color);
+    margin-bottom: 0.5rem;
+}
+
+#editProfileModal .form-control {
+    padding: 0.625rem 0.75rem;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    transition: all 0.2s ease;
+}
+
+#editProfileModal .form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(255, 91, 38, 0.15);
+}
+
+#editProfileModal .input-group .btn-outline-secondary {
+    border-color: var(--border-color);
+    color: #6c757d;
+}
+
+#editProfileModal .input-group .btn-outline-secondary:hover {
+    background-color: #f8f9fa;
+    color: var(--primary-color);
+}
+
+#editProfileModal .btn-primary {
+    padding: 0.625rem 1.25rem;
+    font-weight: 500;
 }
