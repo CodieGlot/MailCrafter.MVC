@@ -1,6 +1,4 @@
-﻿
-
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -26,49 +24,57 @@
 
             <div class="nav-items">
                 <a href="/" class="nav-item">
-                    <i class="icon-home"></i>
+                    <i class="fas fa-home"></i>
                     <span>Dashboard</span>
                 </a>
                 <a href="/jobs" class="nav-item">
-                    <i class="icon-monitor"></i>
+                    <i class="fas fa-tasks"></i>
                     <span>Jobs</span>
                 </a>
                 <a href="/insights" class="nav-item">
-                    <i class="icon-insights"></i>
+                    <i class="fas fa-chart-line"></i>
                     <span>Insights</span>
                 </a>
                 <div class="nav-group">
                     <a href="#" class="nav-item with-arrow">
-                        <i class="icon-management"></i>
+                        <i class="fas fa-cog"></i>
                         <span>Management</span>
                     </a>
                     <div class="subnav">
-                        <a href="/management/email-accounts" class="nav-item">Email Accounts</a>
-                        <a href="/management/email-templates" class="nav-item">Email Templates</a>
-                        <a href="/management/groups" class="nav-item">Groups</a>
+                        <a href="/management/email-accounts" class="nav-item">
+                            <i class="fas fa-envelope"></i>
+                            <span>Email Accounts</span>
+                        </a>
+                        <a href="/management/email-templates" class="nav-item">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Email Templates</span>
+                        </a>
+                        <a href="/management/groups" class="nav-item">
+                            <i class="fas fa-users"></i>
+                            <span>Groups</span>
+                        </a>
                     </div>
                 </div>
+            </div>
+
+            <!-- Profile and Logout Section -->
+            <div class="sidebar-footer">
+                <div class="profile-section">
+                    <i class="fas fa-user-circle"></i>
+                    <span>admin</span>
+                </div>
+                <form id="logout-form" style="display:none;">
+                    <input name="__RequestVerificationToken" type="hidden" value="@Antiforgery.GetTokens(Context).RequestToken" />
+                </form>
+                <button type="button" class="nav-item logout-item" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </button>
             </div>
         </nav>
 
         <!-- Main Content -->
         <main class="main-content">
-            <header class="top-bar">
-                <div class="dropdown-container">
-                    <select class="custom-select">
-                        <option>M365vx047293</option>
-                    </select>
-                </div>
-                <div class="header-controls">
-                    <button class="btn-help">?</button>
-                    <button class="btn-language">admin</button>
-                    <form id="logout-form" style="display:none;">
-                        <input name="__RequestVerificationToken" type="hidden" value="@Antiforgery.GetTokens(Context).RequestToken" />
-                    </form>
-                    <button type="button" class="btn-logout" onclick="logout()">Logout</button>
-                </div>
-            </header>
-
             <div class="content-wrapper">
                 <div id="root"></div>
                 @RenderBody()
@@ -79,6 +85,40 @@
     <script src="~/js/site.js"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Make Management dropdown open by default
+            const managementNavGroup = document.querySelector('.nav-group');
+            if (managementNavGroup) {
+                managementNavGroup.classList.add('active');
+            }
+
+            // Handle Management dropdown
+            const managementLink = document.querySelector('.nav-item.with-arrow');
+            if (managementLink) {
+                managementLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const navGroup = this.closest('.nav-group');
+                    navGroup.classList.toggle('active');
+                });
+            }
+
+            // Set active state for current page
+            const currentPath = window.location.pathname;
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                const href = item.getAttribute('href');
+                if (href && currentPath.startsWith(href) && href !== '/') {
+                    item.classList.add('active');
+                    // If it's in a subnav, activate the parent nav-group
+                    const navGroup = item.closest('.nav-group');
+                    if (navGroup) {
+                        navGroup.classList.add('active');
+                    }
+                }
+            });
+        });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

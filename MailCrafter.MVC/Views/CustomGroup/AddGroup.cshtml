@@ -46,9 +46,17 @@
                         <label class="form-label mb-0">
                             <i class="fas fa-list text-primary me-2"></i>Custom Fields
                         </label>
-                        <button type="button" class="btn btn-outline-primary" onclick="addCustomField()">
-                            <i class="fas fa-plus me-2"></i>Add Field
-                        </button>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-outline-primary" onclick="addCustomField()">
+                                <i class="fas fa-plus me-2"></i>Add Field
+                            </button>
+                            <button type="button" class="btn btn-outline-success" onclick="showBulkEntryModal()">
+                                <i class="fas fa-table me-2"></i>Add by CSV
+                            </button>
+                            <button type="button" class="btn btn-outline-info" onclick="showExcelUploadModal()">
+                                <i class="fas fa-file-excel me-2"></i>Import Excel
+                            </button>
+                        </div>
                     </div>
                     <div id="customFieldsContainer"></div>
                 </div>
@@ -66,6 +74,63 @@
                     </a>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Entry Modal -->
+<div class="modal fade" id="bulkEntryModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add by CSV</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Enter data in CSV format (one row per recipient)</label>
+                    <textarea class="form-control" id="bulkEntryText" rows="10" 
+                              placeholder="Name,Jane Doe,john@example.com&#10;Name,John Doe,john@example.com&#10;StudentId,DE180002,jane@example.com"></textarea>
+                </div>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Format: FieldName,FieldValue,Email (one row per recipient)
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="processBulkEntry()">Add Recipients</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Excel Upload Modal -->
+<div class="modal fade" id="excelUploadModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Import from Excel</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">Upload Excel File</label>
+                    <input type="file" class="form-control" id="excelFile" accept=".xlsx,.xls" />
+                </div>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Excel file should have columns in order: FieldName, FieldValue, Email
+                </div>
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Note: First row should be headers. Data should start from second row.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="processExcelFile()">Import Data</button>
+            </div>
         </div>
     </div>
 </div>
@@ -100,6 +165,7 @@
 }
 
 @section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
         function addCustomField() {
             const container = document.getElementById('customFieldsContainer');
@@ -134,6 +200,131 @@
 
         function removeField(button) {
             button.closest('.custom-field-set').remove();
+        }
+
+        function showBulkEntryModal() {
+            const modal = new bootstrap.Modal(document.getElementById('bulkEntryModal'));
+            modal.show();
+        }
+
+        function processBulkEntry() {
+            const bulkText = document.getElementById('bulkEntryText').value.trim();
+            if (!bulkText) return;
+
+            const lines = bulkText.split('\n');
+            const container = document.getElementById('customFieldsContainer');
+            
+            // Clear existing fields
+            container.innerHTML = '';
+
+            lines.forEach(line => {
+                const [fieldName, fieldValue, email] = line.split(',').map(s => s.trim());
+                if (fieldName && email && fieldValue) {
+                    const fieldSet = document.createElement('div');
+                    fieldSet.className = 'custom-field-set p-3';
+                    fieldSet.innerHTML = `
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label">Field Name</label>
+                                <input type="text" class="form-control field-key" name="fieldNames[]" 
+                                       value="${fieldName}" required />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Field Value</label>
+                                <input type="text" class="form-control field-value" name="fieldValues[]" 
+                                       value="${fieldValue}" required />
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Email</label>
+                                <input type="email" class="form-control field-email" name="emails[]" 
+                                       value="${email}" required />
+                            </div>
+                            <div class="col-md-1 d-flex align-items-end">
+                                <button type="button" class="btn btn-outline-danger w-100" onclick="removeField(this)">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(fieldSet);
+                }
+            });
+
+            // Close the modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('bulkEntryModal'));
+            modal.hide();
+        }
+
+        function showExcelUploadModal() {
+            const modal = new bootstrap.Modal(document.getElementById('excelUploadModal'));
+            modal.show();
+        }
+
+        function processExcelFile() {
+            const fileInput = document.getElementById('excelFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Please select an Excel file');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+
+                    // Skip header row and process data
+                    const container = document.getElementById('customFieldsContainer');
+                    container.innerHTML = ''; // Clear existing fields
+
+                    for (let i = 1; i < jsonData.length; i++) {
+                        const row = jsonData[i];
+                        if (row.length >= 3) {
+                            const [fieldName, fieldValue, email] = row.map(s => String(s).trim());
+                            if (fieldName && fieldValue && email) {
+                                const fieldSet = document.createElement('div');
+                                fieldSet.className = 'custom-field-set p-3';
+                                fieldSet.innerHTML = `
+                                    <div class="row g-3">
+                                        <div class="col-md-4">
+                                            <label class="form-label">Field Name</label>
+                                            <input type="text" class="form-control field-key" name="fieldNames[]" 
+                                                   value="${fieldName}" required />
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Field Value</label>
+                                            <input type="text" class="form-control field-value" name="fieldValues[]" 
+                                                   value="${fieldValue}" required />
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label class="form-label">Email</label>
+                                            <input type="email" class="form-control field-email" name="emails[]" 
+                                                   value="${email}" required />
+                                        </div>
+                                        <div class="col-md-1 d-flex align-items-end">
+                                            <button type="button" class="btn btn-outline-danger w-100" onclick="removeField(this)">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                `;
+                                container.appendChild(fieldSet);
+                            }
+                        }
+                    }
+
+                    // Close the modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('excelUploadModal'));
+                    modal.hide();
+                } catch (error) {
+                    alert('Error processing Excel file: ' + error.message);
+                }
+            };
+            reader.readAsArrayBuffer(file);
         }
 
         document.getElementById('addGroupForm').addEventListener('submit', function (event) {
