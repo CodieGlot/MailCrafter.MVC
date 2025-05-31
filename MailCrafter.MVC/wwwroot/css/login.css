@@ -153,3 +153,7 @@
     font-weight: 700;
     line-height: 135.714%;
 }
+
+.errorMessage{
+    color : red;
+}
