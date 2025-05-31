@@ -1,0 +1,307 @@
+@{
+    ViewData["Title"] = "Insights";
+    Layout = "_Layout";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.css" />
+    <style>
+        .btn-check:checked + .btn-outline-warning {
+            background-color: #FF6B00;
+            border-color: #FF6B00;
+            color: white;
+        }
+        .btn-outline-warning {
+            color: #FF6B00;
+            border-color: #FF6B00;
+        }
+        .btn-outline-warning:hover {
+            background-color: #FF6B00;
+            border-color: #FF6B00;
+            color: white;
+        }
+    </style>
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="display-5 fw-bold mb-2" style="background: linear-gradient(45deg, #FF6B00, #FFA500); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Email Analytics</h1>
+            <p class="text-muted fs-5">Track your email campaign performance and delivery metrics</p>
+        </div>
+    </div>
+
+    <!-- Overview Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">Total Emails Sent</h6>
+                    <h2 class="card-title mb-0" id="totalEmailsSent">-</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">Success Rate</h6>
+                    <h2 class="card-title mb-0" id="successRate">-</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">Failure Rate</h6>
+                    <h2 class="card-title mb-0" id="failureRate">-</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-muted">Pending Rate</h6>
+                    <h2 class="card-title mb-0" id="pendingRate">-</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row mb-4">
+        <div class="col-12 mb-3">
+            <div class="btn-group" role="group" aria-label="Time range selector">
+                <input type="radio" class="btn-check" name="timeRange" id="weekly" value="weekly" checked>
+                <label class="btn btn-outline-warning" for="weekly">Weekly</label>
+
+                <input type="radio" class="btn-check" name="timeRange" id="monthly" value="monthly">
+                <label class="btn btn-outline-warning" for="monthly">Monthly</label>
+
+                <input type="radio" class="btn-check" name="timeRange" id="yearly" value="yearly">
+                <label class="btn btn-outline-warning" for="yearly">Yearly</label>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Email Activity</h5>
+                    <div style="height: 300px; position: relative;">
+                        <canvas id="activityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Email Status Distribution</h5>
+                    <div style="height: 300px; position: relative;">
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tables -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Top Performing Templates</h5>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Template</th>
+                                    <th>Sent</th>
+                                    <th>Processed</th>
+                                    <th>Failed</th>
+                                </tr>
+                            </thead>
+                            <tbody id="topTemplatesTable">
+                                <!-- Will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Email Account Performance</h5>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Email</th>
+                                    <th>Sent</th>
+                                    <th>Processed</th>
+                                    <th>Failed</th>
+                                </tr>
+                            </thead>
+                            <tbody id="accountPerformanceTable">
+                                <!-- Will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.js"></script>
+    <script>
+        let currentTimeRange = 'weekly';
+
+        // Initialize charts
+        const activityChart = new Chart(document.getElementById('activityChart'), {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                    {
+                        label: 'Sent',
+                        data: [],
+                        borderColor: '#4CAF50',
+                        backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                        fill: true
+                    },
+                    {
+                        label: 'Processed',
+                        data: [],
+                        borderColor: '#2196F3',
+                        backgroundColor: 'rgba(33, 150, 243, 0.1)',
+                        fill: true
+                    },
+                    {
+                        label: 'Failed',
+                        data: [],
+                        borderColor: '#F44336',
+                        backgroundColor: 'rgba(244, 67, 54, 0.1)',
+                        fill: true
+                    },
+                    {
+                        label: 'Pending',
+                        data: [],
+                        borderColor: '#FFC107',
+                        backgroundColor: 'rgba(255, 193, 7, 0.1)',
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
+            }
+        });
+
+        const statusChart = new Chart(document.getElementById('statusChart'), {
+            type: 'doughnut',
+            data: {
+                labels: [],
+                datasets: [{
+                    data: [],
+                    backgroundColor: ['#2196F3', '#F44336', '#4CAF50', '#FFC107']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // Fetch and update data
+        async function fetchData() {
+            try {
+                // Overview data
+                const overviewResponse = await fetch('/api/insights/overview');
+                const overviewData = await overviewResponse.json();
+                document.getElementById('totalEmailsSent').textContent = overviewData.totalEmailsSent;
+                document.getElementById('successRate').textContent = `${overviewData.successRate}%`;
+                document.getElementById('failureRate').textContent = `${overviewData.failureRate}%`;
+                document.getElementById('pendingRate').textContent = `${overviewData.pendingRate}%`;
+
+                // Activity data
+                const activityResponse = await fetch(`/api/insights/activity?timeRange=${currentTimeRange}`);
+                const activityData = await activityResponse.json();
+                activityChart.data.labels = activityData.labels;
+                activityChart.data.datasets[0].data = activityData.sent;
+                activityChart.data.datasets[1].data = activityData.processed;
+                activityChart.data.datasets[2].data = activityData.failed;
+                activityChart.data.datasets[3].data = activityData.pending;
+                activityChart.update();
+
+                // Status data
+                const statusResponse = await fetch('/api/insights/status');
+                const statusData = await statusResponse.json();
+                statusChart.data.labels = statusData.labels;
+                statusChart.data.datasets[0].data = statusData.values;
+                statusChart.update();
+
+                // Top templates
+                const templatesResponse = await fetch('/api/insights/top-templates');
+                const templatesData = await templatesResponse.json();
+                const templatesTable = document.getElementById('topTemplatesTable');
+                templatesTable.innerHTML = templatesData.map(t => `
+                    <tr>
+                        <td>${t.name}</td>
+                        <td>${t.sent}</td>
+                        <td>${t.processed}</td>
+                        <td>${t.failed}</td>
+                    </tr>
+                `).join('');
+
+                // Account performance
+                const accountsResponse = await fetch('/api/insights/account-performance');
+                const accountsData = await accountsResponse.json();
+                const accountsTable = document.getElementById('accountPerformanceTable');
+                accountsTable.innerHTML = accountsData.map(a => `
+                    <tr>
+                        <td>${a.email}</td>
+                        <td>${a.sent}</td>
+                        <td>${a.processed}</td>
+                        <td>${a.failed}</td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error fetching insights data:', error);
+            }
+        }
+
+        // Add event listeners for time range selection
+        document.querySelectorAll('input[name="timeRange"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                currentTimeRange = e.target.value;
+                fetchData();
+            });
+        });
+
+        // Initial data load
+        fetchData();
+
+        // Refresh data every 5 minutes
+        setInterval(fetchData, 5 * 60 * 1000);
+    </script>
+} 
