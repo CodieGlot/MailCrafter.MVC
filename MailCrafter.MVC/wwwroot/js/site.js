@@ -288,5 +288,77 @@ function showToast(message, type = 'info') {
     toast.show();
 }
 
+async function forgotPassword(event) {
+    event.preventDefault();
+    const email = document.getElementById('Email').value;
+    const errorElement = document.getElementById('forgot_password_error');
+
+    try {
+        const response = await fetch('/forgot-password', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            showToast('success', data.message);
+            // In development, you might want to show the reset link
+            if (data.resetLink) {
+                console.log('Reset Link:', data.resetLink);
+            }
+        } else {
+            errorElement.textContent = data.message;
+            errorElement.style.display = 'block';
+        }
+    } catch (error) {
+        errorElement.textContent = 'An error occurred. Please try again.';
+        errorElement.style.display = 'block';
+    }
+}
+
+async function resetPassword(event) {
+    event.preventDefault();
+    const token = document.getElementById('Token').value;
+    const email = document.getElementById('Email').value;
+    const newPassword = document.getElementById('NewPassword').value;
+    const confirmPassword = document.getElementById('ConfirmPassword').value;
+    const errorElement = document.getElementById('reset_password_error');
+
+    if (newPassword !== confirmPassword) {
+        errorElement.textContent = 'Passwords do not match.';
+        errorElement.style.display = 'block';
+        return;
+    }
+
+    try {
+        const response = await fetch('/reset-password', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ token, email, newPassword })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            showToast('success', data.message);
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 2000);
+        } else {
+            errorElement.textContent = data.message;
+            errorElement.style.display = 'block';
+        }
+    } catch (error) {
+        errorElement.textContent = 'An error occurred. Please try again.';
+        errorElement.style.display = 'block';
+    }
+}
+
 
 

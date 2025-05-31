@@ -109,10 +109,103 @@ namespace MailCrafter.MVC.Controllers
             return Ok(new { redirectUrl = Url.Action("Login") });
         }
 
+        [HttpGet]
+        [Route("forgot-password")]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        [Route("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest model)
+        {
+            if (string.IsNullOrEmpty(model.Email))
+            {
+                return BadRequest(new { message = "Email is required." });
+            }
+
+            var user = await _userService.GetByUsernameOrEmail(model.Email);
+            if (user == null)
+            {
+                // Don't reveal that the user does not exist
+                return Ok(new { message = "If your email is registered, you will receive a password reset link." });
+            }
+
+            // Generate a password reset token
+            var token = Guid.NewGuid().ToString();
+            var resetLink = Url.Action("ResetPassword", "Account", new { token = token, email = user.Email }, Request.Scheme);
+
+            // TODO: Send email with reset link
+            // For now, we'll just return the link in the response
+            return Ok(new { 
+                message = "If your email is registered, you will receive a password reset link.",
+                resetLink = resetLink // Remove this in production
+            });
+        }
+
+        [HttpGet]
+        [Route("reset-password")]
+        public IActionResult ResetPassword(string token, string email)
+        {
+            if (string.IsNullOrEmpty(token) || string.IsNullOrEmpty(email))
+            {
+                return BadRequest(new { message = "Invalid password reset link." });
+            }
+
+            return View(new ResetPasswordViewModel { Token = token, Email = email });
+        }
+
+        [HttpPost]
+        [Route("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest model)
+        {
+            if (string.IsNullOrEmpty(model.Email) || string.IsNullOrEmpty(model.Token) || string.IsNullOrEmpty(model.NewPassword))
+            {
+                return BadRequest(new { message = "All fields are required." });
+            }
+
+            var user = await _userService.GetByUsernameOrEmail(model.Email);
+            if (user == null)
+            {
+                return BadRequest(new { message = "Invalid password reset request." });
+            }
+
+            // TODO: Validate token
+            // For now, we'll just update the password
+            user.Password = EncryptHelper.HashPassword(model.NewPassword);
+            var result = await _userService.Update(user);
+
+            if (result.IsSuccessful)
+            {
+                return Ok(new { message = "Password has been reset successfully." });
+            }
+
+            return BadRequest(new { message = "Failed to reset password." });
+        }
+
         //public async Task<ApiPageQueryResponse<AppUserEntity>> GetAllAppUsers(ApiPageQueryRequest request)
         //{
         //    var data = await _userService.GetPageQueryDataAsync(request.ToPageQueryDTO());
         //    return new ApiPageQueryResponse<AppUserEntity>(data, request);
         //}
+    }
+
+    public class ForgotPasswordRequest
+    {
+        public string Email { get; set; } = string.Empty;
+    }
+
+    public class ResetPasswordRequest
+    {
+        public string Email { get; set; } = string.Empty;
+        public string Token { get; set; } = string.Empty;
+        public string NewPassword { get; set; } = string.Empty;
+    }
+
+    public class ResetPasswordViewModel
+    {
+        public string Token { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
     }
 }
