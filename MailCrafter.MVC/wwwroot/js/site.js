@@ -88,7 +88,8 @@ async function login(event) {
         window.location.href = '/';
     } else {
         const errorData = await response.json();
-        document.getElementById('login-error').innerText = errorData.message || 'Invalid login attempt.';
+        document.getElementById('login_error').style.display = "block";
+        document.getElementById('login_error').innerText = errorData.message || 'Wrong username or password please try again!';
     }
     showLoading(false);
 }

@@ -169,6 +169,9 @@
     line-height: 135.714%;
 }
 
+.errorMessage{
+    color : red;
+}
 .text-danger {
     color: #dc3545;
     font-size: 13px;
