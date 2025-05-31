@@ -6,24 +6,119 @@
 @section Styles {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chart.js@3.7.0/dist/chart.min.css" />
     <style>
+        .card {
+            border: none;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+
         .btn-check:checked + .btn-outline-warning {
             background-color: #FF6B00;
             border-color: #FF6B00;
             color: white;
         }
+
         .btn-outline-warning {
             color: #FF6B00;
             border-color: #FF6B00;
         }
+
         .btn-outline-warning:hover {
             background-color: #FF6B00;
             border-color: #FF6B00;
             color: white;
         }
+
+        .stat-card {
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+
+        .stat-card .card-body {
+            padding: 1.5rem;
+        }
+
+        .stat-card .card-subtitle {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #6c757d;
+        }
+
+        .stat-card .card-title {
+            font-size: 2rem;
+            font-weight: 600;
+            color: #FF6B00;
+        }
+
+        .chart-card {
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+
+        .chart-card .card-body {
+            padding: 1.5rem;
+        }
+
+        .chart-card .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #212529;
+            margin-bottom: 1.5rem;
+        }
+
+        .table-card {
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+
+        .table-card .card-body {
+            padding: 1.5rem;
+        }
+
+        .table-card .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #212529;
+            margin-bottom: 1.5rem;
+        }
+
+        .table {
+            margin-bottom: 0;
+        }
+
+        .table th {
+            font-weight: 600;
+            color: #6c757d;
+            border-top: none;
+        }
+
+        .table td {
+            vertical-align: middle;
+        }
+
+        .time-range-selector {
+            margin-bottom: 1.5rem;
+        }
+
+        .time-range-selector .btn-group {
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        .time-range-selector .btn {
+            padding: 0.5rem 1.5rem;
+            font-weight: 500;
+        }
     </style>
 }
 
-<div class="container-fluid">
+<div class="container-fluid py-4">
     <div class="row mb-4">
         <div class="col-12">
             <h1 class="display-5 fw-bold mb-2" style="background: linear-gradient(45deg, #FF6B00, #FFA500); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Email Analytics</h1>
@@ -34,33 +129,33 @@
     <!-- Overview Cards -->
     <div class="row mb-4">
         <div class="col-md-3">
-            <div class="card">
+            <div class="card stat-card">
                 <div class="card-body">
-                    <h6 class="card-subtitle mb-2 text-muted">Total Emails Sent</h6>
+                    <h6 class="card-subtitle mb-2">Total Emails Sent</h6>
                     <h2 class="card-title mb-0" id="totalEmailsSent">-</h2>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card">
+            <div class="card stat-card">
                 <div class="card-body">
-                    <h6 class="card-subtitle mb-2 text-muted">Success Rate</h6>
+                    <h6 class="card-subtitle mb-2">Success Rate</h6>
                     <h2 class="card-title mb-0" id="successRate">-</h2>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card">
+            <div class="card stat-card">
                 <div class="card-body">
-                    <h6 class="card-subtitle mb-2 text-muted">Failure Rate</h6>
+                    <h6 class="card-subtitle mb-2">Failure Rate</h6>
                     <h2 class="card-title mb-0" id="failureRate">-</h2>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card">
+            <div class="card stat-card">
                 <div class="card-body">
-                    <h6 class="card-subtitle mb-2 text-muted">Pending Rate</h6>
+                    <h6 class="card-subtitle mb-2">Pending Rate</h6>
                     <h2 class="card-title mb-0" id="pendingRate">-</h2>
                 </div>
             </div>
@@ -70,19 +165,21 @@
     <!-- Charts -->
     <div class="row mb-4">
         <div class="col-12 mb-3">
-            <div class="btn-group" role="group" aria-label="Time range selector">
-                <input type="radio" class="btn-check" name="timeRange" id="weekly" value="weekly" checked>
-                <label class="btn btn-outline-warning" for="weekly">Weekly</label>
+            <div class="time-range-selector">
+                <div class="btn-group" role="group" aria-label="Time range selector">
+                    <input type="radio" class="btn-check" name="timeRange" id="weekly" value="weekly" checked>
+                    <label class="btn btn-outline-warning" for="weekly">Weekly</label>
 
-                <input type="radio" class="btn-check" name="timeRange" id="monthly" value="monthly">
-                <label class="btn btn-outline-warning" for="monthly">Monthly</label>
+                    <input type="radio" class="btn-check" name="timeRange" id="monthly" value="monthly">
+                    <label class="btn btn-outline-warning" for="monthly">Monthly</label>
 
-                <input type="radio" class="btn-check" name="timeRange" id="yearly" value="yearly">
-                <label class="btn btn-outline-warning" for="yearly">Yearly</label>
+                    <input type="radio" class="btn-check" name="timeRange" id="yearly" value="yearly">
+                    <label class="btn btn-outline-warning" for="yearly">Yearly</label>
+                </div>
             </div>
         </div>
         <div class="col-md-8">
-            <div class="card">
+            <div class="card chart-card">
                 <div class="card-body">
                     <h5 class="card-title">Email Activity</h5>
                     <div style="height: 300px; position: relative;">
@@ -92,7 +189,7 @@
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card">
+            <div class="card chart-card">
                 <div class="card-body">
                     <h5 class="card-title">Email Status Distribution</h5>
                     <div style="height: 300px; position: relative;">
@@ -106,7 +203,7 @@
     <!-- Tables -->
     <div class="row">
         <div class="col-md-6">
-            <div class="card">
+            <div class="card table-card">
                 <div class="card-body">
                     <h5 class="card-title">Top Performing Templates</h5>
                     <div class="table-responsive">
@@ -128,7 +225,7 @@
             </div>
         </div>
         <div class="col-md-6">
-            <div class="card">
+            <div class="card table-card">
                 <div class="card-body">
                     <h5 class="card-title">Email Account Performance</h5>
                     <div class="table-responsive">
@@ -166,30 +263,34 @@
                     {
                         label: 'Sent',
                         data: [],
-                        borderColor: '#4CAF50',
-                        backgroundColor: 'rgba(76, 175, 80, 0.1)',
-                        fill: true
+                        borderColor: '#FF6B00',
+                        backgroundColor: 'rgba(255, 107, 0, 0.1)',
+                        fill: true,
+                        tension: 0.4
                     },
                     {
                         label: 'Processed',
                         data: [],
-                        borderColor: '#2196F3',
-                        backgroundColor: 'rgba(33, 150, 243, 0.1)',
-                        fill: true
+                        borderColor: '#4CAF50',
+                        backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                        fill: true,
+                        tension: 0.4
                     },
                     {
                         label: 'Failed',
                         data: [],
                         borderColor: '#F44336',
                         backgroundColor: 'rgba(244, 67, 54, 0.1)',
-                        fill: true
+                        fill: true,
+                        tension: 0.4
                     },
                     {
                         label: 'Pending',
                         data: [],
-                        borderColor: '#FFC107',
-                        backgroundColor: 'rgba(255, 193, 7, 0.1)',
-                        fill: true
+                        borderColor: '#FFA500',
+                        backgroundColor: 'rgba(255, 165, 0, 0.1)',
+                        fill: true,
+                        tension: 0.4
                     }
                 ]
             },
@@ -198,7 +299,11 @@
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        position: 'top'
+                        position: 'top',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true
+                        }
                     }
                 },
                 scales: {
@@ -206,6 +311,14 @@
                         beginAtZero: true,
                         ticks: {
                             precision: 0
+                        },
+                        grid: {
+                            drawBorder: false
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
                         }
                     }
                 }
@@ -218,7 +331,8 @@
                 labels: [],
                 datasets: [{
                     data: [],
-                    backgroundColor: ['#2196F3', '#F44336', '#4CAF50', '#FFC107']
+                    backgroundColor: ['#4CAF50', '#F44336', '#FF6B00', '#FFA500'],
+                    borderWidth: 0
                 }]
             },
             options: {
@@ -226,9 +340,14 @@
                 maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        position: 'bottom'
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true
+                        }
                     }
-                }
+                },
+                cutout: '70%'
             }
         });
 

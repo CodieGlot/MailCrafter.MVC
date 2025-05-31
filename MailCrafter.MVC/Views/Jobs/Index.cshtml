@@ -3,59 +3,62 @@
     ViewData["Title"] = "Email Jobs";
 }
 
-<div class="container-fluid">
+<div class="container-fluid py-4">
     <div class="row">
         <div class="col-12">
-            <div class="card">
-                <div class="card-header bg-white py-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-4">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h4 class="mb-0 text-primary">
-                            <i class="fas fa-tasks"></i>
+                        <h4 class="mb-0 fw-bold" style="background: linear-gradient(45deg, #FF6B00, #FFA500); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                            <i class="fas fa-tasks me-2"></i>
                             Email Jobs
                         </h4>
-                        <button class="btn btn-primary" id="createJobButton">
-                            <i class="fas fa-plus-circle me-1"></i> Create New Job
+                        <button class="btn btn-warning btn-lg px-4 py-2 fw-bold shadow-sm hover-lift" id="createJobButton">
+                            <i class="fas fa-plus-circle me-2"></i> Create New Job
                         </button>
                     </div>
                 </div>
-                <div class="card-body">
+                <div class="card-body p-4">
                     @if (Model == null || !Model.Any())
                     {
                         <div class="text-center py-5">
-                            <div class="mb-3">
-                                <i class="fas fa-envelope fa-3x text-muted"></i>
+                            <div class="mb-4">
+                                <i class="fas fa-envelope fa-4x" style="color: #FF6B00; opacity: 0.5;"></i>
                             </div>
-                            <h5 class="text-muted">No email jobs found</h5>
-                            <p class="text-muted">Create your first job to start sending emails</p>
+                            <h4 class="fw-bold mb-3" style="color: #FF6B00;">No email jobs found</h4>
+                            <p class="text-muted mb-4">Create your first job to start sending emails</p>
+                            <button class="btn btn-warning btn-lg px-4 py-2 fw-bold shadow-sm hover-lift" id="createFirstJobButton">
+                                <i class="fas fa-plus-circle me-2"></i> Create Your First Job
+                            </button>
                         </div>
                     }
                     else
                     {
                         <div class="table-responsive">
                             <table class="table table-hover align-middle">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Job Name</th>
-                                        <th>Template</th>
-                                        <th>Status</th>
-                                        <th>Created</th>
-                                        <th>Recipients</th>
-                                        <th class="text-end">Actions</th>
+                                <thead>
+                                    <tr class="bg-light">
+                                        <th class="py-3">Job Name</th>
+                                        <th class="py-3">Template</th>
+                                        <th class="py-3">Status</th>
+                                        <th class="py-3">Created</th>
+                                        <th class="py-3">Recipients</th>
+                                        <th class="py-3 text-end">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach (var job in Model)
                                     {
-                                        <tr data-job-id="@job.ID">
+                                        <tr data-job-id="@job.ID" class="hover-lift">
                                             <td>
                                                 <div class="d-flex align-items-center">
-                                                    <i class="fas fa-envelope me-2 text-primary"></i>
-                                                    <span>@job.Name</span>
+                                                    <i class="fas fa-envelope me-3" style="color: #FF6B00;"></i>
+                                                    <span class="fw-medium">@job.Name</span>
                                                 </div>
                                             </td>
                                             <td>@job.TemplateName</td>
                                             <td>
-                                                <span class="badge @GetStatusBadgeClass(job.Status)">
+                                                <span class="badge @GetStatusBadgeClass(job.Status) px-3 py-2">
                                                     @job.Status
                                                 </span>
                                             </td>
@@ -64,7 +67,7 @@
                                             <td>
                                                 <div class="d-flex justify-content-end gap-2">
                                                     <a href="@Url.Action("Details", "Jobs", new { id = job.ID })" 
-                                                       class="btn btn-sm btn-outline-primary">
+                                                       class="btn btn-sm btn-outline-warning">
                                                         <i class="fas fa-info-circle me-1"></i> Details
                                                     </a>
                                                     @if (job.Status == "Pending" || job.Status == "Failed")
@@ -96,15 +99,15 @@
 <!-- Create Job Modal -->
 <div class="modal fade" id="createJobModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-white">
-                <h5 class="modal-title">Create New Email Job</h5>
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-white py-4">
+                <h5 class="modal-title fw-bold" style="color: #FF6B00;">Create New Email Job</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body p-4">
                 <div class="job-creation-wizard">
                     <!-- Step indicators -->
-                    <div class="step-indicators mb-4">
+                    <div class="step-indicators mb-5">
                         <div class="step active" id="step1-indicator">
                             <div class="step-number">1</div>
                             <div class="step-title">Select Template</div>
@@ -297,20 +300,20 @@
 <!-- Delete Confirmation Modal -->
 <div class="modal fade" id="deleteJobModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-white">
-                <h5 class="modal-title">Confirm Delete</h5>
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-white py-4">
+                <h5 class="modal-title fw-bold" style="color: #FF6B00;">Confirm Delete</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body text-center py-4">
-                <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
-                <h5>Are you sure?</h5>
+            <div class="modal-body text-center py-5">
+                <i class="fas fa-exclamation-triangle fa-4x mb-4" style="color: #FF6B00; opacity: 0.5;"></i>
+                <h4 class="fw-bold mb-3">Are you sure?</h4>
                 <p class="text-muted">This action cannot be undone.</p>
             </div>
-            <div class="modal-footer bg-white">
-                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-danger" id="confirmDeleteButton">
-                    <i class="fas fa-trash-alt me-1"></i> Delete
+            <div class="modal-footer bg-white py-4">
+                <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger px-4" id="confirmDeleteButton">
+                    <i class="fas fa-trash-alt me-2"></i> Delete
                 </button>
             </div>
         </div>
@@ -380,12 +383,12 @@
         }
 
         .step.active .step-number {
-            background: #0d6efd;
+            background: #FF6B00;
             color: white;
         }
 
         .step.active .step-title {
-            color: #0d6efd;
+            color: #FF6B00;
             font-weight: 600;
         }
 
@@ -404,7 +407,7 @@
         }
 
         .btn-check:checked + .btn-outline-primary {
-            background-color: #0d6efd;
+            background-color: #FF6B00;
             color: white;
         }
 
@@ -424,6 +427,45 @@
         .badge {
             padding: 0.5em 0.75em;
             font-weight: 500;
+        }
+
+        .hover-lift {
+            transition: transform 0.3s ease;
+        }
+
+        .hover-lift:hover {
+            transform: translateY(-3px);
+        }
+
+        .btn-warning {
+            background: #FF6B00;
+            border-color: #FF6B00;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #FFA500;
+            border-color: #FFA500;
+            color: white;
+        }
+
+        .btn-outline-warning {
+            color: #FF6B00;
+            border-color: #FF6B00;
+        }
+
+        .btn-outline-warning:hover {
+            background: #FF6B00;
+            border-color: #FF6B00;
+            color: white;
+        }
+
+        .table tbody tr {
+            transition: all 0.3s ease;
+        }
+
+        .table tbody tr:hover {
+            background-color: rgba(255, 107, 0, 0.05);
         }
     </style>
 }

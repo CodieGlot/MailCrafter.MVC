@@ -71,7 +71,7 @@ $(document).ready(function () {
 
         tinymce.init({
             selector: "#templateBody",
-            height: 350,
+            height: 250,
             menubar: false,
             plugins: "link image code table lists template fullscreen",
             toolbar: "undo redo | formatselect | bold italic | alignleft aligncenter alignright | bullist numlist | link image | fullscreen",

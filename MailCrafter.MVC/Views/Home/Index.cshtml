@@ -2,13 +2,13 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="hero-section bg-light py-5 text-center">
+<div class="hero-section text-center">
     <div class="container">
-        <h1 class="display-3 fw-bold mb-4">Welcome to MailCrafter</h1>
-        <p class="lead mb-4">Your Ultimate Email Marketing Solution</p>
-        <div class="d-grid d-sm-flex justify-content-sm-center gap-2">
-            <a href="/jobs" class="btn btn-primary btn-lg gap-3 px-4">Create Job</a>
-            <a href="/management/email-templates" class="btn btn-outline-secondary btn-lg px-4">Browse Templates</a>
+        <h1 class="display-4 fw-bold mb-4 text-white">Welcome to MailCrafter</h1>
+        <p class="lead mb-4 text-white">Your Ultimate Email Marketing Solution</p>
+        <div class="d-grid d-sm-flex justify-content-sm-center gap-3">
+            <a href="/jobs" class="btn btn-warning btn-lg fw-bold hover-lift px-5 py-3 shadow-lg">Create Job</a>
+            <a href="/management/email-templates" class="btn btn-outline-light btn-lg fw-bold hover-lift px-5 py-3">Browse Templates</a>
         </div>
     </div>
 </div>
@@ -16,27 +16,33 @@
 <div class="container my-5">
     <div class="row g-4">
         <div class="col-md-4">
-            <div class="card h-100 shadow-sm">
+            <div class="feature-card">
                 <div class="card-body text-center">
-                    <i class="fas fa-envelope fa-3x text-primary mb-3"></i>
+                    <div class="icon-wrapper mb-4">
+                        <i class="fas fa-envelope"></i>
+                    </div>
                     <h3 class="card-title h4">Email Jobs</h3>
                     <p class="card-text">Create and manage professional email jobs with our easy-to-use platform.</p>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card h-100 shadow-sm">
+            <div class="feature-card">
                 <div class="card-body text-center">
-                    <i class="fas fa-paint-brush fa-3x text-primary mb-3"></i>
+                    <div class="icon-wrapper mb-4">
+                        <i class="fas fa-paint-brush"></i>
+                    </div>
                     <h3 class="card-title h4">Beautiful Templates</h3>
                     <p class="card-text">Choose from a wide range of responsive and customizable email templates.</p>
                 </div>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card h-100 shadow-sm">
+            <div class="feature-card">
                 <div class="card-body text-center">
-                    <i class="fas fa-chart-line fa-3x text-primary mb-3"></i>
+                    <div class="icon-wrapper mb-4">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
                     <h3 class="card-title h4">Analytics</h3>
                     <p class="card-text">Track your job performance with detailed analytics and insights.</p>
                 </div>
@@ -45,20 +51,29 @@
     </div>
 </div>
 
-<div class="bg-light py-5">
+<div class="features-section py-5">
     <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-6">
-                <h2 class="fw-bold mb-4">Why Choose MailCrafter?</h2>
-                <ul class="list-unstyled">
-                    <li class="mb-3"><i class="fas fa-check text-success me-2"></i> User-friendly interface</li>
-                    <li class="mb-3"><i class="fas fa-check text-success me-2"></i> Advanced email automation</li>
-                    <li class="mb-3"><i class="fas fa-check text-success me-2"></i> Responsive design templates</li>
-                    <li class="mb-3"><i class="fas fa-check text-success me-2"></i> Real-time analytics</li>
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center">
+                <h2 class="fw-bold mb-4" style="background: linear-gradient(45deg, #FF6B00, #FFA500); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Why Choose MailCrafter?</h2>
+                <ul class="feature-list">
+                    <li class="feature-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>User-friendly interface</span>
+                    </li>
+                    <li class="feature-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Advanced email automation</span>
+                    </li>
+                    <li class="feature-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Responsive design templates</span>
+                    </li>
+                    <li class="feature-item">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Real-time analytics</span>
+                    </li>
                 </ul>
-            </div>
-            <div class="col-lg-6">
-                <img src="/images/email-marketing.svg" alt="Email Marketing" class="img-fluid" />
             </div>
         </div>
     </div>
@@ -67,17 +82,118 @@
 @section Styles {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        .hero-section {
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            padding: 6rem 0;
+        @@keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
         }
 
-        .card {
+        .hero-section {
+            background: linear-gradient(135deg, #FF6B00 0%, #FFA500 100%);
+            padding: 4rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+            opacity: 0.5;
+            z-index: 1;
+        }
+
+        .hero-section .container {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-section h1 {
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .icon-wrapper {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #FF6B00 0%, #FFA500 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        .icon-wrapper i {
+            font-size: 2rem;
+            color: white;
+        }
+
+        .features-section {
+            background: #f8f9fa;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+            display: inline-block;
+            text-align: left;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+        }
+
+        .feature-item i {
+            color: #FF6B00;
+            font-size: 1.5rem;
+            margin-right: 1rem;
+        }
+
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .hover-lift {
             transition: transform 0.3s ease;
         }
 
-            .card:hover {
-                transform: translateY(-5px);
-            }
+        .hover-lift:hover {
+            transform: translateY(-3px);
+        }
+
+        .btn-warning {
+            background: #FF6B00;
+            border-color: #FF6B00;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #FFA500;
+            border-color: #FFA500;
+            color: white;
+        }
     </style>
 }
