@@ -37,7 +37,8 @@ namespace MailCrafter.MVC.Controllers
                 var claims = new List<Claim>
                 {
                     new Claim(ClaimTypes.Name, user.Username),
-                    new Claim(ClaimTypes.NameIdentifier, user.ID)
+                    new Claim(ClaimTypes.NameIdentifier, user.ID),
+                    new Claim(ClaimTypes.Email, user.Email)
                 };
 
                 var claimsIdentity = new ClaimsIdentity(claims, "CookieAuth");

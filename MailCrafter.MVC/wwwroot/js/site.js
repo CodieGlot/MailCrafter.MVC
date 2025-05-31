@@ -254,6 +254,7 @@ function showToast(message, type = 'info') {
     if (!toastContainer) {
         toastContainer = document.createElement('div');
         toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+        toastContainer.style.zIndex = '9999'; // Ensure toast appears above modal
         document.body.appendChild(toastContainer);
     }
 
@@ -263,6 +264,7 @@ function showToast(message, type = 'info') {
     toastEl.setAttribute('role', 'alert');
     toastEl.setAttribute('aria-live', 'assertive');
     toastEl.setAttribute('aria-atomic', 'true');
+    toastEl.style.zIndex = '9999'; // Ensure toast appears above modal
 
     // Create toast content
     toastEl.innerHTML = `

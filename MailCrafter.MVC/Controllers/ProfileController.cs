@@ -49,6 +49,39 @@ namespace MailCrafter.MVC.Controllers
                     }
                 }
 
+                // Validate email format
+                if (!string.IsNullOrEmpty(request.Email))
+                {
+                    var emailPattern = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$";
+                    if (!System.Text.RegularExpressions.Regex.IsMatch(request.Email, emailPattern))
+                    {
+                        _logger.LogWarning("Invalid email format: {Email}", request.Email);
+                        return BadRequest(new { message = "Invalid email format" });
+                    }
+                }
+
+                // Check if new email is already taken by another user
+                if (request.Email != user.Email)
+                {
+                    var existingUserWithEmail = await _userService.GetByUsernameOrEmail(request.Email);
+                    if (existingUserWithEmail != null && existingUserWithEmail.ID != userId)
+                    {
+                        _logger.LogWarning("Email {Email} is already taken by another user", request.Email);
+                        return BadRequest(new { message = "Email is already taken by another user" });
+                    }
+                }
+
+                // Check if new username is already taken by another user
+                if (request.Username != user.Username)
+                {
+                    var existingUserWithUsername = await _userService.GetByUsernameOrEmail(request.Username);
+                    if (existingUserWithUsername != null && existingUserWithUsername.ID != userId)
+                    {
+                        _logger.LogWarning("Username {Username} is already taken by another user", request.Username);
+                        return BadRequest(new { message = "Username is already taken by another user" });
+                    }
+                }
+
                 // Update user information
                 user.Username = request.Username;
                 user.Email = request.Email;
