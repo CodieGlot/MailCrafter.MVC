@@ -1,5 +1,4 @@
-﻿
-.login-container {
+﻿.login-container {
     height: 100%;
     width: 430px;
     height: 674px;
@@ -10,7 +9,19 @@
 }
 
 .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 2.5rem;
+    position: relative;
+}
+
+.form-group .text-danger {
+    position: absolute;
+    bottom: -25px;
+    left: 0;
+    color: #dc3545;
+    font-size: 14px;
+    font-weight: 500;
+    display: block;
+    width: 100%;
 }
 
 .form-label {
@@ -21,15 +32,19 @@
 }
 
 .form-control {
-    width: calc(100%);
+    width: 100%;
     height: 60px;
     border-radius: 30px;
     border: 1px solid rgba(25, 27, 29, 0.15);
     background: #FFF;
     font-size: 20px;
     padding: 0 12px;
+    margin-bottom: 4px;
 }
 
+.form-control.error {
+    border-color: #dc3545;
+}
 
 .password-container {
     position: relative;
@@ -152,4 +167,17 @@
     font-size: 28px;
     font-weight: 700;
     line-height: 135.714%;
+}
+
+.text-danger {
+    color: #dc3545;
+    font-size: 14px;
+    font-weight: 500;
+    display: block;
+    margin-top: 4px;
+}
+
+.login-box {
+    padding: 20px;
+    width: 100%;
 }
