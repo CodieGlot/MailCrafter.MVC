@@ -1,24 +1,24 @@
 ﻿.login-container {
     height: 100%;
-    width: 430px;
-    height: 674px;
+    width: 400px;
+    height: 600px;
     border-radius: 12px;
     background: #FFF;
     box-shadow: 0px 20px 90px 0px rgba(25, 27, 29, 0.10);
-    padding: 30px;
+    padding: 25px;
 }
 
 .form-group {
-    margin-bottom: 2.5rem;
+    margin-bottom: 2rem;
     position: relative;
 }
 
 .form-group .text-danger {
     position: absolute;
-    bottom: -25px;
+    bottom: -20px;
     left: 0;
     color: #dc3545;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
     display: block;
     width: 100%;
@@ -26,18 +26,18 @@
 
 .form-label {
     color: #191B1D;
-    font-size: 22px;
+    font-size: 18px;
     font-weight: 600;
     line-height: 166.667%;
 }
 
 .form-control {
     width: 100%;
-    height: 60px;
-    border-radius: 30px;
+    height: 50px;
+    border-radius: 25px;
     border: 1px solid rgba(25, 27, 29, 0.15);
     background: #FFF;
-    font-size: 20px;
+    font-size: 16px;
     padding: 0 12px;
     margin-bottom: 4px;
 }
@@ -63,8 +63,8 @@
 
 .eye-icon {
     display: inline-block;
-    width: 20px;
-    height: 20px;
+    width: 18px;
+    height: 18px;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z'%3E%3C/path%3E%3Ccircle cx='12' cy='12' r='3'%3E%3C/circle%3E%3C/svg%3E");
     opacity: 0.5;
 }
@@ -81,7 +81,7 @@
 
     .checkbox label {
         margin: 0;
-        font-size: 14px;
+        font-size: 13px;
         color: #666;
     }
 
@@ -91,16 +91,16 @@
     cursor: pointer;
     margin-bottom: 16px;
     width: 100%;
-    height: 60px;
-    font-size: 20px;
+    height: 50px;
+    font-size: 16px;
     padding: 0 12px;
-    border-radius: 30px;
+    border-radius: 25px;
     background: #FF5B26;
     transition: background-color .3s ease;
 }
 
     .btn-login:hover {
-        background-color: #4a5c7a;
+        background-color: #ff7a4d;
     }
 
 .auth-text__box {
@@ -111,7 +111,7 @@
 .auth-text__content {
     color: #4E5358;
     text-align: right;
-    font-size: 18px;
+    font-size: 16px;
     line-height: 166.667%;
 }
 
@@ -125,15 +125,15 @@
     }
 
 .auth {
-    margin: 70px auto 0;
+    margin: 50px auto 0;
     max-width: 1440px;
-    padding: 0 135px;
+    padding: 0 100px;
 }
 
 .auth__container {
     display: flex;
     align-items: flex-start;
-    gap: 130px;
+    gap: 100px;
 }
 
 .auth__hero {
@@ -141,18 +141,18 @@
 }
 
 .auth__hero--inner {
-    width: 570px;
+    width: 500px;
 }
 
 .auth__hero--title {
     color: #191B1D;
-    font-size: 52px;
+    font-size: 42px;
     font-weight: 700;
     line-height: 107.692%;
 }
 
 .auth__hero--img {
-    margin-top: 48px;
+    margin-top: 40px;
     width: 100%;
     object-fit: cover;
 }
@@ -164,20 +164,20 @@
 .auth__content--title {
     color: #191B1D;
     text-align: center;
-    font-size: 28px;
+    font-size: 24px;
     font-weight: 700;
     line-height: 135.714%;
 }
 
 .text-danger {
     color: #dc3545;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
     display: block;
     margin-top: 4px;
 }
 
 .login-box {
-    padding: 20px;
+    padding: 15px;
     width: 100%;
 }
