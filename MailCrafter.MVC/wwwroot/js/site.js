@@ -20,6 +20,14 @@ async function registerUser(e) {
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
 
+    // Clear previous errors and error classes
+    document.getElementById('username').classList.remove('error');
+    document.getElementById('email').classList.remove('error');
+    document.getElementById('password').classList.remove('error');
+    document.getElementById('username-error').textContent = '';
+    document.getElementById('email-error').textContent = '';
+    document.getElementById('password-error').textContent = '';
+
     const response = await fetch('/register', {
         method: 'POST',
         headers: {
@@ -35,10 +43,26 @@ async function registerUser(e) {
     if (response.ok) {
         window.location.href = '/login';
     } else {
-        const errordata = await response.json();
-        document.getelementbyid('username-error').innertext = errordata.errors?.username || '';
-        document.getelementbyid('email-error').innertext = errordata.errors?.email || '';
-        document.getelementbyid('password-error').innertext = errordata.errors?.password || '';
+        const errorData = await response.json();
+        console.log('Error data:', errorData); // Debug log
+
+        if (errorData.errors) {
+            const errors = errorData.errors;
+            
+            // Handle ModelState errors
+            if (errors.Username) {
+                document.getElementById('username-error').textContent = errors.Username.errors[0].errorMessage;
+            }
+            if (errors.Email) {
+                document.getElementById('email-error').textContent = errors.Email[0].errorMessage;
+            }
+            if (errors.Password) {
+                document.getElementById('password-error').textContent = errors.Password[0].errorMessage;
+            }
+        } else if (errorData.message) {
+            // Handle general error message
+            document.getElementById('username-error').textContent = errorData.message;
+        }
     }
     showLoading(false);
 }

@@ -63,6 +63,22 @@ namespace MailCrafter.MVC.Controllers
         {
             if (ModelState.IsValid)
             {
+                // Check if username already exists
+                var existingUserByUsername = await _userService.GetByUsernameOrEmail(model.Username);
+                if (existingUserByUsername != null)
+                {
+                    ModelState.AddModelError("Username", "Username is already taken.");
+                    return BadRequest(new { errors = ModelState });
+                }
+
+                // Check if email already exists
+                var existingUserByEmail = await _userService.GetByUsernameOrEmail(model.Email);
+                if (existingUserByEmail != null)
+                {
+                    ModelState.AddModelError("Email", "Email is already registered.");
+                    return BadRequest(new { errors = ModelState });
+                }
+
                 var user = new AppUserEntity
                 {
                     ID = ObjectId.GenerateNewId().ToString(),
