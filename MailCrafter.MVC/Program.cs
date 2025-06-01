@@ -11,7 +11,7 @@ builder.Services.AddAuthentication("CookieAuth")
     });
 
 var configuration = new ConfigurationBuilder()
-    .AddJsonFile(@"C:\MailCrafter\Development\Core\appsettings.Development.json", optional: false, reloadOnChange: true)
+    .AddJsonFile(@"C:\MailCrafter\Development\Core\appsettings.Development.json", optional: true, reloadOnChange: true)
     .Build();
 builder.Services.AddSingleton<IConfiguration>(configuration);
 
