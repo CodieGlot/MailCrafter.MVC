@@ -10,11 +10,22 @@ builder.Services.AddAuthentication("CookieAuth")
         config.LoginPath = "/login";
     });
 
-var configuration = new ConfigurationBuilder()
-    .AddJsonFile(@"C:\MailCrafter\Development\Core\appsettings.Development.json", optional: true, reloadOnChange: true)
-    .AddEnvironmentVariables()
-    .Build();
-builder.Services.AddSingleton<IConfiguration>(configuration);
+builder.Configuration
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
+
+// Conditionally add local-only dev settings
+if (builder.Environment.IsDevelopment())
+{
+    builder.Configuration.AddJsonFile(
+        @"C:\MailCrafter\Development\Core\appsettings.Development.json",
+        optional: true,
+        reloadOnChange: true);
+}
+
+// Add env vars
+builder.Configuration.AddEnvironmentVariables();
 
 // Register MongoDB client and repositories
 builder.Services.AddCoreServices();
