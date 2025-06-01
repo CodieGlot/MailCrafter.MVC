@@ -202,13 +202,13 @@
 
             // Make API call
             $.ajax({
-                url: "/add",
+                url: "/management/email-accounts/add",
                 type: "POST",
                 contentType: "application/json",
                 data: JSON.stringify({ email, alias, appPassword }),
                 success: function(response) {
-                    showToast(response.message, "success");
-                    setTimeout(() => window.location.href = "/EmailAccount/ManageEmailAccounts", 1500);
+                    showToast("Created successfully", "success");
+                    setTimeout(() => window.location.href = "/management/email-accounts", 1500);
                 },
                 error: function(xhr) {
                     const message = xhr.responseJSON?.message || "Failed to add email account";
