@@ -28,6 +28,15 @@ function setupEventHandlers() {
         modal.show();
     });
 
+    // Create First Job button
+    const createFirstJobButton = document.getElementById('createFirstJobButton');
+    if (createFirstJobButton) {
+        createFirstJobButton.addEventListener('click', function () {
+            const modal = new bootstrap.Modal(document.getElementById('createJobModal'));
+            modal.show();
+        });
+    }
+
     // Wizard navigation
     document.getElementById('step1NextBtn').addEventListener('click', function () {
         goToStep(2);

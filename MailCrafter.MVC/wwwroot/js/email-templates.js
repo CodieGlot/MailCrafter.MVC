@@ -98,8 +98,7 @@ $(document).ready(function () {
             convert_urls: false,
             relative_urls: false,
             remove_script_host: false,
-            document_base_url: window.location.origin,
-            api_key: '51rrjjws1sni0jozlqxcz8z0lfkhmqqmm0kg0ru7sqy1ghh3' // Replace with your TinyMCE API key
+            document_base_url: window.location.origin
         });
     }
 
