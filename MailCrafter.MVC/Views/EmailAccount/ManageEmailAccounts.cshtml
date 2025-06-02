@@ -40,35 +40,35 @@
             }
             else
             {
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="bg-light">
-                            <tr>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
                                 <th class="py-3 px-4 fw-bold" style="color: #FF6B00;">Email Address</th>
                                 <th class="py-3 px-4 text-end fw-bold" style="color: #FF6B00;">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var email in Model)
-                            {
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var email in Model)
+                        {
                                 <tr class="hover-lift">
-                                    <td class="py-3 px-4 align-middle">
+                                <td class="py-3 px-4 align-middle">
                                         <i class="fas fa-envelope me-2" style="color: #FF6B00;"></i>
                                         <span class="fw-medium">@email</span>
-                                    </td>
-                                    <td class="py-3 px-4 text-end">
-                                        <button class="btn btn-sm btn-outline-warning me-2 update-password" data-email="@email">
+                                </td>
+                                <td class="py-3 px-4 text-end">
+                                    <button class="btn btn-sm btn-outline-warning me-2 update-password" data-email="@email">
                                             <i class="fas fa-key me-2"></i>Change Password
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-danger delete-email" data-email="@email">
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger delete-email" data-email="@email">
                                             <i class="fas fa-trash-alt me-2"></i>Delete
-                                        </button>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
             }
         </div>
     </div>

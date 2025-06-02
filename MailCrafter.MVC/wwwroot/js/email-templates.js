@@ -44,6 +44,63 @@ $(document).ready(function () {
         });
     });
 
+    // Initialize CKEditor
+    function initializeCKEditor() {
+        const editorContainer = document.getElementById('templateBody');
+        if (!editorContainer) return;
+
+        // Initialize CKEditor
+        ClassicEditor
+            .create(editorContainer, {
+                toolbar: {
+                    items: [
+                        'heading',
+                        '|',
+                        'bold',
+                        'italic',
+                        'link',
+                        'bulletedList',
+                        'numberedList',
+                        '|',
+                        'outdent',
+                        'indent',
+                        '|',
+                        'blockQuote',
+                        'insertTable',
+                        'undo',
+                        'redo'
+                    ]
+                },
+                table: {
+                    contentToolbar: [
+                        'tableColumn',
+                        'tableRow',
+                        'mergeTableCells'
+                    ]
+                },
+                placeholder: 'Write your email template here...',
+                removePlugins: ['Title', 'DocumentOutline']
+            })
+            .then(editor => {
+                // Store editor instance for later use
+                window.ckEditor = editor;
+
+                // Set editor height
+                editor.editing.view.change(writer => {
+                    writer.setStyle('height', '300px', editor.editing.view.document.getRoot());
+                });
+
+                // If there's existing content, set it
+                const existingContent = editorContainer.getAttribute('data-content');
+                if (existingContent) {
+                    editor.setData(existingContent);
+                }
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    }
+
     // Load template editor
     function loadTemplateEditor(templateId = null) {
         currentTemplateId = templateId;
@@ -54,51 +111,17 @@ $(document).ready(function () {
             success: function (response) {
                 $("#templateEditorContainer").html(response);
                 $("#emailTemplateModal").modal("show");
-                initializeTinyMCE();
+                
+                // Initialize CKEditor after the modal is shown
+                $("#emailTemplateModal").on('shown.bs.modal', function () {
+                    initializeCKEditor();
+                });
+                
                 setupFormHandlers();
             },
             error: function () {
                 alert("Failed to load template editor.");
             }
-        });
-    }
-
-    // Initialize TinyMCE editor
-    function initializeTinyMCE() {
-        if (tinymce.get("templateBody")) {
-            tinymce.remove("#templateBody");
-        }
-
-        tinymce.init({
-            selector: "#templateBody",
-            height: 250,
-            menubar: false,
-            plugins: "link image code table lists template fullscreen",
-            toolbar: "undo redo | formatselect | bold italic | alignleft aligncenter alignright | bullist numlist | link image | fullscreen",
-            toolbar_mode: "floating",
-            content_style: "body { font-family: Arial, sans-serif; font-size: 14px; }",
-            images_upload_handler: function (blobInfo, progress) {
-                return new Promise((resolve, reject) => {
-                    reject("Image uploads not supported in this demo.");
-                });
-            },
-            setup: function (editor) {
-                editor.on("change", function () {
-                    editor.save();
-                });
-            },
-            branding: false,
-            promotion: false,
-            referrer_policy: 'origin',
-            valid_elements: '*[*]',
-            extended_valid_elements: '*[*]',
-            allow_conditional_comments: true,
-            allow_html_in_named_anchor: true,
-            allow_unsafe_link_target: true,
-            convert_urls: false,
-            relative_urls: false,
-            remove_script_host: false,
-            document_base_url: window.location.origin
         });
     }
 
@@ -198,7 +221,7 @@ $(document).ready(function () {
         const templateId = $("#templateId").val();
         const templateName = $("#templateName").val().trim();
         const templateSubject = $("#templateSubject").val().trim();
-        const templateBody = tinymce.get("templateBody").getContent();
+        const templateBody = window.ckEditor ? window.ckEditor.getData() : '';
 
         // Validate form
         if (!templateName) {

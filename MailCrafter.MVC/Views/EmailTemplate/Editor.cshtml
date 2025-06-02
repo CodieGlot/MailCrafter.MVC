@@ -1,0 +1,103 @@
+﻿@model MailCrafter.Domain.EmailTemplateEntity
+
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet" />
+
+<div class="modal-body p-4">
+    <form id="emailTemplateForm">
+        <input type="hidden" id="templateId" value="@(Model?.ID ?? "")" />
+
+        <div class="row">
+            <div class="col-12 mb-4">
+                <div class="form-group">
+                    <label for="templateName" class="form-label">Template Name</label>
+                    <input type="text" class="form-control" id="templateName" value="@(Model?.Name ?? "")" required>
+                </div>
+            </div>
+
+            <div class="col-12 mb-4">
+                <div class="form-group">
+                    <label for="templateSubject" class="form-label">Email Subject</label>
+                    <input type="text" class="form-control" id="templateSubject" value="@(Model?.Subject ?? "")" required>
+                </div>
+            </div>
+
+            <div class="col-12 mb-4">
+                <div class="form-group">
+                    <label class="form-label">Placeholders</label>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Use {{placeholderName}} syntax for dynamic content
+                    </div>
+                    <div id="placeholdersContainer">
+                        @if (Model?.Placeholders != null && Model.Placeholders.Any())
+                        {
+                            foreach (var placeholder in Model.Placeholders)
+                            {
+                                <div class="input-group placeholder-item mb-2">
+                                    <input type="text" class="form-control placeholder-value" value="@placeholder">
+                                    <button class="btn btn-outline-danger remove-placeholder" type="button">×</button>
+                                </div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="input-group placeholder-item mb-2">
+                                <input type="text" class="form-control placeholder-value" placeholder="Placeholder name">
+                                <button class="btn btn-outline-danger remove-placeholder" type="button">×</button>
+                            </div>
+                        }
+                    </div>
+                    <button type="button" class="btn btn-outline-secondary mt-2" id="addPlaceholderBtn">
+                        <i class="fas fa-plus me-1"></i> Add Placeholder
+                    </button>
+                </div>
+            </div>
+
+            <div class="col-12 mb-4">
+                <div class="form-group">
+                    <label for="templateBody" class="form-label">Email Body</label>
+                    <div id="templateBody" style="height: 600px;"></div>
+                </div>
+            </div>
+
+            <div class="col-12 mb-4">
+                <div class="form-group">
+                    <label class="form-label">Attachments</label>
+                    <div id="attachmentsContainer">
+                        @if (Model?.Attachments != null && Model.Attachments.Any())
+                        {
+                            foreach (var attachment in Model.Attachments)
+                            {
+                                <div class="card attachment-item mb-2">
+                                    <div class="card-body d-flex justify-content-between align-items-center p-2">
+                                        <div>
+                                            <input type="hidden" class="attachment-url" value="@attachment.FileUrl" />
+                                            <input type="hidden" class="attachment-type" value="@attachment.FileType" />
+                                            <span class="attachment-name">@attachment.FileName</span>
+                                        </div>
+                                        <button type="button" class="btn btn-sm btn-outline-danger remove-attachment">×</button>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                    <div class="mt-2">
+                        <input type="file" id="fileUpload" style="display: none;" multiple>
+                        <button type="button" class="btn btn-outline-secondary" id="uploadButton">
+                            <i class="fas fa-paperclip me-1"></i> Add Attachments
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+<div class="modal-footer bg-white">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+    <button type="button" class="btn btn-primary" id="saveTemplateBtn">
+        <span id="saveSpinner" class="spinner-border spinner-border-sm d-none me-1"></span>
+        Save Template
+    </button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
