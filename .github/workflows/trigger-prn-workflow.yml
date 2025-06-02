@@ -1,0 +1,17 @@
+name: Trigger PRN Workflow
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call workflow in Repo PRN
+        run: |
+          curl -X POST https://api.github.com/repos/CodieGlot/MailCrafter.PRN/actions/workflows/deploy-mvc.yml/dispatches \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.GH_PAT }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            -d '{"ref":"main","inputs":{"environment":"production"}}'
