@@ -86,7 +86,20 @@ $(document).ready(function () {
                 editor.on("change", function () {
                     editor.save();
                 });
-            }
+            },
+            branding: false,
+            promotion: false,
+            referrer_policy: 'origin',
+            valid_elements: '*[*]',
+            extended_valid_elements: '*[*]',
+            allow_conditional_comments: true,
+            allow_html_in_named_anchor: true,
+            allow_unsafe_link_target: true,
+            convert_urls: false,
+            relative_urls: false,
+            remove_script_host: false,
+            document_base_url: window.location.origin,
+            api_key: '51rrjjws1sni0jozlqxcz8z0lfkhmqqmm0kg0ru7sqy1ghh3' // Replace with your TinyMCE API key
         });
     }
 
