@@ -631,3 +631,29 @@ a.text-primary:focus {
 .modal-body {
     padding: 1.5rem 2rem;
 }
+.auth-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+}
+
+.auth-buttons .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.auth-buttons .nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px);
+}
+
+.auth-buttons .nav-item i {
+    font-size: 1.1rem;
+}

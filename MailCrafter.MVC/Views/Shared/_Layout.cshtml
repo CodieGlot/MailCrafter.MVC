@@ -60,20 +60,36 @@
 
             <!-- Profile and Logout Section -->
             <div class="sidebar-footer">
-                <div class="profile-section">
-                    <i class="fas fa-user-circle"></i>
-                    <span class="username">@User.Identity?.Name</span>
-                    <button class="btn-edit-profile" data-bs-toggle="modal" data-bs-target="#editProfileModal">
-                        <i class="fas fa-edit"></i>
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <div class="profile-section">
+                        <i class="fas fa-user-circle"></i>
+                        <span class="username">@User.Identity?.Name</span>
+                        <button class="btn-edit-profile" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                    <form id="logout-form" style="display:none;">
+                        <input name="__RequestVerificationToken" type="hidden" value="@Antiforgery.GetTokens(Context).RequestToken" />
+                    </form>
+                    <button type="button" class="nav-item logout-item" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
                     </button>
-                </div>
-                <form id="logout-form" style="display:none;">
-                    <input name="__RequestVerificationToken" type="hidden" value="@Antiforgery.GetTokens(Context).RequestToken" />
-                </form>
-                <button type="button" class="nav-item logout-item" onclick="logout()">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>Logout</span>
-                </button>
+                }
+                else
+                {
+                    <div class="auth-buttons">
+                        <a href="/login" class="nav-item">
+                            <i class="fas fa-sign-in-alt"></i>
+                            <span>Login</span>
+                        </a>
+                        <a href="/register" class="nav-item">
+                            <i class="fas fa-user-plus"></i>
+                            <span>Register</span>
+                        </a>
+                    </div>
+                }
             </div>
         </nav>
 
