@@ -128,7 +128,7 @@
 
     <!-- Overview Cards -->
     <div class="row mb-4">
-        <div class="col-md-3">
+        <div class="col-md-2">
             <div class="card stat-card">
                 <div class="card-body">
                     <h6 class="card-subtitle mb-2">Total Emails Sent</h6>
@@ -136,7 +136,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <div class="card stat-card">
                 <div class="card-body">
                     <h6 class="card-subtitle mb-2">Success Rate</h6>
@@ -144,7 +144,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <div class="card stat-card">
                 <div class="card-body">
                     <h6 class="card-subtitle mb-2">Failure Rate</h6>
@@ -152,11 +152,27 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <div class="card stat-card">
                 <div class="card-body">
                     <h6 class="card-subtitle mb-2">Pending Rate</h6>
                     <h2 class="card-title mb-0" id="pendingRate">-</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2">Open Rate</h6>
+                    <h2 class="card-title mb-0" id="openRate">-</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+            <div class="card stat-card">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2">Click Rate</h6>
+                    <h2 class="card-title mb-0" id="clickRate">-</h2>
                 </div>
             </div>
         </div>
@@ -291,6 +307,22 @@
                         backgroundColor: 'rgba(255, 165, 0, 0.1)',
                         fill: true,
                         tension: 0.4
+                    },
+                    {
+                        label: 'Opened',
+                        data: [],
+                        borderColor: '#9C27B0',
+                        backgroundColor: 'rgba(156, 39, 176, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Clicked',
+                        data: [],
+                        borderColor: '#00BCD4',
+                        backgroundColor: 'rgba(0, 188, 212, 0.1)',
+                        fill: true,
+                        tension: 0.4
                     }
                 ]
             },
@@ -361,6 +393,8 @@
                 document.getElementById('successRate').textContent = `${overviewData.successRate}%`;
                 document.getElementById('failureRate').textContent = `${overviewData.failureRate}%`;
                 document.getElementById('pendingRate').textContent = `${overviewData.pendingRate}%`;
+                document.getElementById('openRate').textContent = `${overviewData.averageOpenRate}%`;
+                document.getElementById('clickRate').textContent = `${overviewData.averageClickRate}%`;
 
                 // Activity data
                 const activityResponse = await fetch(`/api/insights/activity?timeRange=${currentTimeRange}`);
@@ -370,6 +404,8 @@
                 activityChart.data.datasets[1].data = activityData.processed;
                 activityChart.data.datasets[2].data = activityData.failed;
                 activityChart.data.datasets[3].data = activityData.pending;
+                activityChart.data.datasets[4].data = activityData.opened;
+                activityChart.data.datasets[5].data = activityData.clicked;
                 activityChart.update();
 
                 // Status data

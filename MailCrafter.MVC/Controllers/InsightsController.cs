@@ -44,12 +44,19 @@ namespace MailCrafter.MVC.Controllers
                 var failureRate = totalEmailsSent > 0 ? (failedEmails * 100.0 / totalEmailsSent) : 0;
                 var pendingRate = totalEmailsSent > 0 ? (pendingEmails * 100.0 / totalEmailsSent) : 0;
 
+                var totalOpened = jobs.Sum(j => j.OpenedEmails);
+                var totalClicked = jobs.Sum(j => j.ClickedEmails);
+                var averageOpenRate = totalEmailsSent > 0 ? (totalOpened * 100.0 / totalEmailsSent) : 0;
+                var averageClickRate = totalEmailsSent > 0 ? (totalClicked * 100.0 / totalEmailsSent) : 0;
+
                 return Json(new
                 {
                     totalEmailsSent,
                     successRate = Math.Round(successRate, 1),
                     failureRate = Math.Round(failureRate, 1),
-                    pendingRate = Math.Round(pendingRate, 1)
+                    pendingRate = Math.Round(pendingRate, 1),
+                    averageOpenRate = Math.Round(averageOpenRate, 1),
+                    averageClickRate = Math.Round(averageClickRate, 1)
                 });
             }
             catch (Exception ex)
@@ -80,7 +87,9 @@ namespace MailCrafter.MVC.Controllers
                     pending = dates.Select(d => {
                         var dateJobs = GetJobsForDateRange(jobs, d, interval);
                         return dateJobs.Sum(j => j.TotalRecipients - j.ProcessedRecipients - j.FailedRecipients);
-                    }).ToList()
+                    }).ToList(),
+                    opened = dates.Select(d => GetDataForDateRange(jobs, d, interval, j => j.OpenedEmails)).ToList(),
+                    clicked = dates.Select(d => GetDataForDateRange(jobs, d, interval, j => j.ClickedEmails)).ToList()
                 };
 
                 return Json(activityData);
