@@ -30,7 +30,6 @@ namespace MailCrafter.MVC.Controllers
             try
             {
                 _logger.LogInformation("=== TRACKING PIXEL REQUEST RECEIVED ===");
-                _logger.LogInformation("Request URL: {RequestUrl}", Request.GetDisplayUrl());
                 _logger.LogInformation("User Agent: {UserAgent}", Request.Headers.UserAgent.ToString());
                 _logger.LogInformation("Referer: {Referer}", Request.Headers.Referer.ToString());
                 _logger.LogInformation("Received tracking pixel request with data: {Data}", data);
