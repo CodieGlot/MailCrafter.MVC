@@ -102,6 +102,38 @@
                                             </div>
                                         </div>
                                     }
+
+                                    @if (Model.OpenedRecipients?.Any() == true)
+                                    {
+                                        <div class="mt-4">
+                                            <h6 class="fw-bold mb-3" style="color: #28a745;">Opened By</h6>
+                                            <div class="list-group" style="max-height: 200px; overflow-y: auto;">
+                                                @foreach (var recipient in Model.OpenedRecipients)
+                                                {
+                                                    <div class="list-group-item border-0 bg-light mb-2 rounded-3">
+                                                        <i class="fas fa-envelope-open me-2" style="color: #28a745;"></i>
+                                                        <span class="fw-medium">@recipient</span>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+
+                                    @if (Model.ClickedRecipients?.Any() == true)
+                                    {
+                                        <div class="mt-4">
+                                            <h6 class="fw-bold mb-3" style="color: #007bff;">Clicked By</h6>
+                                            <div class="list-group" style="max-height: 200px; overflow-y: auto;">
+                                                @foreach (var recipient in Model.ClickedRecipients)
+                                                {
+                                                    <div class="list-group-item border-0 bg-light mb-2 rounded-3">
+                                                        <i class="fas fa-mouse-pointer me-2" style="color: #007bff;"></i>
+                                                        <span class="fw-medium">@recipient</span>
+                                                    </div>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
                                 </div>
                             </div>
 
