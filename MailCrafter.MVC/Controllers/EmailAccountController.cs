@@ -89,5 +89,13 @@ namespace MailCrafter.MVC.Controllers
 
             return BadRequest(new { message = "Failed to update password." });
         }
+
+        [HttpGet]
+        [AllowAnonymous]
+        [Route("EmailAccount/WhatIsAppPassword")]
+        public IActionResult WhatIsAppPassword()
+        {
+            return View();
+        }
     }
 }

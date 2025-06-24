@@ -12,8 +12,7 @@ builder.Services.AddAuthentication("CookieAuth")
 
 builder.Configuration
     .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
+    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 
 // Conditionally add local-only dev settings
 if (builder.Environment.IsDevelopment())

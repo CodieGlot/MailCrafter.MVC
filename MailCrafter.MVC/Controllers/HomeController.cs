@@ -14,7 +14,6 @@ namespace MailCrafter.MVC.Controllers
             _logger = logger;
         }
 
-        [Authorize]
         [Route("/")]
         public IActionResult Index()
         {
