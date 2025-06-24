@@ -9,7 +9,7 @@ builder.Services.AddAuthentication("CookieAuth")
         config.Cookie.Name = "UserLoginCookie";
         config.LoginPath = "/login";
     });
-
+builder.Services.AddHttpContextAccessor();
 builder.Configuration
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
