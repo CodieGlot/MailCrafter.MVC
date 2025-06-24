@@ -33,6 +33,7 @@ builder.Services.AddCoreServices();
 builder.Services.AddHostedService<MVCWorker>();
 builder.Services.AddSingleton<MVCTaskQueueInstance>();
 builder.Services.AddTaskHandlers();
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 
