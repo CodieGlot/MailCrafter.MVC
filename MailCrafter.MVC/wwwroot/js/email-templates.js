@@ -341,7 +341,7 @@ $(document).ready(function() {
 
     async function sendMessage() {
         const ViewText = chatInput.value.trim();
-        const text = 'generate email content with richtext format with placeholders form like {{placeholder}} with ideal ' + chatInput.value.trim();
+        const text = 'generate no code email content with placeholders form like {{placeholder}} with ideal ' + chatInput.value.trim();
         if (!text || isWaiting) return;
         appendMessage(ViewText, "user");
         chatInput.value = "";
