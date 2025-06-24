@@ -160,6 +160,7 @@
                 </div>
             </div>
         </div>
+        @*
         <div class="col-md-2">
             <div class="card stat-card">
                 <div class="card-body">
@@ -168,6 +169,7 @@
                 </div>
             </div>
         </div>
+        *@
         <div class="col-md-2">
             <div class="card stat-card">
                 <div class="card-body">
@@ -308,6 +310,7 @@
                         fill: true,
                         tension: 0.4
                     },
+                    @*
                     {
                         label: 'Opened',
                         data: [],
@@ -316,6 +319,7 @@
                         fill: true,
                         tension: 0.4
                     },
+                    *@
                     {
                         label: 'Clicked',
                         data: [],
@@ -393,7 +397,7 @@
                 document.getElementById('successRate').textContent = `${overviewData.successRate}%`;
                 document.getElementById('failureRate').textContent = `${overviewData.failureRate}%`;
                 document.getElementById('pendingRate').textContent = `${overviewData.pendingRate}%`;
-                document.getElementById('openRate').textContent = `${overviewData.averageOpenRate}%`;
+                // document.getElementById('openRate').textContent = `${overviewData.averageOpenRate}%`;
                 document.getElementById('clickRate').textContent = `${overviewData.averageClickRate}%`;
 
                 // Activity data
@@ -404,8 +408,8 @@
                 activityChart.data.datasets[1].data = activityData.processed;
                 activityChart.data.datasets[2].data = activityData.failed;
                 activityChart.data.datasets[3].data = activityData.pending;
-                activityChart.data.datasets[4].data = activityData.opened;
-                activityChart.data.datasets[5].data = activityData.clicked;
+                // activityChart.data.datasets[4].data = activityData.opened;
+                activityChart.data.datasets[4].data = activityData.clicked;
                 activityChart.update();
 
                 // Status data
