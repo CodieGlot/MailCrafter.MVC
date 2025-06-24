@@ -35,4 +35,10 @@
     <ProjectReference Include="..\..\MailCrafter.Worker\MailCrafter.Worker\Worker.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="wwwroot\js\email-templates.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>
