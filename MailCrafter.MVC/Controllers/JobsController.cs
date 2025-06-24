@@ -113,10 +113,11 @@ namespace MailCrafter.MVC.Controllers
                         return BadRequest("Invalid group selected");
                     }
 
-                    // Extract and validate emails from CustomFieldsList
+                    // Extract and validate emails from CustomFieldsList, ensuring uniqueness
                     recipients = group.CustomFieldsList
                         .Where(field => field.ContainsKey("Email") && !string.IsNullOrWhiteSpace(field["Email"]))
                         .Select(field => field["Email"].Trim())
+                        .Distinct() // Remove duplicate emails
                         .ToList();
 
                     // Validate each email address individually

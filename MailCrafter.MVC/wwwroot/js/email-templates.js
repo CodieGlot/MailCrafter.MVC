@@ -297,3 +297,82 @@ $(document).ready(function () {
         });
     }
 });
+
+// Modal open logic for AI chat
+$(document).ready(function() {
+    $("#openAiChatModalBtn").on("click", function() {
+        $("#aiChatModal").modal("show");
+    });
+});
+
+// Gemini AI Chat Box logic
+(function() {
+    const API_KEY = "AIzaSyCg44cvQxaUrOdPZ49KqR2Li7ffIpATdnQ";
+    const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + API_KEY;
+    const chatMessages = document.getElementById("chatMessages");
+    const chatInput = document.getElementById("chatInput");
+    const sendBtn = document.getElementById("sendChatBtn");
+    let isWaiting = false;
+
+    function appendMessage(text, sender) {
+        // Replace \n with <br> for AI messages
+        let html = sender === "ai" ? text.replace(/\n/g, "<br>") : text;
+        const msgDiv = document.createElement("div");
+        msgDiv.className = sender === "user" ? "text-end mb-2" : "text-start mb-2";
+        msgDiv.innerHTML = `<span class='badge ${sender === "user" ? "text-white" : "bg-light text-dark"}' style='font-size:1em; background-color : #FF6B00;'>${html}</span>`;
+        chatMessages.appendChild(msgDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function setWaiting(state) {
+        isWaiting = state;
+        sendBtn.disabled = state;
+        chatInput.disabled = state;
+        if(state) appendMessage("Answering...", "ai-wait");
+    }
+
+    function removeWaiting() {
+        // Remove last waiting message
+        const nodes = chatMessages.querySelectorAll(".text-start, .text-end");
+        if (nodes.length > 0 && nodes[nodes.length - 1].textContent === "Answering...") {
+            chatMessages.removeChild(nodes[nodes.length-1]);
+        }
+    }
+
+    async function sendMessage() {
+        const ViewText = chatInput.value.trim();
+        const text = 'generate email content with richtext format with placeholders form like {{placeholder}} with ideal ' + chatInput.value.trim();
+        if (!text || isWaiting) return;
+        appendMessage(ViewText, "user");
+        chatInput.value = "";
+        setWaiting(true);
+        try {
+            const res = await fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text }] }]
+                })
+            });
+            const data = await res.json();
+            removeWaiting();
+            if (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
+                const aiText = data.candidates[0].content.parts.map(p => p.text).join("\n");
+                appendMessage(aiText, "ai");
+            } else {
+                appendMessage("AI không trả lời được. Vui lòng thử lại.", "ai");
+            }
+        } catch (e) {
+            removeWaiting();
+            appendMessage("Lỗi khi gọi AI: " + e.message, "ai");
+        }
+        setWaiting(false);
+    }
+
+    if (chatInput && sendBtn) {
+        sendBtn.addEventListener("click", sendMessage);
+        chatInput.addEventListener("keydown", function(e) {
+            if (e.key === "Enter") sendMessage();
+        });
+    }
+})();

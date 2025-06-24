@@ -631,3 +631,20 @@ a.text-primary:focus {
 .modal-body {
     padding: 1.5rem 2rem;
 }
+
+/* Gemini AI Chat Box Styles - Update for larger modal, smaller text, left-aligned chat */
+#aiChatModal .modal-dialog {
+    max-width: 700px;
+}
+#aiChatBox .card-body, #aiChatBox #chatMessages {
+    font-size: 0.95rem;
+}
+#aiChatBox #chatMessages > div {
+    text-align: left !important;
+}
+#aiChatBox .badge {
+    font-size: 1em;
+    display: inline-block;
+    text-align: left;
+    white-space: pre-line;
+}
