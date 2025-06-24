@@ -1,4 +1,5 @@
 using MailCrafter.Services;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 
@@ -8,11 +9,13 @@ namespace MailCrafter.MVC.Controllers
     {
         private readonly IEmailTrackingService _trackingService;
         private readonly ILogger<TrackingController> _logger;
+        private readonly IDebugLogService _debugLogService;
 
-        public TrackingController(IEmailTrackingService trackingService, ILogger<TrackingController> logger)
+        public TrackingController(IEmailTrackingService trackingService, ILogger<TrackingController> logger, IDebugLogService debugLogService)
         {
             _trackingService = trackingService;
             _logger = logger;
+            _debugLogService = debugLogService;
         }
 
         [HttpGet]
@@ -27,6 +30,15 @@ namespace MailCrafter.MVC.Controllers
         [Route("api/tracking/pixel/{data}")]
         public async Task<IActionResult> TrackOpen(string data)
         {
+            _debugLogService.AddLog(new LogEntry
+            {
+                Timestamp = DateTime.UtcNow,
+                UserAgent = Request.Headers["User-Agent"].ToString(),
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
+                RequestUrl = UriHelper.GetDisplayUrl(Request),
+                Note = "Tracking Pixel Request"
+            });
+
             try
             {
                 _logger.LogInformation("=== TRACKING PIXEL REQUEST RECEIVED ===");
@@ -54,6 +66,15 @@ namespace MailCrafter.MVC.Controllers
         [Route("api/tracking/click/{data}")]
         public async Task<IActionResult> TrackClick(string data, [FromQuery] string url)
         {
+            _debugLogService.AddLog(new LogEntry
+            {
+                Timestamp = DateTime.UtcNow,
+                UserAgent = Request.Headers["User-Agent"].ToString(),
+                IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString(),
+                RequestUrl = UriHelper.GetDisplayUrl(Request),
+                Note = "Click Tracking Request"
+            });
+
             try
             {
                 _logger.LogInformation("Received tracking click request with data: {Data}, url: {Url}", data, url);
